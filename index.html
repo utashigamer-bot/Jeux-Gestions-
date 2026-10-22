@@ -1,0 +1,2316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Imperium: Nation & Grid Builder</title>
+  <style>
+    :root {
+      --bg-dark: #0a0d14;
+      --panel-bg: rgba(14, 20, 31, 0.92);
+      --panel-border: rgba(255, 255, 255, 0.12);
+      --panel-glow: rgba(0, 180, 255, 0.25);
+      --accent-blue: #00b4d8;
+      --accent-gold: #f59e0b;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-purple: #8b5cf6;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --card-bg: rgba(22, 30, 46, 0.85);
+      --card-hover: rgba(30, 42, 65, 0.95);
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: #0b131e;
+      color: var(--text-main);
+      font-family: var(--font-family);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* MAP CONTAINER & VIEWPORT */
+    #map-viewport {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      cursor: grab;
+      background: radial-gradient(circle at 50% 50%, #17334f 0%, #0c1a29 100%);
+    }
+    #map-viewport:active {
+      cursor: grabbing;
+    }
+
+    #map-svg {
+      transform-origin: 0 0;
+      transition: transform 0.05s ease-out;
+      will-change: transform;
+    }
+
+    /* SVG MAP ELEMENTS */
+    .ocean {
+      fill: #142e47;
+    }
+    .grid-lines {
+      stroke: rgba(255, 255, 255, 0.04);
+      stroke-width: 1;
+    }
+    .river-path {
+      stroke: #38bdf8;
+      stroke-width: 4;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.85;
+      filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.5));
+    }
+    .province-path {
+      stroke: #2b3947;
+      stroke-width: 2.2;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+      cursor: pointer;
+      transition: fill 0.25s, stroke 0.25s, filter 0.25s;
+    }
+    .province-path:hover {
+      filter: brightness(1.2) drop-shadow(0 0 6px rgba(255, 255, 255, 0.25));
+    }
+    .province-owned {
+      stroke-width: 3.5;
+    }
+    .province-selected {
+      stroke: #ffffff !important;
+      stroke-width: 4.5 !important;
+      filter: brightness(1.3) drop-shadow(0 0 12px rgba(255, 255, 255, 0.6)) !important;
+    }
+
+    /* TOP BAR HUD */
+    .top-bar {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(96%, 1320px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 50;
+      gap: 12px;
+    }
+
+    .top-bar-group {
+      pointer-events: auto;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      backdrop-filter: blur(14px);
+      border-radius: 30px;
+      padding: 7px 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    .nation-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nation-flag {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    .nation-name {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .date-badge {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .time-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: white;
+      border-radius: 8px;
+      padding: 3px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .time-btn:hover, .time-btn.active {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: #051424;
+      font-weight: bold;
+    }
+
+    .world-control-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .progress-track {
+      width: 140px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #00b4d8);
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-main);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: scale(1.08);
+    }
+
+    /* BOTTOM BAR HUD (Rise of Nations Style) */
+    .bottom-hud {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(97%, 1400px);
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 10px 18px;
+      display: grid;
+      grid-template-columns: auto auto 1fr auto;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      z-index: 50;
+    }
+
+    .player-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-right: 16px;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .player-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    .player-meta h4 {
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .player-meta span {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* STATS DISPLAY MODULES */
+    .stats-container {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-right: 16px;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 6px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 105px;
+    }
+    .stat-header {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .stat-values {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .stat-main {
+      font-size: 17px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-sub {
+      font-size: 11px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .positive { color: var(--accent-green); }
+    .negative { color: var(--accent-red); }
+    .warning { color: var(--accent-gold); }
+
+    /* ACTION HOTBAR (1, 2, 3, 4, 5, 6...) */
+    .action-dock {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 2px;
+    }
+    .action-dock::-webkit-scrollbar { display: none; }
+
+    .dock-btn {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 6px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      min-width: 72px;
+      position: relative;
+    }
+    .dock-btn:hover {
+      background: var(--card-hover);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+    .dock-btn.active {
+      border-color: var(--accent-blue);
+      background: rgba(0, 180, 216, 0.15);
+      box-shadow: 0 0 16px rgba(0, 180, 216, 0.3);
+    }
+    .dock-key {
+      position: absolute;
+      top: 3px;
+      left: 6px;
+      font-size: 9px;
+      color: var(--text-muted);
+      font-weight: bold;
+    }
+    .dock-icon {
+      font-size: 20px;
+      margin-top: 4px;
+    }
+    .dock-label {
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .dock-cost {
+      font-size: 10px;
+      color: var(--accent-gold);
+      font-weight: 700;
+    }
+
+    /* RIGHT CONTROLS IN DOCK */
+    .quick-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* BLACKOUT EMERGENCY BANNER */
+    #blackout-banner {
+      position: absolute;
+      top: 75px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.95), rgba(185, 28, 28, 0.95));
+      border: 1px solid #fca5a5;
+      padding: 8px 24px;
+      border-radius: 20px;
+      color: white;
+      font-weight: bold;
+      font-size: 13px;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      z-index: 60;
+      box-shadow: 0 0 24px rgba(239, 68, 68, 0.7);
+      animation: pulse-danger 1.5s infinite;
+    }
+    @keyframes pulse-danger {
+      0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
+      50% { opacity: 0.85; transform: translateX(-50%) scale(1.02); }
+    }
+
+    /* PROVINCE DETAILS SIDE DRAWER */
+    #province-drawer {
+      position: absolute;
+      top: 80px;
+      right: 20px;
+      width: 360px;
+      max-height: calc(100vh - 190px);
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 55;
+      animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(50px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .drawer-header {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .drawer-title h2 {
+      font-size: 19px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .drawer-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+    .close-drawer-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .close-drawer-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+    .drawer-content {
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .drawer-content::-webkit-scrollbar { width: 4px; }
+    .drawer-content::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+
+    .geo-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .geo-tag {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .geo-tag.highlight {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.35);
+      color: #38bdf8;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .metric-card .label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .metric-card .value {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    /* BUILDING LIST IN DRAWER */
+    .section-header {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .build-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .build-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+    .build-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .build-card-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .build-card-icon {
+      font-size: 24px;
+      width: 38px;
+      height: 38px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .build-card-details h5 {
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .build-card-details p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .construct-btn {
+      background: var(--accent-blue);
+      border: none;
+      color: #031525;
+      font-weight: 700;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.2s;
+      min-width: 65px;
+    }
+    .construct-btn:hover {
+      background: #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+      transform: scale(1.04);
+    }
+    .construct-btn:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.3);
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* MODAL POPUPS (Creation de pays, politiques, etc.) */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(6, 11, 20, 0.85);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-box {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 28px;
+      width: min(92%, 560px);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 180, 216, 0.15);
+    }
+    .modal-header h2 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .modal-header p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: white;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .form-input:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 10px rgba(0, 180, 216, 0.3);
+    }
+
+    .color-picker-grid {
+      display: flex;
+      gap: 10px;
+    }
+    .color-chip {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .color-chip.active {
+      border-color: white;
+      transform: scale(1.12);
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
+    }
+
+    .doctrine-cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .doctrine-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .doctrine-card:hover {
+      background: rgba(255, 255, 255, 0.07);
+    }
+    .doctrine-card.active {
+      border-color: var(--accent-blue);
+      background: rgba(0, 180, 216, 0.12);
+    }
+    .doctrine-card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .doctrine-card p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .modal-btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, #00b4d8, #0077b6);
+      border: none;
+      color: white;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 14px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 16px rgba(0, 180, 216, 0.4);
+    }
+    .modal-btn-submit:hover {
+      filter: brightness(1.15);
+      transform: translateY(-2px);
+    }
+
+    /* TOAST NOTIFICATIONS */
+    #toast-container {
+      position: absolute;
+      bottom: 96px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 70;
+    }
+    .toast {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-left: 4px solid var(--accent-blue);
+      backdrop-filter: blur(12px);
+      padding: 10px 16px;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      color: white;
+      font-size: 13px;
+      max-width: 320px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1), toastOut 0.4s ease forwards 4.6s;
+    }
+    .toast.warn { border-left-color: var(--accent-gold); }
+    .toast.error { border-left-color: var(--accent-red); }
+    .toast.success { border-left-color: var(--accent-green); }
+
+    @keyframes toastIn {
+      from { transform: translateX(50px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes toastOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(50px); opacity: 0; }
+    }
+
+    /* MAP FLOATING LABELS */
+    .province-label-group {
+      pointer-events: none;
+      text-anchor: middle;
+      font-family: var(--font-family);
+    }
+    .label-rect {
+      fill: rgba(15, 23, 42, 0.78);
+      stroke: rgba(255, 255, 255, 0.18);
+      stroke-width: 1;
+      rx: 8;
+    }
+    .label-title {
+      font-size: 13px;
+      font-weight: 800;
+      fill: #ffffff;
+      letter-spacing: 0.2px;
+    }
+    .label-pop {
+      font-size: 10px;
+      font-weight: 600;
+      fill: #94a3b8;
+    }
+
+    /* MAP BUILDING ICONS */
+    .building-icon {
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+      pointer-events: none;
+    }
+    .wind-blade {
+      transform-origin: 12px 12px;
+      animation: spinWindmill 2.5s linear infinite;
+    }
+    @keyframes spinWindmill {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .nuclear-steam {
+      animation: pulseSteam 2s ease-in-out infinite alternate;
+    }
+    @keyframes pulseSteam {
+      0% { opacity: 0.3; transform: translateY(0); }
+      100% { opacity: 0.8; transform: translateY(-4px); }
+    }
+
+    /* ZOOM CONTROLS ON BOTTOM RIGHT */
+    .map-controls {
+      position: absolute;
+      top: 80px;
+      left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 45;
+    }
+    .map-ctrl-btn {
+      width: 34px;
+      height: 34px;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: background 0.2s;
+    }
+    .map-ctrl-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MAP VIEWPORT (CANVAS / SVG) -->
+  <div id="map-viewport">
+    <svg id="map-svg" width="2400" height="1500" viewBox="0 0 2400 1500">
+      <defs>
+        <!-- Gradients and filters for realistic lighting -->
+        <filter id="glow-owned" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#00b4d8" flood-opacity="0.6"/>
+        </filter>
+        <filter id="city-glow">
+          <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#f59e0b" flood-opacity="0.8"/>
+        </filter>
+        <pattern id="grid-pattern" width="80" height="80" patternUnits="userSpaceOnUse">
+          <path d="M 80 0 L 0 0 0 80" fill="none" stroke="rgba(255,255,255,0.025)" stroke-width="1"/>
+        </pattern>
+      </defs>
+
+      <!-- Background ocean grid -->
+      <rect width="2400" height="1500" fill="url(#grid-pattern)" />
+
+      <!-- Deep ocean contours -->
+      <path d="M-50,200 C300,300 500,100 800,250 C1200,400 1600,200 2000,350 L2400,200 L2400,1500 L-50,1500 Z" fill="rgba(8, 22, 38, 0.5)"/>
+
+      <!-- Group of Provinces -->
+      <g id="provinces-layer"></g>
+
+      <!-- Rivers layer -->
+      <g id="rivers-layer"></g>
+
+      <!-- Electric Grid Power Lines Layer -->
+      <g id="grid-lines-layer"></g>
+
+      <!-- Buildings & Icons Layer -->
+      <g id="icons-layer"></g>
+
+      <!-- Labels Layer -->
+      <g id="labels-layer"></g>
+    </svg>
+  </div>
+
+  <!-- ZOOM / PAN BUTTONS -->
+  <div class="map-controls">
+    <button class="map-ctrl-btn" id="btn-zoom-in" title="Zoom avant">+</button>
+    <button class="map-ctrl-btn" id="btn-zoom-out" title="Zoom arrière">-</button>
+    <button class="map-ctrl-btn" id="btn-zoom-reset" title="Recentrer">🎯</button>
+  </div>
+
+  <!-- TOP BAR HUD -->
+  <div class="top-bar">
+    <div class="top-bar-group">
+      <div class="nation-badge">
+        <div class="nation-flag" id="top-flag">🚩</div>
+        <span class="nation-name" id="top-nation-name">République</span>
+      </div>
+
+      <div class="date-badge">
+        <span>📅</span>
+        <span id="game-date">1 Janvier 2026</span>
+        <div style="display: flex; gap: 4px; margin-left: 6px;">
+          <button class="time-btn" data-speed="0">⏸</button>
+          <button class="time-btn active" data-speed="1">1x</button>
+          <button class="time-btn" data-speed="2">2x</button>
+          <button class="time-btn" data-speed="5">5x</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center status: Stability & World Control -->
+    <div class="top-bar-group">
+      <div class="world-control-bar">
+        <span>🛡️ STABILITÉ</span>
+        <div class="progress-track" style="width: 100px;">
+          <div class="progress-fill" id="stability-fill" style="width: 85%; background: #10b981;"></div>
+        </div>
+        <span id="stability-val" style="font-weight: bold; color: #10b981;">85%</span>
+      </div>
+
+      <div class="world-control-bar">
+        <span>🌐 CONTRÔLE MONDIAL</span>
+        <div class="progress-track">
+          <div class="progress-fill" id="control-fill" style="width: 5%;"></div>
+        </div>
+        <span id="control-val" style="font-weight: bold; color: white;">5.2%</span>
+      </div>
+    </div>
+
+    <!-- Right utility buttons -->
+    <div class="top-bar-group">
+      <div class="top-actions">
+        <button class="icon-btn" id="sound-btn" title="Activer/Désactiver le son">🔊</button>
+        <button class="icon-btn" id="help-btn" title="Manuel du Président">❓</button>
+        <button class="icon-btn" id="fullscreen-btn" title="Plein écran">⛶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLACKOUT DANGER BANNER -->
+  <div id="blackout-banner">
+    <span>⚠️ CRISE ÉNERGÉTIQUE : DÉFICIT DU RÉSEAU ÉLECTRIQUE (-50% REVENUS)</span>
+  </div>
+
+  <!-- PROVINCE INSPECTION DRAWER -->
+  <div id="province-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <h2 id="drw-name">Dakar</h2>
+        <div class="drawer-subtitle" id="drw-status">Territoire National • Capitale</div>
+      </div>
+      <button class="close-drawer-btn" id="drw-close">✕</button>
+    </div>
+
+    <div class="drawer-content">
+      <!-- Geographic profile tags -->
+      <div class="geo-tags" id="drw-tags">
+        <span class="geo-tag highlight">🌊 Zone Côtière</span>
+        <span class="geo-tag">💨 Vents Favorables</span>
+      </div>
+
+      <!-- Live metrics -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="label">👥 Population</div>
+          <div class="value" id="drw-pop">12.5K</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">🛡️ Abris & Logements</div>
+          <div class="value" id="drw-shelter">100% protégé</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">⚡ Conso. Énergie</div>
+          <div class="value" id="drw-energy-conso">45 MW</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">🔋 Prod. Locale</div>
+          <div class="value" id="drw-energy-prod">0 MW</div>
+        </div>
+      </div>
+
+      <!-- Action: Annex/Settle if neutral -->
+      <div id="drw-annex-section" style="display: none;">
+        <button class="modal-btn-submit" id="btn-annex-province">
+          🚩 Revendiquer ce Territoire ($75,000)
+        </button>
+      </div>
+
+      <!-- Build Options (if owned) -->
+      <div id="drw-build-section">
+        <div class="section-header">🏗️ Chantiers & Infrastructures</div>
+        <div class="build-options">
+
+          <!-- 1: Shelter / Residential District -->
+          <div class="build-card">
+            <div class="build-card-info">
+              <div class="build-card-icon">🏘️</div>
+              <div class="build-card-details">
+                <h5>Cité Résidentielle & Abris</h5>
+                <p>+2,500 places d'abris • Sécurité citoyenne</p>
+              </div>
+            </div>
+            <button class="construct-btn" data-build="shelter">
+              <span>Construire</span>
+              <span class="dock-cost">$25,000</span>
+            </button>
+          </div>
+
+          <!-- 2: Business & Enterprise -->
+          <div class="build-card">
+            <div class="build-card-info">
+              <div class="build-card-icon">🏢</div>
+              <div class="build-card-details">
+                <h5>Pôle Commercial & Entreprise</h5>
+                <p>+$350/sec • +Conso 20 MW</p>
+              </div>
+            </div>
+            <button class="construct-btn" data-build="company">
+              <span>Bâtir</span>
+              <span class="dock-cost">$35,000</span>
+            </button>
+          </div>
+
+          <!-- 3: Wind Turbines -->
+          <div class="build-card" id="card-build-wind">
+            <div class="build-card-info">
+              <div class="build-card-icon">🌬️</div>
+              <div class="build-card-details">
+                <h5>Parc d'Éoliennes</h5>
+                <p>+75 MW électricité verte</p>
+              </div>
+            </div>
+            <button class="construct-btn" data-build="wind">
+              <span>Installer</span>
+              <span class="dock-cost">$45,000</span>
+            </button>
+          </div>
+
+          <!-- 4: Hydroelectric Dam -->
+          <div class="build-card" id="card-build-hydro">
+            <div class="build-card-info">
+              <div class="build-card-icon">🌊</div>
+              <div class="build-card-details">
+                <h5>Barrage Hydroélectrique</h5>
+                <p>+280 MW • Fleuve nécessaire</p>
+              </div>
+            </div>
+            <button class="construct-btn" data-build="hydro">
+              <span>Ériger</span>
+              <span class="dock-cost">$110,000</span>
+            </button>
+          </div>
+
+          <!-- 5: Nuclear Power Plant -->
+          <div class="build-card">
+            <div class="build-card-info">
+              <div class="build-card-icon">⚛️</div>
+              <div class="build-card-details">
+                <h5>Centrale Nucléaire EPR</h5>
+                <p>+1,100 MW colossal • Énergie continue</p>
+              </div>
+            </div>
+            <button class="construct-btn" data-build="nuclear">
+              <span>Financer</span>
+              <span class="dock-cost">$260,000</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BOTTOM HUD BAR (Rise of Nations Style) -->
+  <div class="bottom-hud">
+    <!-- Nation profile tag -->
+    <div class="player-card">
+      <div class="player-avatar" id="hud-flag" style="background: #e11d48;">🏛️</div>
+      <div class="player-meta">
+        <h4 id="hud-nation-name">Empire Alérien</h4>
+        <span id="hud-doctrine">Capitalisme Vert</span>
+      </div>
+    </div>
+
+    <!-- Real-time Stats Grid -->
+    <div class="stats-container">
+      <!-- Population -->
+      <div class="stat-pill">
+        <div class="stat-header">👥 Population</div>
+        <div class="stat-values">
+          <span class="stat-main" id="stat-pop">14.2K</span>
+          <span class="stat-sub positive" id="stat-pop-growth">+45/s</span>
+        </div>
+      </div>
+
+      <!-- Treasury & Cashflow -->
+      <div class="stat-pill">
+        <div class="stat-header">💰 Trésor Public</div>
+        <div class="stat-values">
+          <span class="stat-main" id="stat-money">$85.4K</span>
+          <span class="stat-sub positive" id="stat-income">+$850/s</span>
+        </div>
+      </div>
+
+      <!-- Electric Grid Balance -->
+      <div class="stat-pill" id="energy-pill">
+        <div class="stat-header">⚡ Réseau Électrique</div>
+        <div class="stat-values">
+          <span class="stat-main" id="stat-energy">180 MW</span>
+          <span class="stat-sub positive" id="stat-energy-balance">+60 MW</span>
+        </div>
+      </div>
+
+      <!-- Shelter Protection Ratio -->
+      <div class="stat-pill">
+        <div class="stat-header">🛡️ Taux d'Abris</div>
+        <div class="stat-values">
+          <span class="stat-main" id="stat-shelter-rate">100%</span>
+          <span class="stat-sub positive">Sécurisé</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hotbar Quick Categories -->
+    <div class="action-dock">
+      <button class="dock-btn active" data-action="inspect">
+        <span class="dock-key">1</span>
+        <span class="dock-icon">🗺️</span>
+        <span class="dock-label">Carte</span>
+        <span class="dock-cost">Territoire</span>
+      </button>
+
+      <button class="dock-btn" data-action="city">
+        <span class="dock-key">2</span>
+        <span class="dock-icon">🏙️</span>
+        <span class="dock-label">Urbanisme</span>
+        <span class="dock-cost">Abris</span>
+      </button>
+
+      <button class="dock-btn" data-action="economy">
+        <span class="dock-key">3</span>
+        <span class="dock-icon">🏢</span>
+        <span class="dock-label">Entreprises</span>
+        <span class="dock-cost">Industries</span>
+      </button>
+
+      <button class="dock-btn" data-action="energy">
+        <span class="dock-key">4</span>
+        <span class="dock-icon">⚡</span>
+        <span class="dock-label">Énergie</span>
+        <span class="dock-cost">MW</span>
+      </button>
+
+      <button class="dock-btn" data-action="policy">
+        <span class="dock-key">5</span>
+        <span class="dock-icon">⚖️</span>
+        <span class="dock-label">Politiques</span>
+        <span class="dock-cost">Décrets</span>
+      </button>
+    </div>
+
+    <!-- Right Quick Actions -->
+    <div class="quick-tools">
+      <button class="dock-btn" id="btn-emergency-stimulus" title="Subvention d'urgence de la Banque Centrale">
+        <span class="dock-icon">📈</span>
+        <span class="dock-label">Plan Relance</span>
+        <span class="dock-cost">+$50K</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div id="toast-container"></div>
+
+  <!-- INITIAL NATION CREATION MODAL -->
+  <div class="modal-overlay" id="setup-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>🌍 Fondation de votre Nation</h2>
+        <p>Définissez l'identité de votre État avant d'implanter votre première ville capitale sur la carte.</p>
+      </div>
+
+      <div class="form-group">
+        <label>Nom de votre Pays</label>
+        <input type="text" class="form-input" id="input-nation-name" value="Fédération d'Orion" placeholder="Ex: République de Terra Nova">
+      </div>
+
+      <div class="form-group">
+        <label>Nom de la Ville Capitale</label>
+        <input type="text" class="form-input" id="input-capital-name" value="Néo-Lumina" placeholder="Ex: Solaris">
+      </div>
+
+      <div class="form-group">
+        <label>Couleur Territoriale</label>
+        <div class="color-picker-grid">
+          <div class="color-chip active" data-color="#00b4d8" style="background: #00b4d8;"></div>
+          <div class="color-chip" data-color="#f59e0b" style="background: #f59e0b;"></div>
+          <div class="color-chip" data-color="#10b981" style="background: #10b981;"></div>
+          <div class="color-chip" data-color="#e11d48" style="background: #e11d48;"></div>
+          <div class="color-chip" data-color="#8b5cf6" style="background: #8b5cf6;"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Doctrine Économique & Stratégique</label>
+        <div class="doctrine-cards">
+          <div class="doctrine-card active" data-doctrine="eco">
+            <h4>🌱 Éco-Transition Technologique</h4>
+            <p>+25% efficacité des centrales propres (Éolien & Hydro), coût réduit des abris pour réfugiés.</p>
+          </div>
+          <div class="doctrine-card" data-doctrine="industry">
+            <h4>🏭 Expansion Industrielle Rapide</h4>
+            <p>+30% profits des entreprises et usines, mais demande énergétique accrue.</p>
+          </div>
+          <div class="doctrine-card" data-doctrine="fortress">
+            <h4>🛡️ État Protecteur & Abris d'Urgence</h4>
+            <p>Capacité des abris doublée (+100%), haute résilience face aux crises et réfugiés.</p>
+          </div>
+        </div>
+      </div>
+
+      <button class="modal-btn-submit" id="btn-start-game">
+        Valider et Choisir la Région Capitale sur la Carte →
+      </button>
+    </div>
+  </div>
+
+  <!-- POLICIES & MINISTERIAL MODAL -->
+  <div class="modal-overlay" id="policy-modal" style="display: none;">
+    <div class="modal-box" style="width: min(92%, 620px);">
+      <div class="modal-header">
+        <h2>⚖️ Décrets & Politiques Nationales</h2>
+        <p>Ajustez les impôts, subventions d'infrastructures et lois de protection civile.</p>
+      </div>
+
+      <div class="form-group">
+        <label>Niveau d'Imposition des Entreprises</label>
+        <div style="display: flex; gap: 8px; margin-top: 6px;">
+          <button class="time-btn tax-btn" data-tax="low">Bas (12%) • +Croissance</button>
+          <button class="time-btn tax-btn active" data-tax="med">Standard (22%) • Équilibré</button>
+          <button class="time-btn tax-btn" data-tax="high">Élevé (35%) • +Recettes</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Priorités Stratégiques de l'État</label>
+        <div class="doctrine-cards">
+          <div class="doctrine-card active" id="pol-card-grid">
+            <h4>⚡ Modernisation du Réseau Électrique</h4>
+            <p>Subventionne 15% du coût des barrages et centrales nucléaires (-15% coût de pose).</p>
+          </div>
+          <div class="doctrine-card" id="pol-card-shelter">
+            <h4>🏠 Plan d'Hébergement & Protection Civile</h4>
+            <p>Accueille les vagues de réfugiés sans baisse d'ordre public et augmente la natalité.</p>
+          </div>
+        </div>
+      </div>
+
+      <button class="modal-btn-submit" id="btn-close-policy">
+        Appliquer les Décrets et Retourner au Conseil
+      </button>
+    </div>
+  </div>
+
+  <!-- HELP & GUIDE MODAL -->
+  <div class="modal-overlay" id="help-modal" style="display: none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>📖 Manuel Stratégique du Dirigeant</h2>
+        <p>Comment développer et pérenniser votre pays comme sur Rise of Nations.</p>
+      </div>
+      <div style="font-size: 13px; line-height: 1.6; color: #cbd5e1; display: flex; flex-direction: column; gap: 10px;">
+        <p><strong>1. Fonder & Étendre :</strong> Cliquez sur une province neutre pour l'annexer avec vos réserves financières ($75K).</p>
+        <p><strong>2. Entreprises & Richesse :</strong> Construisez des pôles commerciaux pour générer du revenu continu (+$k/s), mais veillez à leur consommation électrique.</p>
+        <p><strong>3. Énergie & Blackout :</strong> Si votre consommation dépasse votre production en Mégawatts (MW), votre pays subit un <em>Blackout</em> qui réduit vos revenus de 50% ! Construisez des <strong>Éoliennes</strong> sur les côtes, des <strong>Barrages</strong> sur les fleuves, et des <strong>Centrales Nucléaires</strong> pour alimenter les mégapoles.</p>
+        <p><strong>4. Abris & Population :</strong> Les habitants ont besoin de logements et d'abris sécurisés. En cas de tempête ou vague migratoire, un bon taux d'abris assure une stabilité maximale.</p>
+        <p><strong>5. Navigation Carte :</strong> Glissez pour déplacer la carte, molette pour zoomer.</p>
+      </div>
+      <button class="modal-btn-submit" id="btn-close-help" style="margin-top: 20px;">
+        Compris, retourner aux commandes
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       PROVINCES & GEOGRAPHY DATA MODEL
+       Realistic province map with rivers, coastlines, and distinct terrain features.
+       ========================================================================== */
+    const PROVINCES_DATA = [
+      {
+        id: "dakar",
+        name: "Sénégal Maritime",
+        svgPath: "M 220,540 L 320,520 L 370,580 L 350,680 L 260,710 L 200,640 Z",
+        center: { x: 285, y: 610 },
+        isCoast: true,
+        hasRiver: true,
+        isWindy: true,
+        population: 24500,
+        buildings: { shelters: 2, companies: 1, wind: 0, hydro: 0, nuclear: 0 },
+        owner: null
+      },
+      {
+        id: "mali",
+        name: "Bassin du Niger",
+        svgPath: "M 320,520 L 480,480 L 580,560 L 530,680 L 370,580 Z",
+        center: { x: 445, y: 565 },
+        isCoast: false,
+        hasRiver: true,
+        isWindy: false,
+        population: 18200,
+        buildings: { shelters: 1, companies: 0, wind: 0, hydro: 0, nuclear: 0 },
+        owner: null
+      },
+      {
+        id: "mauritanie",
+        name: "Désert d'Adrar",
+        svgPath: "M 220,540 L 260,380 L 420,340 L 480,480 L 320,520 Z",
+        center: { x: 345, y: 440 },
+        isCoast: true,
+        hasRiver: false,
+        isWindy: true,
+        population: 8900,
+        buildings: { shelters: 0, companies: 0, wind: 0, hydro: 0, nuclear: 0 },
+        owner: null
+      },
+      {
+        id: "guinee",
+        name: "Rivières du Sud",
+        svgPath: "M 260,710 L 350,680 L 420,770 L 340,840 L 240,780 Z",
+        center: { x: 320, y: 755 },
+        isCoast: true,
+        hasRiver: true,
+        isWindy: false,
+        population: 15400,
+        buildings: { shelters: 0, companies: 0, wind: 0, hydro: 0, nuclear: 0 },
+        owner: null
+      },
+      {
+        id: "cote_ivoire",
+        name: "Golfe d'Éburnie",
+        svgPath: "M 350,680 L 530,680 L 560,820 L 420,770 Z",
+        center: { x: 465, y: 740 },
+        isCoast: true,
+        hasRiver: true,
+        isWindy: false,
+        population: 29800,
+        buildings: { shelters: 1, companies: 0, wind: 0, hydro: 0, nuclear: 0 },
+        owner: null
+      },
+      {
+        id: "burkina",
+        name: "Hauts Plateaux Volta",
+        svgPath: "M 480,480 L 640,460 L 680,600 L 580,560 Z",
+        center: { x: 590, y: 525 },
+        isCoast: false,
+        hasRiver: true,
+        isWindy: true,
+        population: 14200,
+        buildings: { shelters: 0, companies: 0, wind: 0, hydro: 0, nuclear: 0 },
+        owner: null
+      },
+      {
+        id: "benin",
+        name: "Bénin Littoral",
+        svgPath: "M 530,680 L 680,600 L 720,740 L 660,820 L 560,820 Z",
+        center: { x: 630, y: 715 },
+        isCoast: true,
+        hasRiver: true,
+        isWindy: false,
+        population: 23100,
+        buildings: { shelters: 0, companies: 0, wind: 0, hydro: 0, nuclear: 0 },
+        owner: null
+      },
+      {
+        id: "niger",
+        name: "Plaines Sahéliennes",
+        svgPath: "M 640,460 L 860,420 L 920,580 L 780,600 L 680,600 Z",
+        center: { x: 775, y: 515 },
+        isCoast: false,
+        hasRiver: false,
+        isWindy: true,
+        population: 16700,
+        buildings: { shelters: 0, companies: 0, wind: 0, hydro: 0, nuclear: 0 },
+        owner: null
+      },
+      {
+        id: "nigeria",
+        name: "Delta du Niger",
+        svgPath: "M 680,600 L 780,600 L 880,720 L 790,860 L 660,820 L 720,740 Z",
+        center: { x: 755, y: 720 },
+        isCoast: true,
+        hasRiver: true,
+        isWindy: false,
+        population: 58000,
+        buildings: { shelters: 2, companies: 1, wind: 0, hydro: 0, nuclear: 0 },
+        owner: null
+      },
+      {
+        id: "tchad",
+        name: "Bassin du Tchad",
+        svgPath: "M 860,420 L 1100,400 L 1150,590 L 920,580 Z",
+        center: { x: 1005, y: 495 },
+        isCoast: false,
+        hasRiver: true,
+        isWindy: false,
+        population: 30500,
+        buildings: { shelters: 0, companies: 0, wind: 0, hydro: 0, nuclear: 0 },
+        owner: null
+      },
+      {
+        id: "cameroun",
+        name: "Forêts Équatoriales",
+        svgPath: "M 880,720 L 1020,700 L 1060,880 L 790,860 Z",
+        center: { x: 935, y: 785 },
+        isCoast: true,
+        hasRiver: true,
+        isWindy: false,
+        population: 26400,
+        buildings: { shelters: 0, companies: 0, wind: 0, hydro: 0, nuclear: 0 },
+        owner: null
+      },
+      {
+        id: "libye",
+        name: "Cyrénaïque & Fezzan",
+        svgPath: "M 860,220 L 1160,200 L 1200,380 L 1100,400 L 860,420 L 740,320 Z",
+        center: { x: 980, y: 310 },
+        isCoast: true,
+        hasRiver: false,
+        isWindy: true,
+        population: 20900,
+        buildings: { shelters: 0, companies: 0, wind: 0, hydro: 0, nuclear: 0 },
+        owner: null
+      },
+      {
+        id: "algerie_sud",
+        name: "Massif du Hoggar",
+        svgPath: "M 420,340 L 740,320 L 860,420 L 640,460 L 480,480 Z",
+        center: { x: 620, y: 400 },
+        isCoast: false,
+        hasRiver: false,
+        isWindy: true,
+        population: 11200,
+        buildings: { shelters: 0, companies: 0, wind: 0, hydro: 0, nuclear: 0 },
+        owner: null
+      },
+      {
+        id: "soudan",
+        name: "Haute Nubie",
+        svgPath: "M 1100,400 L 1340,380 L 1380,590 L 1150,590 Z",
+        center: { x: 1240, y: 485 },
+        isCoast: false,
+        hasRiver: true,
+        isWindy: false,
+        population: 36300,
+        buildings: { shelters: 0, companies: 0, wind: 0, hydro: 0, nuclear: 0 },
+        owner: null
+      },
+      {
+        id: "egypte",
+        name: "Delta du Nil",
+        svgPath: "M 1160,200 L 1400,180 L 1420,370 L 1340,380 L 1200,380 Z",
+        center: { x: 1300, y: 280 },
+        isCoast: true,
+        hasRiver: true,
+        isWindy: true,
+        population: 62500,
+        buildings: { shelters: 1, companies: 1, wind: 0, hydro: 0, nuclear: 0 },
+        owner: null
+      }
+    ];
+
+    /* RIVERS VECTOR PATHS */
+    const RIVERS_DATA = [
+      "M 280,680 Q 380,600 480,520 T 680,600 T 780,740 L 780,860", // Fleuve Niger
+      "M 1300,590 L 1320,450 L 1350,330 L 1370,180", // Fleuve Nil
+      "M 450,750 Q 420,680 430,620", // Sassandra
+      "M 1000,540 L 980,620 L 960,780" // Chari / Logone
+    ];
+
+    /* ==========================================================================
+       AUDIO SYNTHESIZER (Web Audio API - Procedural Sci-Fi & Strategy Sounds)
+       ========================================================================== */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+      }
+      playClick() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.06);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.06);
+      }
+      playBuild() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(540, this.ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.22);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.22);
+      }
+      playAlert() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+        osc.frequency.setValueAtTime(330, this.ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.28);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.28);
+      }
+    }
+    const audio = new SoundEngine();
+
+    /* ==========================================================================
+       GAME STATE
+       ========================================================================== */
+    const GameState = {
+      nationName: "Fédération d'Orion",
+      capitalName: "Néo-Lumina",
+      color: "#00b4d8",
+      doctrine: "eco", // 'eco', 'industry', 'fortress'
+      taxLevel: "med", // 'low', 'med', 'high'
+      energySubsidy: true,
+      shelterPlan: true,
+
+      money: 85000,
+      totalPopulation: 0,
+      totalShelterCapacity: 0,
+      totalEnergyProd: 0,
+      totalEnergyDemand: 0,
+      stability: 88,
+      speed: 1, // 0: pause, 1: 1x, 2: 2x, 5: 5x
+      isBlackout: false,
+
+      selectedProvince: null,
+      firstCapitalChosen: false,
+      gameDays: 1,
+
+      costs: {
+        annex: 75000,
+        shelter: 25000,
+        company: 35000,
+        wind: 45000,
+        hydro: 110000,
+        nuclear: 260000
+      }
+    };
+
+    /* ==========================================================================
+       MAP ZOOM & PAN ENGINE
+       ========================================================================== */
+    class MapEngine {
+      constructor() {
+        this.viewport = document.getElementById("map-viewport");
+        this.svg = document.getElementById("map-svg");
+        this.scale = 1.05;
+        this.panX = -120;
+        this.panY = -180;
+        this.isDragging = false;
+        this.startX = 0;
+        this.startY = 0;
+        this.initEvents();
+        this.applyTransform();
+      }
+
+      initEvents() {
+        this.viewport.addEventListener("mousedown", (e) => {
+          if (e.button !== 0) return;
+          this.isDragging = true;
+          this.startX = e.clientX - this.panX;
+          this.startY = e.clientY - this.panY;
+        });
+
+        window.addEventListener("mousemove", (e) => {
+          if (!this.isDragging) return;
+          this.panX = e.clientX - this.startX;
+          this.panY = e.clientY - this.startY;
+          this.applyTransform();
+        });
+
+        window.addEventListener("mouseup", () => {
+          this.isDragging = false;
+        });
+
+        this.viewport.addEventListener("wheel", (e) => {
+          e.preventDefault();
+          const zoomFactor = e.deltaY < 0 ? 1.15 : 0.88;
+          const newScale = Math.min(Math.max(this.scale * zoomFactor, 0.45), 3.2);
+
+          // Zoom toward mouse pointer
+          const rect = this.viewport.getBoundingClientRect();
+          const mouseX = e.clientX - rect.left;
+          const mouseY = e.clientY - rect.top;
+
+          this.panX = mouseX - (mouseX - this.panX) * (newScale / this.scale);
+          this.panY = mouseY - (mouseY - this.panY) * (newScale / this.scale);
+          this.scale = newScale;
+          this.applyTransform();
+        }, { passive: false });
+
+        document.getElementById("btn-zoom-in").addEventListener("click", () => this.zoom(1.25));
+        document.getElementById("btn-zoom-out").addEventListener("click", () => this.zoom(0.8));
+        document.getElementById("btn-zoom-reset").addEventListener("click", () => {
+          this.scale = 1.05;
+          this.panX = -120;
+          this.panY = -180;
+          this.applyTransform();
+        });
+      }
+
+      zoom(factor) {
+        this.scale = Math.min(Math.max(this.scale * factor, 0.45), 3.2);
+        this.applyTransform();
+      }
+
+      applyTransform() {
+        this.svg.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.scale})`;
+      }
+    }
+
+    /* ==========================================================================
+       SVG RENDERING & INTERACTION
+       ========================================================================== */
+    function renderMap() {
+      const provGroup = document.getElementById("provinces-layer");
+      const riversGroup = document.getElementById("rivers-layer");
+      const iconsGroup = document.getElementById("icons-layer");
+      const labelsGroup = document.getElementById("labels-layer");
+      const gridLinesGroup = document.getElementById("grid-lines-layer");
+
+      provGroup.innerHTML = "";
+      riversGroup.innerHTML = "";
+      iconsGroup.innerHTML = "";
+      labelsGroup.innerHTML = "";
+      gridLinesGroup.innerHTML = "";
+
+      // 1. Draw Rivers
+      RIVERS_DATA.forEach(d => {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", d);
+        path.setAttribute("class", "river-path");
+        riversGroup.appendChild(path);
+      });
+
+      // 2. Draw Provinces
+      PROVINCES_DATA.forEach(p => {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", p.svgPath);
+        path.setAttribute("id", "path-" + p.id);
+        path.setAttribute("class", "province-path" + (p.owner ? " province-owned" : ""));
+
+        // Province styling
+        if (p.owner) {
+          path.style.fill = GameState.color;
+          path.style.fillOpacity = "0.45";
+          path.style.stroke = GameState.color;
+        } else {
+          path.style.fill = "#c8bca2";
+          path.style.fillOpacity = "0.75";
+          path.style.stroke = "#334155";
+        }
+
+        path.addEventListener("click", (e) => {
+          e.stopPropagation();
+          audio.playClick();
+          selectProvince(p);
+        });
+
+        provGroup.appendChild(path);
+
+        // 3. Draw Labels (Rise of Nations style with pop badge)
+        const labelGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        labelGroup.setAttribute("class", "province-label-group");
+        labelGroup.setAttribute("transform", `translate(${p.center.x}, ${p.center.y})`);
+
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("class", "label-rect");
+        rect.setAttribute("x", "-68");
+        rect.setAttribute("y", "-18");
+        rect.setAttribute("width", "136");
+        rect.setAttribute("height", "34");
+        if (p.owner) {
+          rect.style.stroke = GameState.color;
+          rect.style.strokeWidth = "1.8";
+        }
+
+        const textTitle = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textTitle.setAttribute("class", "label-title");
+        textTitle.setAttribute("y", "-2");
+        textTitle.textContent = (p.isCapital ? "⭐ " : "") + p.name;
+
+        const textPop = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textPop.setAttribute("class", "label-pop");
+        textPop.setAttribute("y", "11");
+        textPop.textContent = `${(p.population / 1000).toFixed(1)}K hab.`;
+
+        labelGroup.appendChild(rect);
+        labelGroup.appendChild(textTitle);
+        labelGroup.appendChild(textPop);
+        labelsGroup.appendChild(labelGroup);
+      });
+
+      // 4. Draw Buildings & Power Grid
+      renderBuildingsAndGrid();
+    }
+
+    function renderBuildingsAndGrid() {
+      const iconsGroup = document.getElementById("icons-layer");
+      const gridLinesGroup = document.getElementById("grid-lines-layer");
+      iconsGroup.innerHTML = "";
+      gridLinesGroup.innerHTML = "";
+
+      const ownedProvinces = PROVINCES_DATA.filter(p => p.owner);
+
+      // Draw Power Lines between adjacent owned provinces
+      for (let i = 0; i < ownedProvinces.length; i++) {
+        for (let j = i + 1; j < ownedProvinces.length; j++) {
+          const p1 = ownedProvinces[i];
+          const p2 = ownedProvinces[j];
+          const dist = Math.hypot(p1.center.x - p2.center.x, p1.center.y - p2.center.y);
+          if (dist < 320) {
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", p1.center.x);
+            line.setAttribute("y1", p1.center.y);
+            line.setAttribute("x2", p2.center.x);
+            line.setAttribute("y2", p2.center.y);
+            line.setAttribute("stroke", GameState.isBlackout ? "#ef4444" : "#38bdf8");
+            line.setAttribute("stroke-width", "2.5");
+            line.setAttribute("stroke-dasharray", "6 4");
+            line.setAttribute("opacity", "0.7");
+            gridLinesGroup.appendChild(line);
+          }
+        }
+      }
+
+      // Draw Icons for each province
+      PROVINCES_DATA.forEach(p => {
+        if (!p.owner) return;
+        const b = p.buildings;
+        let iconOffset = -45;
+
+        // Shelter / City Skyline icon
+        if (b.shelters > 0) {
+          const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          g.setAttribute("transform", `translate(${p.center.x + iconOffset}, ${p.center.y - 38})`);
+          g.innerHTML = `
+            <rect width="24" height="24" rx="6" fill="#1e293b" stroke="#38bdf8" stroke-width="1.2"/>
+            <text x="12" y="16" font-size="13" text-anchor="middle">🏘️</text>
+            <text x="12" y="32" font-size="9" fill="#38bdf8" font-weight="bold" text-anchor="middle">x${b.shelters}</text>
+          `;
+          iconsGroup.appendChild(g);
+          iconOffset += 32;
+        }
+
+        // Enterprises
+        if (b.companies > 0) {
+          const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          g.setAttribute("transform", `translate(${p.center.x + iconOffset}, ${p.center.y - 38})`);
+          g.innerHTML = `
+            <rect width="24" height="24" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1.2"/>
+            <text x="12" y="16" font-size="13" text-anchor="middle">🏢</text>
+            <text x="12" y="32" font-size="9" fill="#f59e0b" font-weight="bold" text-anchor="middle">x${b.companies}</text>
+          `;
+          iconsGroup.appendChild(g);
+          iconOffset += 32;
+        }
+
+        // Windmills with animation
+        if (b.wind > 0) {
+          const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          g.setAttribute("transform", `translate(${p.center.x + iconOffset}, ${p.center.y - 38})`);
+          g.innerHTML = `
+            <rect width="24" height="24" rx="6" fill="#1e293b" stroke="#10b981" stroke-width="1.2"/>
+            <g class="wind-blade">
+              <text x="12" y="16" font-size="14" text-anchor="middle">🌬️</text>
+            </g>
+            <text x="12" y="32" font-size="9" fill="#10b981" font-weight="bold" text-anchor="middle">x${b.wind}</text>
+          `;
+          iconsGroup.appendChild(g);
+          iconOffset += 32;
+        }
+
+        // Hydro Dam
+        if (b.hydro > 0) {
+          const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          g.setAttribute("transform", `translate(${p.center.x + iconOffset}, ${p.center.y - 38})`);
+          g.innerHTML = `
+            <rect width="24" height="24" rx="6" fill="#1e293b" stroke="#0284c7" stroke-width="1.2"/>
+            <text x="12" y="16" font-size="13" text-anchor="middle">🌊</text>
+            <text x="12" y="32" font-size="9" fill="#0284c7" font-weight="bold" text-anchor="middle">x${b.hydro}</text>
+          `;
+          iconsGroup.appendChild(g);
+          iconOffset += 32;
+        }
+
+        // Nuclear Plant
+        if (b.nuclear > 0) {
+          const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          g.setAttribute("transform", `translate(${p.center.x + iconOffset}, ${p.center.y - 38})`);
+          g.innerHTML = `
+            <rect width="24" height="24" rx="6" fill="#1e293b" stroke="#8b5cf6" stroke-width="1.2"/>
+            <text x="12" y="16" font-size="13" text-anchor="middle" class="nuclear-steam">⚛️</text>
+            <text x="12" y="32" font-size="9" fill="#8b5cf6" font-weight="bold" text-anchor="middle">x${b.nuclear}</text>
+          `;
+          iconsGroup.appendChild(g);
+          iconOffset += 32;
+        }
+      });
+    }
+
+    /* ==========================================================================
+       PROVINCE SELECTION & INSPECTOR DRAWER
+       ========================================================================== */
+    function selectProvince(province) {
+      GameState.selectedProvince = province;
+
+      // Update SVG path highlight
+      document.querySelectorAll(".province-path").forEach(el => el.classList.remove("province-selected"));
+      const targetPath = document.getElementById("path-" + province.id);
+      if (targetPath) targetPath.classList.add("province-selected");
+
+      // First capital founding mode
+      if (!GameState.firstCapitalChosen) {
+        foundCapital(province);
+        return;
+      }
+
+      // Open drawer
+      const drawer = document.getElementById("province-drawer");
+      drawer.style.display = "flex";
+
+      document.getElementById("drw-name").textContent = province.name;
+      document.getElementById("drw-status").textContent = province.owner
+        ? (province.isCapital ? "⭐ Capitale Nationale" : "🚩 Territoire National de " + GameState.nationName)
+        : "🌐 Territoire Neutre Revendicable";
+
+      // Tags
+      const tagsContainer = document.getElementById("drw-tags");
+      tagsContainer.innerHTML = `
+        ${province.isCoast ? '<span class="geo-tag highlight">🌊 Zone Côtière (+Éolien)</span>' : ''}
+        ${province.hasRiver ? '<span class="geo-tag highlight">💧 Bassin Fluvial (+Barrage Hydro)</span>' : ''}
+        ${province.isWindy ? '<span class="geo-tag">💨 Hauts Vents</span>' : ''}
+      `;
+
+      // Metrics
+      document.getElementById("drw-pop").textContent = (province.population).toLocaleString() + " hab.";
+      const shelterCap = (province.buildings.shelters || 0) * 2500;
+      const shelterRatio = Math.min(Math.round((shelterCap / Math.max(province.population, 1)) * 100), 100);
+      document.getElementById("drw-shelter").textContent = `${shelterRatio}% (${shelterCap.toLocaleString()} places)`;
+
+      // Energy
+      const conso = (province.buildings.companies || 0) * 20 + Math.round(province.population / 1000) * 2;
+      const prod = (province.buildings.wind || 0) * 75 + (province.buildings.hydro || 0) * 280 + (province.buildings.nuclear || 0) * 1100;
+      document.getElementById("drw-energy-conso").textContent = `${conso} MW`;
+      document.getElementById("drw-energy-prod").textContent = `${prod} MW`;
+
+      // Buttons visibility
+      const annexSection = document.getElementById("drw-annex-section");
+      const buildSection = document.getElementById("drw-build-section");
+
+      if (province.owner) {
+        annexSection.style.display = "none";
+        buildSection.style.display = "block";
+
+        // Enable or disable hydro dam based on river
+        const hydroCard = document.getElementById("card-build-hydro");
+        if (!province.hasRiver) {
+          hydroCard.style.opacity = "0.4";
+          hydroCard.querySelector("button").disabled = true;
+          hydroCard.querySelector(".build-card-details p").textContent = "Nécessite un fleuve traversant";
+        } else {
+          hydroCard.style.opacity = "1";
+          hydroCard.querySelector("button").disabled = false;
+          hydroCard.querySelector(".build-card-details p").textContent = "+280 MW • Fleuve exploitable";
+        }
+      } else {
+        annexSection.style.display = "block";
+        buildSection.style.display = "none";
+        document.getElementById("btn-annex-province").textContent = `🚩 Revendiquer ce Territoire ($${GameState.costs.annex.toLocaleString()})`;
+      }
+    }
+
+    function foundCapital(province) {
+      province.owner = true;
+      province.isCapital = true;
+      province.name = GameState.capitalName;
+      province.buildings.shelters = 3;
+      province.buildings.companies = 2;
+      province.buildings.wind = 1;
+      GameState.firstCapitalChosen = true;
+
+      showToast(`Capitale fondée à ${province.name} ! Bienvenue, Président.`, "success");
+      audio.playBuild();
+      renderMap();
+      selectProvince(province);
+      updateHud();
+    }
+
+    /* ==========================================================================
+       CONSTRUCTION & ECONOMY ENGINE
+       ========================================================================== */
+    function constructBuilding(type) {
+      const p = GameState.selectedProvince;
+      if (!p || !p.owner) return;
+
+      const cost = GameState.costs[type];
+      if (GameState.money < cost) {
+        showToast("Fonds insuffisants dans le Trésor Public !", "error");
+        audio.playAlert();
+        return;
+      }
+
+      GameState.money -= cost;
+      p.buildings[type] = (p.buildings[type] || 0) + 1;
+      audio.playBuild();
+
+      let msg = "";
+      if (type === "shelter") msg = `Abris & Résidences construits à ${p.name} (+2,500 places) !`;
+      if (type === "company") msg = `Pôle d'entreprises implanté à ${p.name} (+Revenus) !`;
+      if (type === "wind") msg = `Parc d'éoliennes raccordé au réseau (+75 MW) !`;
+      if (type === "hydro") msg = `Barrage hydroélectrique mis en eau (+280 MW) !`;
+      if (type === "nuclear") msg = `Centrale Nucléaire EPR inaugurée (+1,100 MW) !`;
+
+      showToast(msg, "success");
+      renderBuildingsAndGrid();
+      selectProvince(p);
+      updateHud();
+    }
+
+    function annexProvince() {
+      const p = GameState.selectedProvince;
+      if (!p || p.owner) return;
+
+      if (GameState.money < GameState.costs.annex) {
+        showToast("Fonds insuffisants pour annexer cette province ($75,000) !", "error");
+        audio.playAlert();
+        return;
+      }
+
+      GameState.money -= GameState.costs.annex;
+      p.owner = true;
+      p.buildings.shelters = 1;
+      p.buildings.companies = 1;
+      audio.playBuild();
+
+      showToast(`Le territoire de ${p.name} rejoint la ${GameState.nationName} !`, "success");
+      renderMap();
+      selectProvince(p);
+      updateHud();
+    }
+
+    /* ==========================================================================
+       SIMULATION TICK (Every Second * Game Speed)
+       ========================================================================== */
+    function simulationTick() {
+      if (GameState.speed === 0 || !GameState.firstCapitalChosen) return;
+
+      const owned = PROVINCES_DATA.filter(p => p.owner);
+      if (owned.length === 0) return;
+
+      // 1. Calculate Aggregates
+      let totalPop = 0;
+      let totalShelter = 0;
+      let totalConso = 0;
+      let totalProd = 0;
+      let totalBaseIncome = 0;
+
+      owned.forEach(p => {
+        totalPop += p.population;
+        const b = p.buildings;
+
+        // Shelter capacity
+        totalShelter += (b.shelters || 0) * (GameState.doctrine === "fortress" ? 5000 : 2500);
+
+        // Production
+        const windBonus = p.isWindy ? 1.25 : 1.0;
+        const ecoBonus = GameState.doctrine === "eco" ? 1.2 : 1.0;
+        const windProd = (b.wind || 0) * 75 * windBonus * ecoBonus;
+        const hydroProd = (b.hydro || 0) * 280 * ecoBonus;
+        const nuclearProd = (b.nuclear || 0) * 1100;
+
+        totalProd += Math.round(windProd + hydroProd + nuclearProd);
+
+        // Consumption
+        const popConso = Math.round(p.population / 1000) * 2;
+        const compConso = (b.companies || 0) * (GameState.doctrine === "industry" ? 28 : 20);
+        totalConso += (popConso + compConso);
+
+        // Revenue
+        const taxMult = GameState.taxLevel === "low" ? 0.75 : (GameState.taxLevel === "high" ? 1.4 : 1.0);
+        const indBonus = GameState.doctrine === "industry" ? 1.3 : 1.0;
+        const compIncome = (b.companies || 0) * 350 * indBonus * taxMult;
+        const popTax = Math.round(p.population * 0.025 * taxMult);
+
+        totalBaseIncome += (compIncome + popTax);
+
+        // Natural population growth
+        const growthRate = (totalShelter >= totalPop ? 1.002 : 0.999);
+        p.population = Math.round(p.population * growthRate);
+      });
+
+      // 2. Blackout & Grid Balance Check
+      GameState.totalEnergyProd = totalProd;
+      GameState.totalEnergyDemand = totalConso;
+      GameState.totalPopulation = totalPop;
+      GameState.totalShelterCapacity = totalShelter;
+
+      const energyDiff = totalProd - totalConso;
+      const isBlackout = energyDiff < 0;
+
+      if (isBlackout !== GameState.isBlackout) {
+        GameState.isBlackout = isBlackout;
+        document.getElementById("blackout-banner").style.display = isBlackout ? "flex" : "none";
+        if (isBlackout) {
+          showToast("ALERTE BLACKOUT : Le réseau s'effondre ! Entreprises à l'arrêt !", "warn");
+          audio.playAlert();
+        } else {
+          showToast("Réseau stabilisé : Fin du Blackout !", "success");
+        }
+        renderBuildingsAndGrid();
+      }
+
+      // 3. Money flow (Penalty if blackout)
+      let netIncome = isBlackout ? Math.round(totalBaseIncome * 0.4) : totalBaseIncome;
+      GameState.money += Math.round(netIncome * GameState.speed);
+
+      // 4. Stability
+      let targetStability = 85;
+      if (isBlackout) targetStability -= 35;
+      if (totalShelter < totalPop) targetStability -= 20;
+      if (GameState.taxLevel === "high") targetStability -= 10;
+      if (GameState.doctrine === "fortress") targetStability += 10;
+      GameState.stability = Math.max(10, Math.min(100, Math.round(GameState.stability * 0.95 + targetStability * 0.05)));
+
+      // 5. Game Date Advance
+      GameState.gameDays += GameState.speed;
+      const curDate = new Date(2026, 0, 1 + GameState.gameDays);
+      const months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+      document.getElementById("game-date").textContent = `${curDate.getDate()} ${months[curDate.getMonth()]} ${curDate.getFullYear()}`;
+
+      // 6. Occasional Random Realistic Geopolitical Events
+      if (Math.random() < 0.04 * GameState.speed) {
+        triggerRandomEvent();
+      }
+
+      updateHud(netIncome);
+      if (GameState.selectedProvince) {
+        selectProvince(GameState.selectedProvince);
+      }
+    }
+
+    function triggerRandomEvent() {
+      const events = [
+        {
+          title: "🌊 Vague Migratoire & Réfugiés",
+          text: "Des populations fuyant une crise frontalière cherchent refuge dans vos villes.",
+          effect: () => {
+            const owned = PROVINCES_DATA.filter(p => p.owner);
+            if (!owned.length) return;
+            const target = owned[Math.floor(Math.random() * owned.length)];
+            const added = 3500;
+            target.population += added;
+            if (GameState.totalShelterCapacity >= GameState.totalPopulation + added) {
+              showToast(`+${added} réfugiés accueillis en sécurité dans nos abris ! (+Main d'oeuvre)`, "success");
+            } else {
+              showToast(`Crise humanitaire : Manque d'abris pour accueillir les réfugiés !`, "warn");
+              GameState.stability -= 6;
+            }
+          }
+        },
+        {
+          title: "☀️ Canicule & Pic Électrique",
+          text: "Une vague de chaleur sans précédent sature les climatiseurs.",
+          effect: () => {
+            showToast("Canicule : La demande en électricité bondit temporairement !", "warn");
+            GameState.totalEnergyDemand += 120;
+          }
+        },
+        {
+          title: "📈 Boom des Investissements Étrangers",
+          text: "Des multinationales injectent des capitaux dans nos entreprises.",
+          effect: () => {
+            const gain = 45000;
+            GameState.money += gain;
+            showToast(`Investissements internationaux : +$${gain.toLocaleString()} dans le Trésor !`, "success");
+          }
+        }
+      ];
+
+      const ev = events[Math.floor(Math.random() * events.length)];
+      ev.effect();
+    }
+
+    function updateHud(netIncome = 850) {
+      // Numbers formatting
+      document.getElementById("stat-pop").textContent = (GameState.totalPopulation / 1000).toFixed(1) + "K";
+      document.getElementById("stat-money").textContent = "$" + (GameState.money / 1000).toFixed(1) + "K";
+      document.getElementById("stat-income").textContent = (netIncome >= 0 ? "+" : "") + "$" + (netIncome / 1000).toFixed(1) + "K/s";
+      document.getElementById("stat-income").className = "stat-sub " + (netIncome >= 0 ? "positive" : "negative");
+
+      // Energy
+      const diff = GameState.totalEnergyProd - GameState.totalEnergyDemand;
+      document.getElementById("stat-energy").textContent = `${GameState.totalEnergyDemand} MW / ${GameState.totalEnergyProd} MW`;
+      document.getElementById("stat-energy-balance").textContent = (diff >= 0 ? "+" : "") + `${diff} MW`;
+      document.getElementById("stat-energy-balance").className = "stat-sub " + (diff >= 0 ? "positive" : "negative");
+
+      // Shelter Rate
+      const shelterRatio = GameState.totalPopulation > 0
+        ? Math.min(100, Math.round((GameState.totalShelterCapacity / GameState.totalPopulation) * 100))
+        : 100;
+      document.getElementById("stat-shelter-rate").textContent = shelterRatio + "%";
+
+      // Stability bar
+      document.getElementById("stability-fill").style.width = GameState.stability + "%";
+      document.getElementById("stability-val").textContent = GameState.stability + "%";
+      document.getElementById("stability-val").style.color = GameState.stability > 60 ? "#10b981" : (GameState.stability > 35 ? "#f59e0b" : "#ef4444");
+
+      // World Control
+      const ownedCount = PROVINCES_DATA.filter(p => p.owner).length;
+      const worldCtrl = ((ownedCount / PROVINCES_DATA.length) * 100).toFixed(1);
+      document.getElementById("control-fill").style.width = worldCtrl + "%";
+      document.getElementById("control-val").textContent = worldCtrl + "%";
+      document.getElementById("top-flag").style.background = GameState.color;
+      document.getElementById("hud-flag").style.background = GameState.color;
+    }
+
+    /* ==========================================================================
+       TOAST & USER FEEDBACK
+       ========================================================================== */
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+
+      let icon = "ℹ️";
+      if (type === "success") icon = "✅";
+      if (type === "warn") icon = "⚠️";
+      if (type === "error") icon = "❌";
+
+      toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+      }, 5000);
+    }
+
+    /* ==========================================================================
+       EVENT LISTENERS & BINDINGS
+       ========================================================================== */
+    function initApp() {
+      const mapEngine = new MapEngine();
+
+      // Drawer close
+      document.getElementById("drw-close").addEventListener("click", () => {
+        document.getElementById("province-drawer").style.display = "none";
+        document.querySelectorAll(".province-path").forEach(el => el.classList.remove("province-selected"));
+      });
+
+      // Annex button
+      document.getElementById("btn-annex-province").addEventListener("click", annexProvince);
+
+      // Build buttons
+      document.querySelectorAll(".construct-btn[data-build]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          constructBuilding(btn.dataset.build);
+        });
+      });
+
+      // Emergency stimulus button
+      document.getElementById("btn-emergency-stimulus").addEventListener("click", () => {
+        GameState.money += 50000;
+        showToast("Plan de relance d'urgence approuvé : +$50,000 reçus !", "success");
+        audio.playBuild();
+        updateHud();
+      });
+
+      // Time speed buttons
+      document.querySelectorAll(".time-btn[data-speed]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".time-btn[data-speed]").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          GameState.speed = parseInt(btn.dataset.speed);
+          audio.playClick();
+        });
+      });
+
+      // Sound toggle
+      document.getElementById("sound-btn").addEventListener("click", (e) => {
+        audio.muted = !audio.muted;
+        e.currentTarget.textContent = audio.muted ? "🔇" : "🔊";
+      });
+
+      // Help modal toggle
+      document.getElementById("help-btn").addEventListener("click", () => {
+        document.getElementById("help-modal").style.display = "flex";
+      });
+      document.getElementById("btn-close-help").addEventListener("click", () => {
+        document.getElementById("help-modal").style.display = "none";
+      });
+
+      // Policy modal toggle
+      document.querySelector('.dock-btn[data-action="policy"]').addEventListener("click", () => {
+        document.getElementById("policy-modal").style.display = "flex";
+      });
+      document.getElementById("btn-close-policy").addEventListener("click", () => {
+        document.getElementById("policy-modal").style.display = "none";
+        showToast("Nouveaux décrets appliqués avec succès.", "success");
+      });
+
+      // Tax buttons in policy
+      document.querySelectorAll(".tax-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".tax-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          GameState.taxLevel = btn.dataset.tax;
+          audio.playClick();
+        });
+      });
+
+      // Color chips in setup
+      document.querySelectorAll(".color-chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          document.querySelectorAll(".color-chip").forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+          GameState.color = chip.dataset.color;
+          audio.playClick();
+        });
+      });
+
+      // Doctrine selection
+      document.querySelectorAll(".doctrine-card").forEach(card => {
+        card.addEventListener("click", () => {
+          document.querySelectorAll(".doctrine-card").forEach(c => c.classList.remove("active"));
+          card.classList.add("active");
+          GameState.doctrine = card.dataset.doctrine;
+          audio.playClick();
+        });
+      });
+
+      // Fullscreen
+      document.getElementById("fullscreen-btn").addEventListener("click", () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      });
+
+      // Submit Nation Setup Modal
+      document.getElementById("btn-start-game").addEventListener("click", () => {
+        const nationInput = document.getElementById("input-nation-name").value.trim();
+        const capitalInput = document.getElementById("input-capital-name").value.trim();
+
+        if (nationInput) GameState.nationName = nationInput;
+        if (capitalInput) GameState.capitalName = capitalInput;
+
+        document.getElementById("top-nation-name").textContent = GameState.nationName;
+        document.getElementById("hud-nation-name").textContent = GameState.nationName;
+        document.getElementById("setup-modal").style.display = "none";
+
+        audio.playBuild();
+        renderMap();
+
+        showToast("Cliquez maintenant sur une région de la carte pour y fonder votre Capitale !", "info");
+      });
+
+      // Initial map render
+      renderMap();
+      updateHud();
+
+      // Start main simulation interval
+      setInterval(simulationTick, 1000);
+    }
+
+    // Launch game when DOM is loaded
+    window.addEventListener("DOMContentLoaded", initApp);
+  </script>
+</body>
+</html>
