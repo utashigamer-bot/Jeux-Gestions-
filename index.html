@@ -690,6 +690,7 @@
       color: white;
       font-size: 14px;
       outline: none;
+      user-select: text;
     }
     .form-input:focus { border-color: var(--accent-cyan); }
 
@@ -1123,7 +1124,7 @@
 
   <!-- ==========================================================================
        LOGIQUE JAVASCRIPT DU MOTEUR DU JEU
-       ========================================================================== */
+       ========================================================================== -->
   <script>
     /* ==========================================================================
        SYNTHÉTISEUR AUDIO WEB (Sons réalistes sans dépendance externe)
@@ -1193,7 +1194,7 @@
        CATALOGUE DES BÂTIMENTS & COÛTS RÉELS DÉTAILLÉS
        ========================================================================== */
     const BUILDING_CATALOG = {
-      // 1. Habitations & Quartiers (Coût d'entretien > 0, apportent des citoyens et des impôts)
+      // 1. Habitations & Quartiers
       housing: [
         {
           type: "house",
@@ -1749,12 +1750,14 @@
         });
 
         window.addEventListener("wheel", (e) => {
+          if (e.target !== this.canvas) return;
           e.preventDefault();
           const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
           this.setZoom(this.targetScale * zoomFactor, e.clientX, e.clientY);
         }, { passive: false });
 
         window.addEventListener("keydown", (e) => {
+          if (e.target && e.target.tagName === "INPUT") return;
           this.keys[e.key.toLowerCase()] = true;
         });
         window.addEventListener("keyup", (e) => {
@@ -1800,12 +1803,9 @@
 
     /* ==========================================================================
        LOGIQUE ROUTIÈRE : VÉRIFICATION D'ACCÈS OBLIGATOIRE
-       Si un bâtiment n'est pas relié à une route (dans un rayon de 115px),
-       il est déclaré INACTIF (0 MW, 0 profit, 0 abri) !
        ========================================================================== */
     function checkBuildingRoadAccess(b) {
-      if (b.type === "city_hall") return true; // L'Hôtel de ville initial sert de point de départ
-      // Vérifie si un segment ou un nœud de route se situe à moins de 115 px
+      if (b.type === "city_hall") return true;
       for (let n of ROAD_NODES) {
         if (Math.hypot(n.x - b.x, n.y - b.y) <= 115) return true;
       }
@@ -1841,7 +1841,6 @@
               currentCount: Math.floor(Math.random() * (cap * 0.4)),
               spots: []
             };
-            // Initialisation des places avec couleurs variées
             for (let i = 0; i < cap; i++) {
               b.parkingData.spots.push({
                 occupied: i < b.parkingData.currentCount,
@@ -1850,12 +1849,10 @@
             }
           }
 
-          // Fluctuation dynamique réaliste (voitures qui entrent et sortent)
           if (Math.random() > 0.45) {
             const delta = Math.random() > 0.5 ? 1 : -1;
             const newCount = Math.max(0, Math.min(b.parkingData.capacity, b.parkingData.currentCount + delta));
             b.parkingData.currentCount = newCount;
-            // Met à jour les places
             let occupied = 0;
             b.parkingData.spots.forEach(spot => {
               if (occupied < newCount) {
@@ -1908,7 +1905,6 @@
     function drawRoadsAndVehicles(ctx) {
       if (ROAD_SEGMENTS.length === 0) return;
 
-      // 1. Bitume Asphalte Sombre
       ctx.lineWidth = 18;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
@@ -1924,7 +1920,6 @@
         }
       });
 
-      // Bordures de trottoir claires
       ctx.lineWidth = 15;
       ctx.strokeStyle = "#2e3f53";
       ROAD_SEGMENTS.forEach(seg => {
@@ -1938,7 +1933,6 @@
         }
       });
 
-      // Ligne blanche pointillée centrale
       ctx.lineWidth = 1.8;
       ctx.strokeStyle = "#ffffff";
       ctx.setLineDash([8, 8]);
@@ -1954,7 +1948,6 @@
       });
       ctx.setLineDash([]);
 
-      // 2. Nœuds de carrefours asphaltés
       ROAD_NODES.forEach(n => {
         ctx.fillStyle = "#2e3f53";
         ctx.beginPath();
@@ -1962,7 +1955,6 @@
         ctx.fill();
       });
 
-      // 3. Véhicules en mouvement avec phares
       VEHICLES.forEach(v => {
         const nA = ROAD_NODES.find(n => n.id === v.segment.from);
         const nB = ROAD_NODES.find(n => n.id === v.segment.to);
@@ -1976,7 +1968,6 @@
         ctx.translate(vx, vy);
         ctx.rotate(angle);
 
-        // Faisceau des phares avant
         ctx.fillStyle = "rgba(254, 240, 138, 0.4)";
         ctx.beginPath();
         ctx.moveTo(8, -3);
@@ -1986,27 +1977,24 @@
         ctx.closePath();
         ctx.fill();
 
-        // Carrosserie selon le type (Bus vs Berline vs Camionnette)
         if (v.type === "bus") {
           ctx.fillStyle = "#0284c7";
           ctx.fillRect(-12, -5.5, 24, 11);
           ctx.fillStyle = "#ffffff";
           ctx.fillRect(-4, -4.5, 10, 9);
           ctx.fillStyle = "#0f172a";
-          ctx.fillRect(8, -4.5, 3, 9); // Pare-brise
+          ctx.fillRect(8, -4.5, 3, 9);
         } else {
           ctx.fillStyle = v.color;
           ctx.fillRect(-7.5, -4.5, 15, 9);
           ctx.fillStyle = "#0f172a";
-          ctx.fillRect(0, -3.5, 4, 7); // Pare-brise
+          ctx.fillRect(0, -3.5, 4, 7);
         }
 
-        // Feux arrière rouges
         ctx.fillStyle = "#ef4444";
         ctx.fillRect(-7.5, -4, 1.5, 2);
         ctx.fillRect(-7.5, 2, 1.5, 2);
 
-        // Phares avant blancs
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(6.5, -4, 1.5, 2);
         ctx.fillRect(6.5, 2, 1.5, 2);
@@ -2016,13 +2004,11 @@
     }
 
     /* ==========================================================================
-       DESSIN 2.5D DÉTAILLÉ DE HAUTE FIDÉLITÉ (PROPORTIONS AGRANDIES & SANS EMOJI)
+       DESSIN 2.5D DÉTAILLÉ
        ========================================================================== */
 
-    // 1. PICS MONTAGNEUX ISOMÉTRIQUES AVEC OMBRES ET CALOTTES GLACIAIRES
     function drawMountainPeak(ctx, m) {
       const x = m.x, y = m.y, w = m.w, h = m.h;
-      // Versant Ombragé Ouest
       ctx.fillStyle = "#4a5568";
       ctx.beginPath();
       ctx.moveTo(x, y - h);
@@ -2031,7 +2017,6 @@
       ctx.closePath();
       ctx.fill();
 
-      // Versant Éclairé Est
       ctx.fillStyle = "#718096";
       ctx.beginPath();
       ctx.moveTo(x, y - h);
@@ -2040,7 +2025,6 @@
       ctx.closePath();
       ctx.fill();
 
-      // Calotte de neige éternelle
       if (m.snow) {
         ctx.fillStyle = "#ffffff";
         ctx.beginPath();
@@ -2055,26 +2039,20 @@
       }
     }
 
-    // 2. MAISON FAMILIALE INDIVIDUELLE (Jardin, Toiture tuiles, allée)
     function drawHouse(ctx, b) {
       const x = b.x, y = b.y;
-      // Pelouse & Jardin clôturé
       ctx.fillStyle = "#1e392a";
       ctx.fillRect(x - 36, y - 28, 72, 56);
 
-      // Allée de garage pavée
       ctx.fillStyle = "#64748b";
       ctx.fillRect(x + 10, y - 10, 18, 38);
 
-      // Ombre du bâtiment
       ctx.fillStyle = "rgba(0,0,0,0.35)";
       ctx.fillRect(x - 26, y - 20, 48, 42);
 
-      // Murs maison
       ctx.fillStyle = "#cbd5e1";
       ctx.fillRect(x - 28, y - 22, 38, 36);
 
-      // Toiture à deux pans en tuiles rouges
       ctx.fillStyle = "#b91c1c";
       ctx.beginPath();
       ctx.moveTo(x - 30, y - 4);
@@ -2083,83 +2061,65 @@
       ctx.closePath();
       ctx.fill();
 
-      // Fenêtres éclairées
       ctx.fillStyle = "#fef08a";
       ctx.fillRect(x - 24, y + 2, 8, 8);
       ctx.fillRect(x - 6, y + 2, 8, 8);
 
-      // Porte
       ctx.fillStyle = "#78350f";
       ctx.fillRect(x - 14, y + 4, 6, 10);
     }
 
-    // 3. PAVILLON MODERNE AVEC PISCINE ET TERRASSE
     function drawSuburbVilla(ctx, b) {
       const x = b.x, y = b.y;
-      // Terrain paysager
       ctx.fillStyle = "#143323";
       ctx.fillRect(x - 44, y - 32, 88, 64);
 
-      // Piscine turquoise
       ctx.fillStyle = "#0ea5e9";
       ctx.fillRect(x + 14, y - 18, 24, 36);
       ctx.strokeStyle = "#e2e8f0";
       ctx.lineWidth = 1.5;
       ctx.strokeRect(x + 14, y - 18, 24, 36);
 
-      // Terrasse en bois
       ctx.fillStyle = "#78350f";
       ctx.fillRect(x - 36, y - 24, 46, 48);
 
-      // Villa cubique moderne
       ctx.fillStyle = "#f8fafc";
       ctx.fillRect(x - 34, y - 22, 42, 44);
 
-      // Baie vitrée panoramique
       ctx.fillStyle = "#38bdf8";
       ctx.fillRect(x - 28, y + 2, 30, 14);
 
-      // Voiture garée
       ctx.fillStyle = "#ef4444";
       ctx.fillRect(x - 30, y + 26, 14, 8);
     }
 
-    // 4. IMMEUBLE HAUSSMANNIEN EN PIERRE DE TAILLE
     function drawApartment(ctx, b) {
       const x = b.x, y = b.y;
-      // Ombre portée
       ctx.fillStyle = "rgba(0,0,0,0.4)";
       ctx.fillRect(x - 42, y - 42, 84, 84);
 
-      // Façade en pierre calcaire
       ctx.fillStyle = "#d4c5b9";
       ctx.fillRect(x - 40, y - 40, 80, 80);
 
-      // Toiture brisée en zinc gris bleuté
       ctx.fillStyle = "#475569";
       ctx.fillRect(x - 38, y - 38, 76, 26);
 
-      // Fenêtres et balcons filants en fer forgé
       ctx.fillStyle = "#0f172a";
       for (let r = 0; r < 3; r++) {
         for (let c = 0; c < 5; c++) {
           ctx.fillRect(x - 32 + c * 13, y - 8 + r * 15, 7, 9);
         }
       }
-      // Balcons
       ctx.strokeStyle = "#1e293b";
       ctx.lineWidth = 1.8;
       ctx.strokeRect(x - 34, y + 3, 68, 4);
     }
 
-    // 5. TOUR RÉSIDENTIELLE MODERNE AVEC BALCONS SUSPENDUS
     function drawTowerBlock(ctx, b) {
       const x = b.x, y = b.y;
-      // Ombre monumentale
       ctx.fillStyle = "rgba(0,0,0,0.45)";
       ctx.fillRect(x - 42, y - 75, 84, 120);
 
-      // Tour élancée
       const grad = ctx.createLinearGradient(x - 38, y - 80, x + 38, y + 40);
       grad.addColorStop(0, "#38bdf8");
       grad.addColorStop(0.5, "#0284c7");
@@ -2167,38 +2127,31 @@
       ctx.fillStyle = grad;
       ctx.fillRect(x - 38, y - 80, 76, 120);
 
-      // Balcons avec verdure
       ctx.fillStyle = "#10b981";
       for (let i = 0; i < 6; i++) {
         ctx.fillRect(x - 32, y - 70 + i * 18, 12, 5);
         ctx.fillRect(x + 20, y - 70 + i * 18, 12, 5);
       }
 
-      // Toit terrasse et machinerie d'ascenseurs
       ctx.fillStyle = "#334155";
       ctx.fillRect(x - 16, y - 92, 32, 12);
     }
 
-    // 6. COMPLEXE D'ABRIS CIVILS & BUNKERS SOUTERRAINS
     function drawShelter(ctx, b) {
       const x = b.x, y = b.y;
       ctx.fillStyle = "rgba(0,0,0,0.4)";
       ctx.fillRect(x - 44, y - 34, 88, 68);
 
-      // Casemate béton armé massif
       ctx.fillStyle = "#475569";
       ctx.fillRect(x - 40, y - 30, 80, 60);
 
-      // Blindage acier rainuré
       ctx.fillStyle = "#334155";
       ctx.fillRect(x - 32, y - 22, 64, 44);
 
-      // Cheminées de filtration d'air
       ctx.fillStyle = "#94a3b8";
       ctx.fillRect(x - 22, y - 38, 8, 14);
       ctx.fillRect(x + 14, y - 38, 8, 14);
 
-      // Symbole d'abri civil
       ctx.fillStyle = "#f59e0b";
       ctx.beginPath();
       ctx.arc(x, y, 12, 0, Math.PI * 2);
@@ -2212,33 +2165,27 @@
       ctx.fill();
     }
 
-    // 7. HÔTEL DE VILLE & CAPITALE (Dôme, colonnade & drapeau flottant)
     function drawCityHall(ctx, b, time) {
       const x = b.x, y = b.y;
       ctx.fillStyle = "rgba(0,0,0,0.45)";
       ctx.fillRect(x - 52, y - 48, 104, 96);
 
-      // Esplanade pavée
       ctx.fillStyle = "#94a3b8";
       ctx.fillRect(x - 50, y - 45, 100, 90);
 
-      // Bâtiment principal
       ctx.fillStyle = "#f1f5f9";
       ctx.fillRect(x - 44, y - 40, 88, 75);
 
-      // Colonnes néo-classiques
       ctx.fillStyle = "#cbd5e1";
       for (let c = 0; c < 8; c++) {
         ctx.fillRect(x - 38 + c * 10, y - 25, 6, 50);
       }
 
-      // Grand Dôme central en cuivre patiné
       ctx.fillStyle = "#0d9488";
       ctx.beginPath();
       ctx.arc(x, y - 40, 22, Math.PI, 0);
       ctx.fill();
 
-      // Mât & Drapeau national animé
       ctx.strokeStyle = "#ffffff";
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -2257,24 +2204,20 @@
       ctx.fill();
     }
 
-    // 8. ÉCOLE PRIMAIRE & CAMPUS
     function drawSchool(ctx, b) {
       const x = b.x, y = b.y;
       ctx.fillStyle = "rgba(0,0,0,0.35)";
       ctx.fillRect(x - 42, y - 32, 84, 64);
 
-      // Bâtiment en briques rouges
       ctx.fillStyle = "#c2410c";
       ctx.fillRect(x - 38, y - 28, 76, 56);
 
-      // Cour de récréation & marquage sportif
       ctx.fillStyle = "#334155";
       ctx.fillRect(x - 30, y + 4, 60, 20);
       ctx.strokeStyle = "#ffffff";
       ctx.lineWidth = 1;
       ctx.strokeRect(x - 25, y + 8, 50, 12);
 
-      // Tour de l'horloge
       ctx.fillStyle = "#f8fafc";
       ctx.fillRect(x - 8, y - 46, 16, 20);
       ctx.fillStyle = "#0f172a";
@@ -2283,17 +2226,14 @@
       ctx.fill();
     }
 
-    // 9. CAMPUS UNIVERSITAIRE
     function drawUniversity(ctx, b) {
       const x = b.x, y = b.y;
       ctx.fillStyle = "rgba(0,0,0,0.4)";
       ctx.fillRect(x - 52, y - 42, 104, 84);
 
-      // Bâtiment central
       ctx.fillStyle = "#f8fafc";
       ctx.fillRect(x - 48, y - 38, 96, 76);
 
-      // Colonnades et fronton triangulaire
       ctx.fillStyle = "#0284c7";
       ctx.beginPath();
       ctx.moveTo(x - 30, y - 38);
@@ -2302,24 +2242,20 @@
       ctx.closePath();
       ctx.fill();
 
-      // Bibliothèque
       ctx.fillStyle = "#475569";
       for (let p = 0; p < 8; p++) {
         ctx.fillRect(x - 40 + p * 10, y - 15, 6, 40);
       }
     }
 
-    // 10. HÔPITAL RÉGIONAL AVEC HÉLIPORT
     function drawHospital(ctx, b) {
       const x = b.x, y = b.y;
       ctx.fillStyle = "rgba(0,0,0,0.4)";
       ctx.fillRect(x - 48, y - 44, 96, 88);
 
-      // Façade clinique blanche
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(x - 44, y - 40, 88, 80);
 
-      // Vitrages médicaux
       ctx.fillStyle = "#38bdf8";
       for (let r = 0; r < 3; r++) {
         for (let c = 0; c < 6; c++) {
@@ -2327,7 +2263,6 @@
         }
       }
 
-      // Héliport d'urgence sur le toit avec [ H ]
       ctx.fillStyle = "#334155";
       ctx.beginPath();
       ctx.arc(x - 18, y - 26, 14, 0, Math.PI * 2);
@@ -2342,13 +2277,11 @@
       ctx.textBaseline = "middle";
       ctx.fillText("H", x - 18, y - 26);
 
-      // Croix rouge monumentale
       ctx.fillStyle = "#ef4444";
       ctx.fillRect(x + 18, y - 34, 8, 22);
       ctx.fillRect(x + 11, y - 27, 22, 8);
     }
 
-    // 11. CASERNE DE POMPIERS & COMMISSARIAT
     function drawFireStation(ctx, b) {
       const x = b.x, y = b.y;
       ctx.fillStyle = "rgba(0,0,0,0.35)";
@@ -2357,13 +2290,11 @@
       ctx.fillStyle = "#b91c1c";
       ctx.fillRect(x - 36, y - 28, 72, 56);
 
-      // Baies vitrées des camions
       ctx.fillStyle = "#f8fafc";
       ctx.fillRect(x - 28, y, 16, 24);
       ctx.fillRect(x - 6, y, 16, 24);
       ctx.fillRect(x + 16, y, 16, 24);
 
-      // Tour de séchage
       ctx.fillStyle = "#7f1d1d";
       ctx.fillRect(x + 22, y - 48, 12, 24);
     }
@@ -2379,32 +2310,26 @@
       ctx.fillStyle = "#38bdf8";
       ctx.fillRect(x - 25, y - 18, 50, 10);
 
-      // Véhicule de patrouille garé
       ctx.fillStyle = "#f8fafc";
       ctx.fillRect(x - 12, y + 8, 24, 12);
       ctx.fillStyle = "#1e40af";
       ctx.fillRect(x - 12, y + 12, 24, 4);
     }
 
-    // 12. SUPERMARCHÉ AVEC PARKING CLIENTÈLE RÉALISTE
     function drawMarket(ctx, b) {
       const x = b.x, y = b.y;
       ctx.fillStyle = "rgba(0,0,0,0.35)";
       ctx.fillRect(x - 48, y - 36, 96, 72);
 
-      // Bâtiment commercial
       ctx.fillStyle = "#475569";
       ctx.fillRect(x - 44, y - 32, 50, 64);
 
-      // Enseigne lumineuse
       ctx.fillStyle = "#f59e0b";
       ctx.fillRect(x - 40, y - 18, 42, 8);
 
-      // Parking clientèle attenant
       ctx.fillStyle = "#1e293b";
       ctx.fillRect(x + 8, y - 30, 34, 60);
 
-      // Lignes blanches de places
       ctx.strokeStyle = "#cbd5e1";
       ctx.lineWidth = 1;
       for (let s = 0; s < 4; s++) {
@@ -2412,7 +2337,6 @@
         ctx.strokeRect(x + 26, y - 25 + s * 14, 14, 10);
       }
 
-      // Voitures clientes qui se garent
       if (b.parkingData && b.parkingData.spots) {
         b.parkingData.spots.slice(0, 8).forEach((spot, i) => {
           if (spot.occupied) {
@@ -2425,13 +2349,11 @@
       }
     }
 
-    // 13. TOUR D'AFFAIRES & BUREAUX
     function drawOffice(ctx, b) {
       const x = b.x, y = b.y;
       ctx.fillStyle = "rgba(0,0,0,0.45)";
       ctx.fillRect(x - 44, y - 90, 88, 145);
 
-      // Gratte-ciel avec dégradé miroir
       const grad = ctx.createLinearGradient(x - 40, y - 95, x + 40, y + 45);
       grad.addColorStop(0, "#38bdf8");
       grad.addColorStop(0.3, "#0284c7");
@@ -2439,7 +2361,6 @@
       ctx.fillStyle = grad;
       ctx.fillRect(x - 40, y - 95, 80, 140);
 
-      // Trame de fenêtres réfléchissantes
       ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
       for (let r = 0; r < 7; r++) {
         for (let c = 0; c < 5; c++) {
@@ -2447,7 +2368,6 @@
         }
       }
 
-      // Antenne sommitale de télécommunication
       ctx.strokeStyle = "#cbd5e1";
       ctx.lineWidth = 2.5;
       ctx.beginPath();
@@ -2455,24 +2375,20 @@
       ctx.lineTo(x, y - 120);
       ctx.stroke();
 
-      // Lumière clignotante de sécurité aérienne
       ctx.fillStyle = "#ef4444";
       ctx.beginPath();
       ctx.arc(x, y - 120, 3, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // 14. USINE LOURDE AVEC FUMÉE ANIMÉE
     function drawFactory(ctx, b, time) {
       const x = b.x, y = b.y;
       ctx.fillStyle = "rgba(0,0,0,0.4)";
       ctx.fillRect(x - 56, y - 42, 112, 84);
 
-      // Bâtiment usine
       ctx.fillStyle = "#334155";
       ctx.fillRect(x - 52, y - 38, 104, 76);
 
-      // Toiture à redans (sheds industriels)
       ctx.fillStyle = "#475569";
       for (let s = 0; s < 4; s++) {
         ctx.beginPath();
@@ -2483,7 +2399,6 @@
         ctx.fill();
       }
 
-      // Cheminées industrielles rayées rouge & blanc
       const c1X = x - 32, c2X = x + 24;
       ctx.fillStyle = "#b91c1c";
       ctx.fillRect(c1X, y - 82, 12, 44);
@@ -2494,7 +2409,6 @@
       ctx.fillRect(c1X, y - 56, 12, 7);
       ctx.fillRect(c2X, y - 64, 10, 5);
 
-      // Volutes de fumée industrielle
       ctx.fillStyle = "rgba(203, 213, 225, 0.45)";
       for (let p = 0; p < 5; p++) {
         const off = ((time * 0.05 + p * 20) % 65);
@@ -2504,7 +2418,6 @@
       }
     }
 
-    // 15. ATELIERS & LOGISTIQUE
     function drawWorkshops(ctx, b) {
       const x = b.x, y = b.y;
       ctx.fillStyle = "rgba(0,0,0,0.35)";
@@ -2523,23 +2436,19 @@
       ctx.fillStyle = "rgba(0,0,0,0.35)";
       ctx.fillRect(x - 52, y - 35, 104, 70);
 
-      // Entrepôt logistique long
       ctx.fillStyle = "#334155";
       ctx.fillRect(x - 48, y - 30, 96, 60);
 
-      // Quais de chargement pour camions
       ctx.fillStyle = "#0f172a";
       for (let q = 0; q < 5; q++) {
         ctx.fillRect(x - 40 + q * 18, y + 14, 12, 14);
       }
     }
 
-    // 16. ÉOLIENNE RÉALISTE À PALES TOURNANTES
     function drawWindTurbine(ctx, b, time) {
       const x = b.x, y = b.y;
       const tSpeed = time * 0.0028;
 
-      // Ombre portée au sol des pales
       ctx.save();
       ctx.translate(x + 20, y + 20);
       ctx.rotate(tSpeed);
@@ -2550,7 +2459,6 @@
       }
       ctx.restore();
 
-      // Mât profilé
       ctx.fillStyle = "#e2e8f0";
       ctx.beginPath();
       ctx.moveTo(x - 5, y + 10);
@@ -2560,15 +2468,12 @@
       ctx.closePath();
       ctx.fill();
 
-      // Nacelle
       ctx.fillStyle = "#cbd5e1";
       ctx.fillRect(x - 7, y - 60, 14, 8);
 
-      // Balise rouge clignotante
       ctx.fillStyle = (Math.sin(time * 0.005) > 0.6) ? "#ef4444" : "#7f1d1d";
       ctx.fillRect(x - 2, y - 62, 4, 3);
 
-      // Moyeu et 3 pales rotatives
       ctx.save();
       ctx.translate(x, y - 56);
       ctx.rotate(tSpeed);
@@ -2585,13 +2490,11 @@
         ctx.closePath();
         ctx.fill();
 
-        // Extrémité rouge de sécurité aéronautique
         ctx.fillStyle = "#ef4444";
         ctx.fillRect(-3, -56, 6, 8);
         ctx.fillStyle = "#f8fafc";
       }
 
-      // Moyeu central
       ctx.fillStyle = "#94a3b8";
       ctx.beginPath();
       ctx.arc(0, 0, 4, 0, Math.PI * 2);
@@ -2599,13 +2502,11 @@
       ctx.restore();
     }
 
-    // 17. FERME SOLAIRE PHOTOVOLTAÏQUE
     function drawSolarFarm(ctx, b) {
       const x = b.x, y = b.y;
       ctx.fillStyle = "rgba(0,0,0,0.3)";
       ctx.fillRect(x - 42, y - 34, 84, 68);
 
-      // Panneaux photovoltaïques en rangées
       ctx.fillStyle = "#1e293b";
       ctx.fillRect(x - 38, y - 30, 76, 60);
 
@@ -2620,13 +2521,11 @@
       }
     }
 
-    // 18. CENTRALE NUCLÉAIRE EPR (Tour aéroréfrigérante & vapeur continue)
     function drawNuclear(ctx, b, time) {
       const x = b.x, y = b.y;
       ctx.fillStyle = "rgba(0,0,0,0.45)";
       ctx.fillRect(x - 66, y - 48, 132, 96);
 
-      // Dôme de confinement du réacteur en béton précontraint
       ctx.fillStyle = "#64748b";
       ctx.beginPath();
       ctx.arc(x - 26, y - 6, 26, 0, Math.PI * 2);
@@ -2635,11 +2534,9 @@
       ctx.lineWidth = 3;
       ctx.stroke();
 
-      // Bâtiment salle des turbines
       ctx.fillStyle = "#475569";
       ctx.fillRect(x - 58, y + 12, 60, 28);
 
-      // Tour aéroréfrigérante hyperbolique monumentale
       const tX = x + 30, tY = y + 36, tH = 88;
       ctx.fillStyle = "#94a3b8";
       ctx.beginPath();
@@ -2650,13 +2547,11 @@
       ctx.closePath();
       ctx.fill();
 
-      // Sommet sombre de la tour
       ctx.fillStyle = "#1e293b";
       ctx.beginPath();
       ctx.ellipse(tX, tY - tH, 22, 6, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Panache colossal de vapeur blanche condensée animée
       ctx.fillStyle = "rgba(241, 245, 249, 0.65)";
       for (let p = 0; p < 7; p++) {
         const off = ((time * 0.045 + p * 22) % 95);
@@ -2666,13 +2561,11 @@
       }
     }
 
-    // 19. BARRAGE HYDROÉLECTRIQUE & CENTRALE THERMIQUE GAZ
     function drawHydro(ctx, b, time) {
       const x = b.x, y = b.y;
       ctx.fillStyle = "#64748b";
       ctx.fillRect(x - 60, y - 24, 120, 48);
 
-      // Déversoir et rideau d'eau blanche tumultueuse
       ctx.fillStyle = "#38bdf8";
       ctx.fillRect(x - 30, y - 10, 60, 34);
 
@@ -2692,7 +2585,6 @@
       ctx.fillStyle = "#475569";
       ctx.fillRect(x - 44, y - 32, 88, 64);
 
-      // Deux cheminées
       ctx.fillStyle = "#94a3b8";
       ctx.fillRect(x - 24, y - 64, 8, 36);
       ctx.fillRect(x + 16, y - 64, 8, 36);
@@ -2710,19 +2602,15 @@
       }
     }
 
-    // 20. PARKING DE SURFACE DYNAMIQUE AVEC VOITURES QUI SE GARENT
     function drawParkingSurface(ctx, b) {
       const x = b.x, y = b.y;
-      // Dalle bitumée
       ctx.fillStyle = "#1e293b";
       ctx.fillRect(x - 44, y - 35, 88, 70);
 
-      // Bordure trottoir
       ctx.strokeStyle = "#64748b";
       ctx.lineWidth = 2;
       ctx.strokeRect(x - 44, y - 35, 88, 70);
 
-      // Marquage des places (lignes blanches)
       ctx.strokeStyle = "#f8fafc";
       ctx.lineWidth = 1.2;
       const cols = 5;
@@ -2738,7 +2626,6 @@
         }
       }
 
-      // Voitures garées dans les places
       if (b.parkingData && b.parkingData.spots) {
         b.parkingData.spots.slice(0, cols * rows).forEach((spot, idx) => {
           if (spot.occupied) {
@@ -2750,7 +2637,6 @@
             ctx.fillStyle = spot.color;
             ctx.fillRect(cx, cy, 10, 12);
 
-            // Pare-brise
             ctx.fillStyle = "#0f172a";
             ctx.fillRect(cx + 1, cy + 3, 8, 4);
           }
@@ -2758,30 +2644,25 @@
       }
     }
 
-    // 21. PARKING SILO À ÉTAGES
     function drawParkingGarage(ctx, b) {
       const x = b.x, y = b.y;
       ctx.fillStyle = "rgba(0,0,0,0.4)";
       ctx.fillRect(x - 46, y - 40, 92, 80);
 
-      // Structure béton à niveaux
       ctx.fillStyle = "#475569";
       ctx.fillRect(x - 42, y - 36, 84, 72);
 
-      // Rampes d'accès et ouvertures de ventilation
       ctx.fillStyle = "#1e293b";
       for (let f = 0; f < 3; f++) {
         ctx.fillRect(x - 36, y - 28 + f * 22, 54, 12);
       }
 
-      // Rampe circulaire
       ctx.fillStyle = "#334155";
       ctx.beginPath();
       ctx.arc(x + 28, y, 12, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // 22. DÉPÔT DE BUS & PARC URBAIN
     function drawBusDepot(ctx, b) {
       const x = b.x, y = b.y;
       ctx.fillStyle = "rgba(0,0,0,0.35)";
@@ -2790,7 +2671,6 @@
       ctx.fillStyle = "#334155";
       ctx.fillRect(x - 42, y - 28, 84, 56);
 
-      // Bus en stationnement
       ctx.fillStyle = "#0284c7";
       ctx.fillRect(x - 32, y - 10, 26, 12);
       ctx.fillRect(x + 6, y - 10, 26, 12);
@@ -2798,31 +2678,26 @@
 
     function drawPark(ctx, b, time) {
       const x = b.x, y = b.y;
-      // Pelouse arborée
       ctx.fillStyle = "#15803d";
       ctx.fillRect(x - 46, y - 38, 92, 76);
 
-      // Allées piétonnes en gravier
       ctx.strokeStyle = "#e2e8f0";
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.arc(x, y, 22, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Bassin et fontaine animée
       ctx.fillStyle = "#0ea5e9";
       ctx.beginPath();
       ctx.arc(x, y, 12, 0, Math.PI * 2);
       ctx.fill();
 
-      // Jet d'eau de la fontaine
       ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
       const spray = Math.sin(time * 0.008) * 3;
       ctx.beginPath();
       ctx.arc(x, y - spray, 4, 0, Math.PI * 2);
       ctx.fill();
 
-      // Arbres denses
       const trees = [
         { dx: -28, dy: -22 }, { dx: 28, dy: -22 },
         { dx: -28, dy: 22 }, { dx: 28, dy: 22 }
@@ -2838,6 +2713,36 @@
     /* ==========================================================================
        BOUCLE PRINCIPALE DE RENDU DU MONDE
        ========================================================================== */
+    function drawBuildingByType(ctx, b, time) {
+      const t = b.type;
+      if (t === "house") drawHouse(ctx, b);
+      else if (t === "suburb_villa") drawSuburbVilla(ctx, b);
+      else if (t === "apartment") drawApartment(ctx, b);
+      else if (t === "tower_block") drawTowerBlock(ctx, b);
+      else if (t === "shelter") drawShelter(ctx, b);
+      else if (t === "city_hall") drawCityHall(ctx, b, time);
+      else if (t === "school") drawSchool(ctx, b);
+      else if (t === "university") drawUniversity(ctx, b);
+      else if (t === "hospital") drawHospital(ctx, b);
+      else if (t === "fire_station") drawFireStation(ctx, b);
+      else if (t === "police_station") drawPoliceStation(ctx, b);
+      else if (t === "market") drawMarket(ctx, b);
+      else if (t === "workshops") drawWorkshops(ctx, b);
+      else if (t === "office") drawOffice(ctx, b);
+      else if (t === "factory") drawFactory(ctx, b, time);
+      else if (t === "logistics") drawLogistics(ctx, b);
+      else if (t === "wind") drawWindTurbine(ctx, b, time);
+      else if (t === "solar") drawSolarFarm(ctx, b);
+      else if (t === "hydro") drawHydro(ctx, b, time);
+      else if (t === "thermal") drawThermal(ctx, b);
+      else if (t === "nuclear") drawNuclear(ctx, b, time);
+      else if (t === "substation") drawSubstation(ctx, b);
+      else if (t === "parking_surface") drawParkingSurface(ctx, b);
+      else if (t === "parking_garage") drawParkingGarage(ctx, b);
+      else if (t === "bus_depot") drawBusDepot(ctx, b);
+      else if (t === "park") drawPark(ctx, b, time);
+    }
+
     function renderGameWorld(time) {
       const canvas = camera.canvas;
       const ctx = camera.ctx;
@@ -2868,7 +2773,7 @@
         ctx.stroke();
       });
 
-      // 3. Continents & Territoires (Terres et frontières)
+      // 3. Continents & Territoires
       PROVINCES.forEach(p => {
         ctx.beginPath();
         p.bounds.forEach((pt, idx) => {
@@ -2893,7 +2798,7 @@
         }
       });
 
-      // 4. Chaînes de Montagnes Facettées
+      // 4. Montagnes
       MOUNTAIN_CHAINS.forEach(m => drawMountainPeak(ctx, m));
 
       // 5. Fleuves & Rivières
@@ -2927,38 +2832,12 @@
       }
       ctx.stroke();
 
-      // 8. Bâtiments Plaqués et Triés par Axe Y
+      // 8. Bâtiments triés par Y
       const sorted = [...PLACED_BUILDINGS].sort((a, b) => a.y - b.y);
       sorted.forEach(b => {
         ctx.save();
-        if (b.type === "house") drawHouse(ctx, b);
-        else if (b.type === "suburb_villa") drawSuburbVilla(ctx, b);
-        else if (b.type === "apartment") drawApartment(ctx, b);
-        else if (b.type === "tower_block") drawTowerBlock(ctx, b);
-        else if (b.type === "shelter") drawShelter(ctx, b);
-        else if (b.type === "city_hall") drawCityHall(ctx, b, time);
-        else if (b.type === "school") drawSchool(ctx, b);
-        else if (b.type === "university") drawUniversity(ctx, b);
-        else if (b.type === "hospital") drawHospital(ctx, b);
-        else if (b.type === "fire_station") drawFireStation(ctx, b);
-        else if (b.type === "police_station") drawPoliceStation(ctx, b);
-        else if (b.type === "market") drawMarket(ctx, b);
-        else if (b.type === "workshops") drawWorkshops(ctx, b);
-        else if (b.type === "office") drawOffice(ctx, b);
-        else if (b.type === "factory") drawFactory(ctx, b, time);
-        else if (b.type === "logistics") drawLogistics(ctx, b);
-        else if (b.type === "wind") drawWindTurbine(ctx, b, time);
-        else if (b.type === "solar") drawSolarFarm(ctx, b);
-        else if (b.type === "hydro") drawHydro(ctx, b, time);
-        else if (b.type === "thermal") drawThermal(ctx, b);
-        else if (b.type === "nuclear") drawNuclear(ctx, b, time);
-        else if (b.type === "substation") drawSubstation(ctx, b);
-        else if (b.type === "parking_surface") drawParkingSurface(ctx, b);
-        else if (b.type === "parking_garage") drawParkingGarage(ctx, b);
-        else if (b.type === "bus_depot") drawBusDepot(ctx, b);
-        else if (b.type === "park") drawPark(ctx, b, time);
+        drawBuildingByType(ctx, b, time);
 
-        // INDICATEUR VISUEL CRITIQUE : BÂTIMENT HORS SERVICE SI ENCLAVÉ
         const hasRoad = checkBuildingRoadAccess(b);
         if (!hasRoad) {
           ctx.fillStyle = "rgba(239, 68, 68, 0.95)";
@@ -2976,7 +2855,6 @@
           ctx.fillText("!", b.x + 28, b.y - 38);
         }
 
-        // Anneau de sélection
         if (GameState.selectedEntity === b) {
           ctx.strokeStyle = "#ffffff";
           ctx.lineWidth = 2.5;
@@ -2987,12 +2865,11 @@
         ctx.restore();
       });
 
-      // 9. Aperçu Interactif des Outils (Tracé de route ou fantôme de bâtiment)
+      // 9. Aperçu des outils
       if (GameState.activeTool) {
         const mouseWorld = camera.screenToWorld(currentMouseX, currentMouseY);
 
         if (GameState.activeTool.isRoadTool) {
-          // Snap magnétique aux nœuds existants
           const snapNode = ROAD_NODES.find(n => Math.hypot(n.x - mouseWorld.x, n.y - mouseWorld.y) < 32);
           GameState.hoverSnapNode = snapNode;
 
@@ -3008,7 +2885,6 @@
             ctx.stroke();
           }
 
-          // Anneau magnétique au survol d'un nœud existant
           if (snapNode) {
             ctx.strokeStyle = "#10b981";
             ctx.lineWidth = 3;
@@ -3022,37 +2898,10 @@
             ctx.fill();
           }
         } else {
-          // Fantôme de prévisualisation du bâtiment
           ctx.save();
           ctx.globalAlpha = 0.6;
           const fakeB = { x: mouseWorld.x, y: mouseWorld.y, type: GameState.activeTool.type };
-          const t = fakeB.type;
-          if (t === "house") drawHouse(ctx, fakeB);
-          else if (t === "suburb_villa") drawSuburbVilla(ctx, fakeB);
-          else if (t === "apartment") drawApartment(ctx, fakeB);
-          else if (t === "tower_block") drawTowerBlock(ctx, fakeB);
-          else if (t === "shelter") drawShelter(ctx, fakeB);
-          else if (t === "city_hall") drawCityHall(ctx, fakeB, time);
-          else if (t === "school") drawSchool(ctx, fakeB);
-          else if (t === "university") drawUniversity(ctx, fakeB);
-          else if (t === "hospital") drawHospital(ctx, fakeB);
-          else if (t === "fire_station") drawFireStation(ctx, fakeB);
-          else if (t === "police_station") drawPoliceStation(ctx, fakeB);
-          else if (t === "market") drawMarket(ctx, fakeB);
-          else if (t === "workshops") drawWorkshops(ctx, fakeB);
-          else if (t === "office") drawOffice(ctx, fakeB);
-          else if (t === "factory") drawFactory(ctx, fakeB, time);
-          else if (t === "logistics") drawLogistics(ctx, fakeB);
-          else if (t === "wind") drawWindTurbine(ctx, fakeB, time);
-          else if (t === "solar") drawSolarFarm(ctx, fakeB);
-          else if (t === "hydro") drawHydro(ctx, fakeB, time);
-          else if (t === "thermal") drawThermal(ctx, fakeB);
-          else if (t === "nuclear") drawNuclear(ctx, fakeB, time);
-          else if (t === "substation") drawSubstation(ctx, fakeB);
-          else if (t === "parking_surface") drawParkingSurface(ctx, fakeB);
-          else if (t === "parking_garage") drawParkingGarage(ctx, fakeB);
-          else if (t === "bus_depot") drawBusDepot(ctx, fakeB);
-          else if (t === "park") drawPark(ctx, fakeB, time);
+          drawBuildingByType(ctx, fakeB, time);
 
           ctx.strokeStyle = "#10b981";
           ctx.lineWidth = 2.5;
@@ -3119,7 +2968,6 @@
         mctx.fill();
       });
 
-      // Cadre de vue caméra
       const halfW = (camera.canvas.width / 2) / camera.scale;
       const halfH = (camera.canvas.height / 2) / camera.scale;
       mctx.strokeStyle = "#ffffff";
@@ -3128,7 +2976,7 @@
     }
 
     /* ==========================================================================
-       GESTION DES INTERACTIONS : OUTIL ROUTE PARFAIT & PLACEMENT DE BÂTIMENTS
+       GESTION DES INTERACTIONS : OUTIL ROUTE & PLACEMENT DE BÂTIMENTS
        ========================================================================== */
     let currentMouseX = 0, currentMouseY = 0;
     window.addEventListener("mousemove", (e) => {
@@ -3141,7 +2989,10 @@
       const tool = GameState.activeTool;
       if (!tool) return;
 
-      // 1. OUTIL ROUTE MANUELLE AVEC SNAP PARFAIT & TRACÉ CONTINU
+      // Empêche le clic de remonter à la fenêtre (sinon l'inspecteur s'ouvre juste après la pose)
+      e.stopPropagation();
+
+      // 1. OUTIL ROUTE
       if (tool.isRoadTool) {
         if (GameState.money < tool.cost) {
           showToast("Fonds insuffisants pour poser ce tronçon de route !", "error");
@@ -3149,7 +3000,6 @@
           return;
         }
 
-        // Vérification de snap sur un nœud existant dans un rayon de 32px
         let clickedNode = ROAD_NODES.find(n => Math.hypot(n.x - worldPos.x, n.y - worldPos.y) < 32);
         if (!clickedNode) {
           clickedNode = { id: "n_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4), x: Math.round(worldPos.x), y: Math.round(worldPos.y) };
@@ -3157,18 +3007,15 @@
         }
 
         if (!GameState.roadStartNode) {
-          // Définition du premier point de départ
           GameState.roadStartNode = clickedNode;
           showToast("Point de départ fixé ! Cliquez plus loin pour tracer la route.", "info");
           audio.playClick();
         } else {
-          // Pose du tronçon
           if (GameState.roadStartNode !== clickedNode) {
             GameState.money -= tool.cost;
-            const newSeg = { id: "s_" + Date.now(), from: GameState.roadStartNode.id, to: clickedNode.id };
+            const newSeg = { id: "s_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4), from: GameState.roadStartNode.id, to: clickedNode.id };
             ROAD_SEGMENTS.push(newSeg);
 
-            // Apparition immédiate de circulation
             for (let k = 0; k < 2; k++) {
               VEHICLES.push({
                 segment: newSeg,
@@ -3183,7 +3030,6 @@
             audio.playBuild();
             showToast("Tronçon posé ! Continuez à cliquer pour prolonger la route.", "success");
 
-            // TRACÉ CONTINU : le nœud d'arrivée devient le nouveau départ
             GameState.roadStartNode = clickedNode;
             updateHud();
           }
@@ -3198,7 +3044,6 @@
         return;
       }
 
-      // Doit être placé dans un territoire possédé
       const insideProv = PROVINCES.find(p => p.owner && isPointInPolygon(worldPos, p.bounds));
       if (!insideProv) {
         showToast("Vous devez bâtir à l'intérieur de votre territoire national !", "warn");
@@ -3219,7 +3064,6 @@
       PLACED_BUILDINGS.push(newB);
       audio.playBuild();
 
-      // Vérification immédiate de la voirie
       if (!checkBuildingRoadAccess(newB)) {
         showToast(`${newB.name} construit ! Attention : il est enclavé, reliez-le à une route pour qu'il fonctionne !`, "warn");
       } else {
@@ -3283,6 +3127,7 @@
       GameState.roadStartNode = null;
       document.getElementById("game-canvas").className = toolConfig.isRoadTool ? "road-mode" : "placing-mode";
       document.getElementById("placement-overlay-bar").style.display = "flex";
+      document.getElementById("first-step-banner").style.display = "none";
       document.getElementById("placing-title").textContent = `${toolConfig.name} ($${toolConfig.cost.toLocaleString()})`;
 
       if (toolConfig.isRoadTool) {
@@ -3312,7 +3157,7 @@
        ========================================================================== */
     window.addEventListener("click", (e) => {
       if (GameState.activeTool) return;
-      if (e.target.closest(".bottom-hud-wrapper") || e.target.closest(".top-bar") || e.target.closest("#inspector-drawer") || e.target.closest(".map-controls") || e.target.closest(".modal-overlay")) return;
+      if (e.target.closest(".bottom-hud-wrapper") || e.target.closest(".top-bar") || e.target.closest("#inspector-drawer") || e.target.closest(".map-controls") || e.target.closest(".modal-overlay") || e.target.closest("#minimap-wrapper") || e.target.closest("#first-step-banner")) return;
 
       const worldPos = camera.screenToWorld(e.clientX, e.clientY);
 
@@ -3341,7 +3186,6 @@
       document.getElementById("insp-name").textContent = b.name;
       document.getElementById("insp-type").textContent = `Infrastructure Municipale • Niveau ${b.level}`;
 
-      // Statut de voirie
       const hasRoad = checkBuildingRoadAccess(b);
       const roadBadge = document.getElementById("insp-road-status");
       if (hasRoad) {
@@ -3352,7 +3196,6 @@
         roadBadge.textContent = "⚠️ ENCLAVÉ : Inactif sans route !";
       }
 
-      // Parking live box
       const parkingBox = document.getElementById("insp-parking-box");
       if (b.parkingData) {
         parkingBox.style.display = "flex";
@@ -3363,7 +3206,6 @@
         parkingBox.style.display = "none";
       }
 
-      // Coûts réels de fonctionnement
       const item = Object.values(BUILDING_CATALOG).flat().find(c => c.type === b.type);
       if (item) {
         const m = item.maintenance || { cleaning: 5, upkeep: 10, staff: 5, garbage: 2 };
@@ -3452,7 +3294,6 @@
         const lvl = b.level;
         const hasRoad = checkBuildingRoadAccess(b);
 
-        // Bâtiment enclavé = 0 production, 0 profit, 0 abri !
         if (hasRoad) {
           if (item.energy > 0) totalProd += Math.round(item.energy * ecoMult * lvl);
           if (item.energy < 0) totalDemand += Math.abs(item.energy * lvl);
@@ -3465,23 +3306,18 @@
           }
         }
 
-        // Les dépenses d'entretien restent actives
         const m = item.maintenance || { cleaning: 5, upkeep: 10, staff: 5, garbage: 2 };
         const bldExpense = (m.cleaning + m.upkeep + m.staff + (m.garbage || 0)) * lvl;
         totalExpenses += bldExpense;
 
-        // Taxe foncière
         totalTaxRevenue += Math.round(item.cost * 0.0004 * GameState.taxPropertyRate * lvl);
       });
 
-      // Impôt sur le revenu des citoyens
       const citizenIncomeTax = Math.round(GameState.totalPopulation * 0.04 * GameState.taxIncomeRate);
       totalTaxRevenue += citizenIncomeTax;
 
-      // Consommation publique de base
       totalDemand += Math.round(GameState.totalPopulation / 1000) * 3;
 
-      // Gestion du Blackout
       const isBlackout = totalDemand > totalProd && totalDemand > 0;
       if (isBlackout !== GameState.isBlackout) {
         GameState.isBlackout = isBlackout;
@@ -3494,7 +3330,6 @@
         }
       }
 
-      // Solde net de trésorerie
       const effectiveTaxRev = isBlackout ? Math.round(totalTaxRevenue * 0.45) : totalTaxRevenue;
       const netCashflow = effectiveTaxRev - totalExpenses;
 
@@ -3503,7 +3338,6 @@
       GameState.totalEnergyDemand = totalDemand;
       GameState.totalShelterCap = totalShelter;
 
-      // Dynamique de population
       if (totalShelter >= GameState.totalPopulation) {
         const taxGrowthModifier = GameState.taxIncomeRate > 0.25 ? 0.6 : 1.25;
         GameState.totalPopulation += Math.round(30 * GameState.speed * taxGrowthModifier);
@@ -3511,13 +3345,11 @@
         GameState.stability = Math.max(20, GameState.stability - 1);
       }
 
-      // Avancement de la date
       GameState.gameDays += GameState.speed;
       const curDate = new Date(2026, 0, 1 + GameState.gameDays);
       const months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
       document.getElementById("game-date").textContent = `${curDate.getDate()} ${months[curDate.getMonth()]} ${curDate.getFullYear()}`;
 
-      // Bilan modal budget
       document.getElementById("tax-budget-revenue").textContent = `+$${effectiveTaxRev.toLocaleString()}/s`;
       document.getElementById("tax-budget-expenses").textContent = `-$${totalExpenses.toLocaleString()}/s`;
       document.getElementById("tax-budget-net").textContent = (netCashflow >= 0 ? "+" : "") + `$${netCashflow.toLocaleString()}/s`;
@@ -3569,16 +3401,13 @@
 
       canvas.addEventListener("click", handleCanvasClickTool);
 
-      // Catégories
       document.querySelectorAll(".cat-btn").forEach(btn => {
         btn.addEventListener("click", () => selectCategory(btn.dataset.cat));
       });
 
-      // Annuler placement
       document.getElementById("btn-cancel-placement").addEventListener("click", cancelPlacementMode);
       document.getElementById("btn-close-inspector").addEventListener("click", closeInspector);
 
-      // Boutons zoom & centrage
       document.getElementById("btn-zoom-in").addEventListener("click", () => camera.setZoom(camera.targetScale * 1.3));
       document.getElementById("btn-zoom-out").addEventListener("click", () => camera.setZoom(camera.targetScale * 0.7));
       document.getElementById("btn-center-capital").addEventListener("click", () => {
@@ -3589,7 +3418,6 @@
         audio.playClick();
       });
 
-      // Fiscalité
       document.getElementById("btn-open-budget").addEventListener("click", () => {
         document.getElementById("budget-modal").style.display = "flex";
       });
@@ -3610,7 +3438,6 @@
         document.getElementById("tax-property-val").textContent = `${e.target.value}%`;
       });
 
-      // Démolition de bâtiment
       document.getElementById("btn-demolish-building").addEventListener("click", () => {
         const b = GameState.selectedEntity;
         if (!b) return;
@@ -3624,7 +3451,6 @@
         }
       });
 
-      // Amélioration de niveau
       document.getElementById("btn-upgrade-building").addEventListener("click", () => {
         const b = GameState.selectedEntity;
         if (!b) return;
@@ -3642,7 +3468,6 @@
         updateHud();
       });
 
-      // Revendication / Annexion de province
       document.getElementById("btn-annex-province").addEventListener("click", () => {
         const p = GameState.selectedEntity;
         if (!p || p.owner) return;
@@ -3659,7 +3484,6 @@
         updateHud();
       });
 
-      // Vitesse
       document.querySelectorAll(".time-btn[data-speed]").forEach(btn => {
         btn.addEventListener("click", () => {
           document.querySelectorAll(".time-btn[data-speed]").forEach(b => b.classList.remove("active"));
@@ -3669,13 +3493,11 @@
         });
       });
 
-      // Son
       document.getElementById("sound-btn").addEventListener("click", (e) => {
         audio.muted = !audio.muted;
         e.currentTarget.textContent = audio.muted ? "🔇" : "🔊";
       });
 
-      // Aide
       document.getElementById("help-btn").addEventListener("click", () => {
         document.getElementById("help-modal").style.display = "flex";
       });
@@ -3683,13 +3505,11 @@
         document.getElementById("help-modal").style.display = "none";
       });
 
-      // Plein écran
       document.getElementById("fullscreen-btn").addEventListener("click", () => {
         if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
         else document.exitFullscreen().catch(() => {});
       });
 
-      // Choix de la couleur souveraine
       document.querySelectorAll(".color-chip").forEach(chip => {
         chip.addEventListener("click", () => {
           document.querySelectorAll(".color-chip").forEach(c => c.classList.remove("active"));
@@ -3699,7 +3519,6 @@
         });
       });
 
-      // Doctrine
       document.querySelectorAll(".doctrine-card").forEach(card => {
         card.addEventListener("click", () => {
           document.querySelectorAll(".doctrine-card").forEach(c => c.classList.remove("active"));
@@ -3709,7 +3528,6 @@
         });
       });
 
-      // Démarrage du jeu
       document.getElementById("btn-start-game").addEventListener("click", () => {
         const nationInput = document.getElementById("input-nation-name").value.trim();
         const capInput = document.getElementById("input-capital-name").value.trim();
