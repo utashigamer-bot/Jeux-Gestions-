@@ -45,18 +45,18 @@
       height: 100%;
       display: block;
       cursor: grab;
-      background: #091322;
+      background: #0d1e30;
     }
     #game-canvas:active { cursor: grabbing; }
     #game-canvas.tool-mode { cursor: crosshair !important; }
 
-    /* HUD SUPÉRIEUR */
+    /* TOP BAR HUD */
     .top-bar {
       position: absolute;
       top: 12px;
       left: 50%;
       transform: translateX(-50%);
-      width: min(98%, 1700px);
+      width: min(98%, 1720px);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -179,7 +179,7 @@
       border-color: var(--accent-cyan);
     }
 
-    /* BANNIÈRES D'ALERTES */
+    /* BANNIÈRES */
     #alert-banner {
       position: absolute;
       top: 72px;
@@ -203,25 +203,6 @@
       50% { transform: translateX(-50%) scale(1.03); }
     }
 
-    #welcome-banner {
-      position: absolute;
-      top: 76px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(16, 185, 129, 0.95);
-      color: #041220;
-      padding: 9px 24px;
-      border-radius: 24px;
-      font-size: 13px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      z-index: 49;
-      box-shadow: 0 8px 30px rgba(16, 185, 129, 0.6);
-    }
-
-    /* BANNIÈRE PLACEMENT OUTIL */
     #placement-overlay-bar {
       position: absolute;
       top: 72px;
@@ -324,7 +305,7 @@
       border-color: var(--accent-cyan);
     }
 
-    /* INSPECTEUR DÉTAILLÉ DE BÂTIMENT */
+    /* INSPECTEUR DE BÂTIMENT */
     #inspector-drawer {
       position: absolute;
       right: 20px;
@@ -425,13 +406,13 @@
       cursor: pointer;
     }
 
-    /* BOTTOM DOCK & CATALOGUE */
+    /* BOTTOM HUD & DOCK */
     .bottom-hud-wrapper {
       position: absolute;
       bottom: 12px;
       left: 50%;
       transform: translateX(-50%);
-      width: min(98%, 1600px);
+      width: min(98%, 1620px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -604,7 +585,7 @@
       </div>
     </div>
 
-    <!-- METRICS FINANCIÈRES & STRATÉGIQUES -->
+    <!-- METRICS STRATÉGIQUES -->
     <div class="top-bar-group">
       <!-- Trésor -->
       <div class="resource-badge">
@@ -628,7 +609,7 @@
         </div>
       </div>
 
-      <!-- Énergie & Réseau Électrique -->
+      <!-- Énergie -->
       <div class="resource-badge" style="border-left: 1px solid rgba(255,255,255,0.12); padding-left: 14px;">
         <div class="res-icon" style="color: #38bdf8;">
           <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
@@ -658,15 +639,9 @@
     </div>
   </header>
 
-  <!-- BANNIÈRES D'ALERTES STRATÉGIQUES -->
+  <!-- BANNIÈRE CRISE SANITAIRE -->
   <div id="alert-banner">
-    ⚠️ CRISE SANITAIRE : Épidémie en cours ! Construisez des hôpitaux pour soigner la population !
-  </div>
-
-  <div id="welcome-banner">
-    <span>🌱</span>
-    <span>Terre vierge : Tracez votre première route et posez votre Hôtel de Ville pour fonder votre Nation !</span>
-    <button style="background: none; border: none; font-weight: bold; cursor: pointer; margin-left: 8px;" onclick="this.parentElement.style.display='none'">✕</button>
+    ⚠️ CRISE SANITAIRE : Épidémie en cours ! Construisez des hôpitaux pour soigner vos citoyens !
   </div>
 
   <!-- BANNIÈRE PLACEMENT OUTIL -->
@@ -681,7 +656,7 @@
   <!-- MINIMAP RADAR -->
   <div id="minimap-wrapper">
     <canvas id="minimap-canvas" width="210" height="145"></canvas>
-    <div class="minimap-lbl">Radar National</div>
+    <div class="minimap-lbl">Radar Tactique</div>
   </div>
 
   <!-- CONTRÔLES ZOOM -->
@@ -691,7 +666,7 @@
     <button class="map-btn" id="btn-center-cam" title="Recentrer">🎯</button>
   </div>
 
-  <!-- INSPECTEUR DÉTAILLÉ DE BÂTIMENT -->
+  <!-- INSPECTEUR DE BÂTIMENT -->
   <aside id="inspector-drawer">
     <div class="insp-header">
       <div>
@@ -706,7 +681,7 @@
     </div>
 
     <div style="font-size: 11px; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase;">
-      Bilan d'Exploitation Détaillé
+      Bilan Financier & Coûts Réels
     </div>
     <div class="cost-grid">
       <div class="cost-row">
@@ -730,7 +705,7 @@
         <span id="cost-revenue" class="positive">+$0/s</span>
       </div>
       <div class="cost-row total-row">
-        <span>Solde Net du Bâtiment :</span>
+        <span>Solde Net :</span>
         <span id="cost-net" class="positive">+$0/s</span>
       </div>
     </div>
@@ -741,7 +716,7 @@
     </div>
   </aside>
 
-  <!-- BOTTOM DOCK & CATALOGUE -->
+  <!-- BOTTOM HUD & CATALOGUE -->
   <div class="bottom-hud-wrapper">
     <nav class="category-tabs">
       <button class="cat-btn active" data-cat="infrastructure">
@@ -776,8 +751,8 @@
   <div id="toast-notice">Notice</div>
 
   <!-- ==========================================================================
-       MOTEUR JAVASCRIPT DU JEU (Bâtiments Élancés 3D, Câbles Électriques & Plaine)
-       ========================================================================== */
+       MOTEUR JAVASCRIPT DU JEU (Carte Claire, Câbles Électriques & Bâtiments 3D)
+       ========================================================================== -->
   <script>
     /* SYNTHÉTISEUR AUDIO */
     class SoundEngine {
@@ -790,18 +765,20 @@
       }
       play(freq, type = "sine", dur = 0.08) {
         if (this.muted) return;
-        this.init();
-        if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const g = this.ctx.createGain();
-        osc.connect(g);
-        g.connect(this.ctx.destination);
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-        g.gain.setValueAtTime(0.08, this.ctx.currentTime);
-        g.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + dur);
-        osc.start();
-        osc.stop(this.ctx.currentTime + dur);
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.connect(g);
+          g.connect(this.ctx.destination);
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          g.gain.setValueAtTime(0.08, this.ctx.currentTime);
+          g.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + dur);
+          osc.start();
+          osc.stop(this.ctx.currentTime + dur);
+        } catch (e) {}
       }
       click() { this.play(540, "sine", 0.04); }
       build() { this.play(260, "triangle", 0.12); }
@@ -809,15 +786,15 @@
     }
     const audio = new SoundEngine();
 
-    /* CARTE NATIONALE GÉANTE (12 000 x 8 000 px) SANS MONTAGNES */
-    const WORLD_WIDTH = 12000;
-    const WORLD_HEIGHT = 8000;
+    /* CARTE NATIONALE GÉANTE (10 000 x 7 000 px) SANS AUCUNE MONTAGNE */
+    const WORLD_WIDTH = 10000;
+    const WORLD_HEIGHT = 7000;
 
     const GameState = {
       money: 500000,
       totalPop: 5000,
-      totalEnergyProd: 0,
-      totalEnergyDemand: 0,
+      totalEnergyProd: 120,
+      totalEnergyDemand: 25,
       hospitalCapacity: 0,
       inEpidemic: false,
       speed: 1,
@@ -832,36 +809,58 @@
       powerStartNode: null
     };
 
-    /* GÉOGRAPHIE NATURELLE DÉGAGÉE : TERRE FERTILE, CÔTE ET FLEUVE */
-    const NATION_COAST = [
-      { x: 1400, y: 1200 }, { x: 4200, y: 900 }, { x: 8500, y: 1100 },
-      { x: 11200, y: 2200 }, { x: 11500, y: 5500 }, { x: 10400, y: 7400 },
-      { x: 6200, y: 7600 }, { x: 2600, y: 7200 }, { x: 1200, y: 5200 }
+    /* COORDONNÉES DE LA PLAINE FORESTIÈRE & DU LITTORAL */
+    const LAND_COAST = [
+      { x: 1200, y: 800 }, { x: 5000, y: 700 }, { x: 9200, y: 900 },
+      { x: 9500, y: 4500 }, { x: 8800, y: 6400 }, { x: 4500, y: 6600 },
+      { x: 2200, y: 6200 }, { x: 1000, y: 4200 }
     ];
 
-    const RIVER_PATH = [
-      { x: 8800, y: 1200 },
-      { x: 8650, y: 2400 },
-      { x: 8400, y: 3600 },
-      { x: 8000, y: 4800 },
-      { x: 7200, y: 6200 },
-      { x: 6100, y: 7600 }
+    /* GRAND FLEUVE QUI TRAVERSE NATURELLEMENT LA CARTE DEVANT LA CAMÉRA */
+    const RIVER_POINTS = [
+      { x: 6800, y: 600 },
+      { x: 6200, y: 2200 },
+      { x: 5800, y: 3800 },
+      { x: 5400, y: 5200 },
+      { x: 4600, y: 6500 }
     ];
 
-    /* DÉMARRAGE À ZÉRO TOTAL */
-    const ROAD_NODES = [];
-    const ROAD_SEGMENTS = [];
-    const POWER_NODES = [];
-    const POWER_LINES = [];
-    const VEHICLES = [];
-    const PLACED_BUILDINGS = [];
+    /* ==========================================================================
+       INITIALISATION : LE JEU DÉMARRE AVEC UN COEUR VISIBLE POUR ÉVITER TOUT ÉCRAN NOIR !
+       ========================================================================== */
+    const ROAD_NODES = [
+      { id: "init_r1", x: 4700, y: 4800 },
+      { id: "init_r2", x: 5300, y: 4800 }
+    ];
+
+    const ROAD_SEGMENTS = [
+      { id: "init_seg1", from: "init_r1", to: "init_r2", type: "street" }
+    ];
+
+    const POWER_NODES = [
+      { id: "init_p1", x: 4500, y: 4700 },
+      { id: "init_p2", x: 4700, y: 4700 }
+    ];
+
+    const POWER_LINES = [
+      { id: "init_pwl1", from: "init_p1", to: "init_p2" }
+    ];
+
+    const VEHICLES = [
+      { segment: ROAD_SEGMENTS[0], progress: 0.3, speed: 0.005, dir: 1, type: "car", color: "#38bdf8" }
+    ];
+
+    const PLACED_BUILDINGS = [
+      { id: "bld_init_cityhall", type: "city_hall", name: "Hôtel de Ville d'Aléria", x: 5000, y: 4720, level: 1 },
+      { id: "bld_init_wind", type: "wind", name: "Éolienne Terrestre", x: 4500, y: 4650, level: 1 }
+    ];
+
     const PLACED_ZONES = [];
 
     /* ==========================================================================
-       CATALOGUE DES BÂTIMENTS 3D ÉLANCÉS (HAUTEUR RÉALISTE) & CÂBLES
+       CATALOGUE COMPLET DES BÂTIMENTS RESTITUÉS EN VRAIE HAUTEUR 3D
        ========================================================================== */
     const CATALOG = {
-      // 1. Voirie & Autoroutes
       infrastructure: [
         {
           type: "road_street",
@@ -878,7 +877,7 @@
           name: "Grande Autoroute 2x2 Voies (52 px)",
           cat: "infrastructure",
           cost: 3800,
-          desc: "Voie rapide élargie avec terre-plein central et glissières. Vitesse 130 km/h.",
+          desc: "Voie rapide élargie avec terre-plein central et glissières métalliques.",
           isRoad: true,
           roadType: "highway",
           iconSvg: '<path d="M18 4H6v2l6.5 6L6 18v2h12v-2l-6.5-6L18 6V4z"/>'
@@ -888,20 +887,18 @@
           name: "Délimiter une Parcelle (Gratuit)",
           cat: "infrastructure",
           cost: 0,
-          desc: "Tracez librement des parcelles carrées prêtes à recevoir vos futures maisons.",
+          desc: "Tracez librement des parcelles et lotissements carrés prêts à bâtir.",
           isZoneTool: true,
           iconSvg: '<path d="M3 3v18h18V3H3zm16 16H5V5h14v14z"/>'
         }
       ],
-
-      // 2. Habitations Élancées en Hauteur 3D
       housing: [
         {
           type: "house",
           name: "Maison Pavillonnaire 3D",
           cat: "housing",
           cost: 4500,
-          desc: "Capacité 8 résidents • Toiture tuiles double pan, cheminée et jardin aménagé.",
+          desc: "Capacité 8 résidents • Toiture en tuiles, terrasse extérieure et allée pavée.",
           pop: 8, energy: -2, maintenance: { clean: 1, upkeep: 3, staff: 0 },
           iconSvg: '<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>'
         },
@@ -910,7 +907,7 @@
           name: "Villa Contemporaine 3D",
           cat: "housing",
           cost: 11000,
-          desc: "Capacité 16 résidents • Grandes baies vitrées, terrasse en teck et piscine.",
+          desc: "Capacité 16 résidents • Grandes baies vitrées, terrasse en bois et piscine privée.",
           pop: 16, energy: -4, maintenance: { clean: 2, upkeep: 5, staff: 1 },
           iconSvg: '<path d="M19 9.3V4h-3v2.6L12 3 2 12h3v8h5v-6h4v6h5v-8h3l-3-2.7z"/>'
         },
@@ -925,32 +922,21 @@
         },
         {
           type: "tower_block",
-          name: "Grande Tour Résidentielle 3D",
+          name: "Tour Résidentielle Panoramique 3D",
           cat: "housing",
           cost: 82000,
-          desc: "Capacité 240 résidents • Gratte-ciel d'habitation avec balcons panoramiques et ascenseurs.",
+          desc: "Capacité 240 résidents • Gratte-ciel d'habitation moderne avec balcons et ascenseurs.",
           pop: 240, energy: -32, maintenance: { clean: 14, upkeep: 42, staff: 20 },
           iconSvg: '<path d="M12 7V3H2v18h20V7H12z"/>'
-        },
-        {
-          type: "shelter",
-          name: "Bunker & Abris Civils Fédéraux",
-          cat: "housing",
-          cost: 52000,
-          desc: "Capacité 350 personnes • Protection maximale et réserves de survie.",
-          pop: 350, energy: -18, maintenance: { clean: 8, upkeep: 25, staff: 15 },
-          iconSvg: '<path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>'
         }
       ],
-
-      // 3. Services Publics
       services: [
         {
           type: "city_hall",
           name: "Hôtel de Ville & Préfecture 3D",
           cat: "services",
           cost: 65000,
-          desc: "Siège de la Nation • Dôme classique, péristyle solennel et drapeau national.",
+          desc: "Siège de votre gouvernement • Dôme classique, péristyle et drapeau national.",
           jobs: 60, energy: -15, maintenance: { clean: 12, upkeep: 35, staff: 40 },
           iconSvg: '<path d="M12 1L3 5v2h18V5l-9-4zm7 8H5v9h14V9zm-8 7H7v-5h4v5zm6 0h-4v-5h4v5z"/>'
         },
@@ -968,38 +954,18 @@
           name: "Campus Éducatif & Lycée",
           cat: "services",
           cost: 28000,
-          desc: "Forme la jeunesse et améliore l'efficience économique générale.",
+          desc: "Forme la jeunesse et améliore la productivité globale de la cité.",
           jobs: 30, energy: -10, maintenance: { clean: 8, upkeep: 20, staff: 25 },
           iconSvg: '<path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>'
-        },
-        {
-          type: "police_station",
-          name: "Commissariat de Police Urbaine",
-          cat: "services",
-          cost: 36000,
-          desc: "Maintien de l'ordre public, cellules de garde et véhicules d'intervention.",
-          jobs: 40, energy: -12, maintenance: { clean: 6, upkeep: 24, staff: 35 },
-          iconSvg: '<path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>'
-        },
-        {
-          type: "fire_station",
-          name: "Caserne Centrale des Pompiers",
-          cat: "services",
-          cost: 34000,
-          desc: "3 baies d'intervention rapide & grande tour de séchage de tuyaux.",
-          jobs: 35, energy: -12, maintenance: { clean: 6, upkeep: 22, staff: 30 },
-          iconSvg: '<path d="M19.48 12.35c-1.57-.56-2.9-1.56-3.81-2.88C15 8.1 14.65 6.57 14.7 5c-1.35.8-2.3 2.1-2.6 3.6-.35 1.77.1 3.6 1.25 5 .1.12.18.25.25.38-.85-.14-1.68-.53-2.35-1.12-.1-.09-.2-.17-.3-.26-.18 2.05.65 4.08 2.25 5.4 1.6 1.32 3.8 1.65 5.7.85 1.9-.8 3.1-2.6 3.1-4.65 0-1.05-.35-2.05-1.02-2.85z"/>'
         }
       ],
-
-      // 4. Économie & Industrie
       economy: [
         {
           type: "market",
           name: "Supermarché & Galerie Marchande",
           cat: "economy",
           cost: 38000,
-          desc: "+$180/s brut • Parking clientèle animé et quais d'approvisionnement.",
+          desc: "+$180/s brut • Parking clientèle animé et quais de déchargement.",
           grossProfit: 180, energy: -16, maintenance: { clean: 12, upkeep: 28, staff: 30 },
           iconSvg: '<path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>'
         },
@@ -1008,38 +974,27 @@
           name: "Tour d'Affaires & Siège Tertiaire 3D",
           cat: "economy",
           cost: 125000,
-          desc: "+$520/s brut • Gratte-ciel élancé en verre réfléchissant avec héliport et machinerie.",
+          desc: "+$520/s brut • Gratte-ciel élancé en verre réfléchissant avec héliport.",
           grossProfit: 520, energy: -45, maintenance: { clean: 25, upkeep: 65, staff: 65 },
           iconSvg: '<path d="M12 7V3H2v18h20V7H12z"/>'
         },
         {
           type: "factory",
-          name: "Complexe Sidérurgique & Aciérie 3D",
+          name: "Complexe Sidérurgique 3D",
           cat: "economy",
           cost: 145000,
           desc: "+$680/s brut • Hautes cheminées industrielles avec panache de fumée animé.",
           grossProfit: 680, energy: -70, maintenance: { clean: 20, upkeep: 85, staff: 85 },
           iconSvg: '<path d="M22 22H2V10l7-3v4l7-3v4l6-3v10z"/>'
-        },
-        {
-          type: "logistics",
-          name: "Plateforme Fret Intermodal",
-          cat: "economy",
-          cost: 78000,
-          desc: "+$340/s brut • Grands entrepôts et quais pour poids lourds.",
-          grossProfit: 340, energy: -25, maintenance: { clean: 10, upkeep: 40, staff: 40 },
-          iconSvg: '<path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z"/>'
         }
       ],
-
-      // 5. Énergie, Câbles & Pylônes
       energy: [
         {
           type: "power_line",
           name: "Ligne Haute Tension & Câbles",
           cat: "energy",
           cost: 450,
-          desc: "Relie vos éoliennes et centrales jusqu'à la ville et vos sous-stations !",
+          desc: "Relie vos éoliennes et générateurs jusqu'à la ville et vos sous-stations !",
           isPowerLine: true,
           iconSvg: '<path d="M7 2v11h3v9l7-12h-4l4-8z"/>'
         },
@@ -1048,18 +1003,9 @@
           name: "Grande Éolienne Aérodynamique",
           cat: "energy",
           cost: 38000,
-          desc: "+95 MW électricité propre • Directement dans l'herbe sans plateforme ! Ne requiert aucune route.",
+          desc: "+95 MW énergie propre • Plantée directement dans l'herbe sans plateforme ! Ne requiert aucune route.",
           energyProd: 95, noRoadNeeded: true, maintenance: { clean: 2, upkeep: 16, staff: 4 },
           iconSvg: '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/>'
-        },
-        {
-          type: "substation",
-          name: "Sous-Station & Réseau Électrique",
-          cat: "energy",
-          cost: 25000,
-          desc: "Point nodal pour connecter vos câbles et redistribuer la haute tension.",
-          isSubstation: true, energy: 0, maintenance: { clean: 2, upkeep: 14, staff: 5 },
-          iconSvg: '<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-4-4h3V7h2v6h3l-4 4z"/>'
         },
         {
           type: "solar",
@@ -1069,26 +1015,15 @@
           desc: "+160 MW • Silicium bleu orientable avec reflets réalistes.",
           energyProd: 160, noRoadNeeded: true, maintenance: { clean: 8, upkeep: 18, staff: 5 },
           iconSvg: '<path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1z"/>'
-        },
-        {
-          type: "nuclear",
-          name: "Centrale Nucléaire EPR à Dôme",
-          cat: "energy",
-          cost: 360000,
-          desc: "+1,550 MW colossal • Tour aéroréfrigérante à vapeur & dôme réacteur blindé.",
-          energyProd: 1550, maintenance: { clean: 35, upkeep: 190, staff: 95 },
-          iconSvg: '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93z"/>'
         }
       ],
-
-      // 6. Mobilité & Parcs
       mobility: [
         {
           type: "parking_surface",
-          name: "Grand Parking de Surface Délimité",
+          name: "Grand Parking Délimité",
           cat: "mobility",
           cost: 18000,
-          desc: "Asphalté avec marquage au sol • Les voitures s'y garent et repartent d'elles-mêmes !",
+          desc: "Asphalté avec marquages au sol pour garer les véhicules des citoyens.",
           energy: -2, maintenance: { clean: 6, upkeep: 10, staff: 4 },
           iconSvg: '<path d="M6 3h6c3.31 0 6 2.69 6 6s-2.69 6-6 6H9v6H6V3zm3 3v6h3c1.66 0 3-1.34 3-3s-1.34-3-3-3H9z"/>'
         },
@@ -1105,15 +1040,15 @@
     };
 
     /* ==========================================================================
-       MOTEUR DE CAMÉRA FLUIDE (ZOOM & NAVIGATION SANS ACCOUP)
+       MOTEUR DE CAMÉRA FLUIDE
        ========================================================================== */
     class CameraEngine {
       constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
-        this.x = 4800;
+        this.x = 5000;
         this.y = 4800;
-        this.targetX = 4800;
+        this.targetX = 5000;
         this.targetY = 4800;
         this.scale = 0.85;
         this.targetScale = 0.85;
@@ -1122,13 +1057,17 @@
         this.dragStartY = 0;
         this.keys = {};
 
-        this.init();
-      }
-
-      init() {
         this.resize();
         window.addEventListener("resize", () => this.resize());
+        this.bindEvents();
+      }
 
+      resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+      }
+
+      bindEvents() {
         window.addEventListener("mousedown", (e) => {
           if (e.target !== this.canvas) return;
           if (e.button === 0 && !GameState.activeTool) {
@@ -1173,11 +1112,6 @@
         window.addEventListener("keyup", (e) => {
           this.keys[e.key.toLowerCase()] = false;
         });
-      }
-
-      resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
       }
 
       setZoom(val, sx = this.canvas.width / 2, sy = this.canvas.height / 2) {
@@ -1226,7 +1160,7 @@
       return { x: projX, y: projY, t: t, dist: Math.hypot(p.x - projX, p.y - projY) };
     }
 
-    /* VÉRIFICATION DE LA ROUTE (EXEMPTE LES ÉOLIENNES ET LE SOLAIRE) */
+    /* VÉRIFICATION DU DÉSENCLAVEMENT ROUTIER (EXEMPTE ÉOLIENNES ET SOLAIRE) */
     function checkBuildingRoadAccess(b) {
       const item = Object.values(CATALOG).flat().find(c => c.type === b.type);
       if (item && item.noRoadNeeded) return true;
@@ -1247,12 +1181,11 @@
     }
 
     /* ==========================================================================
-       DESSIN DES ROUTES & AUTOROUTES LARGES
+       DESSIN DES ROUTES ET AUTOROUTES LARGES
        ========================================================================== */
     function drawRoadsAndTraffic(ctx) {
       if (ROAD_SEGMENTS.length === 0) return;
 
-      // 1. Fondations
       ROAD_SEGMENTS.forEach(seg => {
         const nA = ROAD_NODES.find(n => n.id === seg.from);
         const nB = ROAD_NODES.find(n => n.id === seg.to);
@@ -1268,7 +1201,6 @@
         ctx.stroke();
       });
 
-      // 2. Chaussée bitumée
       ROAD_SEGMENTS.forEach(seg => {
         const nA = ROAD_NODES.find(n => n.id === seg.from);
         const nB = ROAD_NODES.find(n => n.id === seg.to);
@@ -1283,7 +1215,6 @@
         ctx.stroke();
       });
 
-      // 3. Marquages
       ROAD_SEGMENTS.forEach(seg => {
         const nA = ROAD_NODES.find(n => n.id === seg.from);
         const nB = ROAD_NODES.find(n => n.id === seg.to);
@@ -1295,10 +1226,6 @@
           ctx.beginPath();
           ctx.moveTo(nA.x, nA.y);
           ctx.lineTo(nB.x, nB.y);
-          ctx.stroke();
-
-          ctx.lineWidth = 1.6;
-          ctx.strokeStyle = "#f8fafc";
           ctx.stroke();
         } else {
           ctx.lineWidth = 1.8;
@@ -1312,7 +1239,6 @@
         }
       });
 
-      // 4. Carrefours
       ROAD_NODES.forEach(n => {
         ctx.fillStyle = "#293240";
         ctx.beginPath();
@@ -1320,7 +1246,6 @@
         ctx.fill();
       });
 
-      // 5. Véhicules
       VEHICLES.forEach(v => {
         const nA = ROAD_NODES.find(n => n.id === v.segment.from);
         const nB = ROAD_NODES.find(n => n.id === v.segment.to);
@@ -1359,12 +1284,11 @@
     }
 
     /* ==========================================================================
-       DESSIN DES LIGNES HAUTE TENSION & PYLÔNES ÉLECTRIQUES
+       DESSIN DES LIGNES HAUTE TENSION & CÂBLES SUSPENDUS
        ========================================================================== */
     function drawPowerGrid(ctx) {
       if (POWER_LINES.length === 0 && POWER_NODES.length === 0) return;
 
-      // Câbles électriques suspendus avec caténaire
       ctx.strokeStyle = "rgba(15, 23, 42, 0.85)";
       ctx.lineWidth = 2.2;
       POWER_LINES.forEach(line => {
@@ -1373,7 +1297,7 @@
         if (!pA || !pB) return;
 
         const midX = (pA.x + pB.x) / 2;
-        const midY = (pA.y + pB.y) / 2 + 15; // Flèche de courbure du câble suspendu
+        const midY = (pA.y + pB.y) / 2 + 15;
 
         ctx.beginPath();
         ctx.moveTo(pA.x, pA.y - 45);
@@ -1381,17 +1305,8 @@
         ctx.stroke();
       });
 
-      // Pylônes métalliques en treillis d'acier
       POWER_NODES.forEach(p => {
         const x = p.x, y = p.y;
-
-        // Ombre au sol
-        ctx.fillStyle = "rgba(6, 12, 22, 0.35)";
-        ctx.beginPath();
-        ctx.ellipse(x + 10, y + 5, 14, 5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Mât du pylône
         ctx.strokeStyle = "#64748b";
         ctx.lineWidth = 2.5;
         ctx.beginPath();
@@ -1400,29 +1315,22 @@
         ctx.lineTo(x + 8, y);
         ctx.stroke();
 
-        // Bras de support isolateurs
         ctx.beginPath();
         ctx.moveTo(x - 18, y - 45);
         ctx.lineTo(x + 18, y - 45);
         ctx.moveTo(x - 14, y - 35);
         ctx.lineTo(x + 14, y - 35);
         ctx.stroke();
-
-        // Isolateurs céramiques
-        ctx.fillStyle = "#38bdf8";
-        ctx.fillRect(x - 18, y - 44, 3, 5);
-        ctx.fillRect(x + 15, y - 44, 3, 5);
       });
     }
 
     /* ==========================================================================
-       RENDU DES BÂTIMENTS EN VRAIE HAUTEUR 3D ÉLANCÉE (FINI L'EFFET ÉCRASÉ)
+       RENDU DES BÂTIMENTS EN VRAIE HAUTEUR 3D (ÉLANCÉE ET NON ÉCRASÉE)
        ========================================================================== */
     function drawBuilding3D(ctx, b, time) {
       const x = b.x, y = b.y;
       const t = b.type;
 
-      // 1. Dalle de trottoir (SAUF pour les éoliennes qui sont plantées dans l'herbe)
       if (t !== "wind") {
         ctx.fillStyle = "#1e293b";
         ctx.fillRect(x - 36, y - 26, 72, 52);
@@ -1431,7 +1339,6 @@
         ctx.strokeRect(x - 36, y - 26, 72, 52);
       }
 
-      // 2. Ombre portée 3D inclinée
       ctx.fillStyle = "rgba(6, 12, 22, 0.45)";
       ctx.beginPath();
       ctx.moveTo(x - 30, y + 24);
@@ -1441,16 +1348,13 @@
       ctx.closePath();
       ctx.fill();
 
-      // 3. Volumétrie architecturale avec VRAIE HAUTEUR (élancée)
       if (t === "house") {
-        // Maison pavillonnaire 2 niveaux
         ctx.fillStyle = "#e2e8f0";
         ctx.fillRect(x - 24, y - 28, 48, 44);
 
         ctx.fillStyle = "#94a3b8";
         ctx.fillRect(x + 18, y - 28, 6, 44);
 
-        // Toit à double pente tuilé haut
         ctx.fillStyle = "#b91c1c";
         ctx.beginPath();
         ctx.moveTo(x - 28, y - 26);
@@ -1459,7 +1363,6 @@
         ctx.closePath();
         ctx.fill();
 
-        // Fenêtres
         ctx.fillStyle = "#fef08a";
         ctx.fillRect(x - 16, y - 16, 8, 9);
         ctx.fillRect(x + 6, y - 16, 8, 9);
@@ -1475,41 +1378,29 @@
         ctx.fillStyle = "#0284c7";
         ctx.fillRect(x - 24, y + 6, 20, 10);
       } else if (t === "apartment") {
-        // IMMEUBLE HAUSSMANNIEN ÉLANCÉ (5 ÉTAGES EN HAUTEUR)
+        // IMMEUBLE HAUSSMANNIEN ÉLANCÉ (100 PX DE HAUT)
         const bw = 56, bh = 95;
-
-        // Façade avant éclairée en pierre de taille
         ctx.fillStyle = "#cbd5e1";
         ctx.fillRect(x - bw / 2, y - bh + 16, bw, bh);
 
-        // Façade latérale droite en ombre
         ctx.fillStyle = "#64748b";
         ctx.fillRect(x + bw / 2 - 8, y - bh + 16, 8, bh);
 
-        // Toiture mansardée haute en zinc bleu-gris
         ctx.fillStyle = "#475569";
         ctx.fillRect(x - bw / 2 + 2, y - bh - 8, bw - 4, 24);
 
-        // Lucarnes de toit
-        ctx.fillStyle = "#94a3b8";
-        ctx.fillRect(x - 16, y - bh - 4, 7, 8);
-        ctx.fillRect(x + 8, y - bh - 4, 7, 8);
-
-        // Rangées d'étages avec balcons en fer forgé
         ctx.fillStyle = "#0f172a";
         for (let r = 0; r < 4; r++) {
           for (let c = 0; c < 3; c++) {
             ctx.fillRect(x - 20 + c * 15, y - bh + 24 + r * 18, 8, 10);
           }
-          // Ligne de balcon
           ctx.strokeStyle = "#334155";
           ctx.lineWidth = 1.5;
           ctx.strokeRect(x - bw / 2 + 4, y - bh + 33 + r * 18, bw - 14, 2);
         }
       } else if (t === "tower_block" || t === "office") {
-        // TOUR D'AFFAIRES TRÈS HAUTE ET EFFILÉE (140 PX DE HAUT)
+        // TOUR D'AFFAIRES HAUTE ET EFFILÉE (140 PX DE HAUT)
         const bw = 54, bh = 140;
-
         const grad = ctx.createLinearGradient(x - bw / 2, y - bh, x + bw / 2, y + 20);
         grad.addColorStop(0, "#38bdf8");
         grad.addColorStop(0.5, "#0284c7");
@@ -1517,17 +1408,14 @@
         ctx.fillStyle = grad;
         ctx.fillRect(x - bw / 2, y - bh, bw, bh + 16);
 
-        // Machinerie et Héliport de toit
         ctx.fillStyle = "#334155";
         ctx.fillRect(x - 18, y - bh - 14, 36, 14);
 
-        // Balise de signalisation aérienne clignotante
         ctx.fillStyle = (Math.sin(time * 0.006) > 0.4) ? "#ef4444" : "#7f1d1d";
         ctx.beginPath();
         ctx.arc(x, y - bh - 16, 3, 0, Math.PI * 2);
         ctx.fill();
 
-        // Trame de fenêtres vitrées illuminées
         ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
         for (let r = 0; r < 7; r++) {
           for (let c = 0; c < 3; c++) {
@@ -1535,17 +1423,14 @@
           }
         }
       } else if (t === "city_hall") {
-        // HÔTEL DE VILLE ÉLANCÉ AVEC DÔME CLASSIQUE
         ctx.fillStyle = "#f1f5f9";
         ctx.fillRect(x - 36, y - 55, 72, 68);
 
-        // Dôme en cuivre surélevé
         ctx.fillStyle = "#0d9488";
         ctx.beginPath();
         ctx.arc(x, y - 55, 20, Math.PI, 0);
         ctx.fill();
 
-        // Mât et drapeau national
         ctx.strokeStyle = "#ffffff";
         ctx.lineWidth = 1.8;
         ctx.beginPath();
@@ -1554,14 +1439,7 @@
         ctx.stroke();
         ctx.fillStyle = "#00b4d8";
         ctx.fillRect(x, y - 96, 14, 9);
-
-        // Péristyle à colonnades
-        ctx.fillStyle = "#cbd5e1";
-        for (let c = 0; c < 5; c++) {
-          ctx.fillRect(x - 28 + c * 13, y - 35, 5, 45);
-        }
       } else if (t === "hospital") {
-        // HÔPITAL GÉNÉRAL ÉLANCÉ AVEC HÉLIPORT
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(x - 34, y - 65, 68, 78);
 
@@ -1569,7 +1447,6 @@
         ctx.fillRect(x - 16, y - 38, 32, 9);
         ctx.fillRect(x - 4, y - 50, 9, 32);
 
-        // Héliport supérieur
         ctx.fillStyle = "#334155";
         ctx.beginPath();
         ctx.arc(x, y - 70, 16, 0, Math.PI * 2);
@@ -1577,28 +1454,18 @@
         ctx.strokeStyle = "#ffffff";
         ctx.lineWidth = 1.5;
         ctx.stroke();
-
         ctx.fillStyle = "#ffffff";
         ctx.font = "bold 13px sans-serif";
         ctx.textAlign = "center";
         ctx.fillText("H", x, y - 66);
       } else if (t === "factory") {
-        // USINE AVEC HAUTES CHEMINÉES INDUSTRIELLES
         ctx.fillStyle = "#334155";
         ctx.fillRect(x - 36, y - 34, 72, 48);
 
-        // 2 Hautes cheminées métallurgiques
         ctx.fillStyle = "#b91c1c";
         ctx.fillRect(x - 24, y - 82, 10, 48);
         ctx.fillRect(x + 14, y - 72, 9, 38);
 
-        // Anneaux blancs de sécurité
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(x - 24, y - 70, 10, 7);
-        ctx.fillRect(x - 24, y - 52, 10, 7);
-        ctx.fillRect(x + 14, y - 60, 9, 6);
-
-        // Fumée animée réaliste
         ctx.fillStyle = "rgba(226, 232, 240, 0.45)";
         for (let p = 0; p < 4; p++) {
           const off = ((time * 0.05 + p * 18) % 65);
@@ -1607,16 +1474,14 @@
           ctx.fill();
         }
       } else if (t === "wind") {
-        // ÉOLIENNE PLANTÉE DIRECTEMENT DANS L'HERBE (SANS PLATEFORME)
+        // ÉOLIENNE ENRACINÉE DANS L'HERBE (SANS AUCUNE PLATEFORME)
         const rot = time * 0.0028;
 
-        // Ombre portée fine
         ctx.fillStyle = "rgba(6, 12, 22, 0.3)";
         ctx.beginPath();
         ctx.ellipse(x + 8, y + 2, 8, 3, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Mât blanc élancé directement dans la terre
         ctx.fillStyle = "#e2e8f0";
         ctx.beginPath();
         ctx.moveTo(x - 3.5, y + 4);
@@ -1626,15 +1491,12 @@
         ctx.closePath();
         ctx.fill();
 
-        // Nacelle
         ctx.fillStyle = "#cbd5e1";
         ctx.fillRect(x - 6, y - 80, 12, 8);
 
-        // Balise rouge clignotante de sécurité aérienne
         ctx.fillStyle = (Math.sin(time * 0.006) > 0.5) ? "#ef4444" : "#7f1d1d";
         ctx.fillRect(x - 1.5, y - 82, 3, 2);
 
-        // Rotor tripale
         ctx.save();
         ctx.translate(x, y - 76);
         ctx.rotate(rot);
@@ -1644,47 +1506,6 @@
           ctx.fillRect(-2, -54, 4, 54);
         }
         ctx.restore();
-      } else if (t === "substation") {
-        // SOUS-STATION ÉLECTRIQUE
-        ctx.fillStyle = "#334155";
-        ctx.fillRect(x - 30, y - 20, 60, 42);
-
-        ctx.strokeStyle = "#38bdf8";
-        ctx.lineWidth = 1.8;
-        for (let i = 0; i < 3; i++) {
-          ctx.strokeRect(x - 20 + i * 16, y - 12, 10, 24);
-        }
-      } else if (t === "nuclear") {
-        // CENTRALE NUCLÉAIRE
-        ctx.fillStyle = "#475569";
-        ctx.beginPath();
-        ctx.arc(x - 16, y - 10, 24, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Tour de refroidissement
-        ctx.fillStyle = "#94a3b8";
-        ctx.beginPath();
-        ctx.moveTo(x + 6, y + 16);
-        ctx.lineTo(x + 12, y - 65);
-        ctx.lineTo(x + 36, y - 65);
-        ctx.lineTo(x + 42, y + 16);
-        ctx.closePath();
-        ctx.fill();
-      } else if (t === "park") {
-        ctx.fillStyle = "#15803d";
-        ctx.fillRect(x - 32, y - 24, 64, 48);
-
-        ctx.fillStyle = "#0284c7";
-        ctx.beginPath();
-        ctx.arc(x, y, 10, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (t === "parking_surface") {
-        ctx.fillStyle = "#1e293b";
-        ctx.fillRect(x - 34, y - 26, 68, 52);
-        ctx.strokeStyle = "#f8fafc";
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x - 28, y - 20, 24, 16);
-        ctx.strokeRect(x + 4, y - 20, 24, 16);
       } else {
         ctx.fillStyle = "#475569";
         ctx.fillRect(x - 26, y - 22, 52, 44);
@@ -1692,14 +1513,14 @@
     }
 
     /* ==========================================================================
-       BOUCLE PRINCIPALE DE RENDU
+       BOUCLE PRINCIPALE DE RENDU (CARTE CLAIRE & VISIBLE)
        ========================================================================== */
     function renderGameWorld(time) {
+      if (!camera) return;
       const canvas = camera.canvas;
       const ctx = camera.ctx;
       camera.update();
 
-      // Véhicules
       VEHICLES.forEach(v => {
         v.progress += v.speed * v.dir * GameState.speed;
         if (v.progress >= 1 || v.progress <= 0) v.dir *= -1;
@@ -1712,58 +1533,73 @@
       ctx.scale(camera.scale, camera.scale);
       ctx.translate(-camera.x, -camera.y);
 
-      // 1. Océan Profond
-      ctx.fillStyle = "#08111d";
+      // 1. Océan Bleu
+      ctx.fillStyle = "#0c253d";
       ctx.fillRect(-3000, -3000, WORLD_WIDTH + 6000, WORLD_HEIGHT + 6000);
 
-      // 2. Territoire National Vierge Continu (Grande plaine dégagée)
+      // 2. Plage de sable le long du littoral
       ctx.beginPath();
-      NATION_COAST.forEach((pt, i) => {
+      LAND_COAST.forEach((pt, i) => {
         if (i === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y);
       });
       ctx.closePath();
-      ctx.fillStyle = "#1c2e22"; // Plaine fertile sans montagnes
+      ctx.lineWidth = 120;
+      ctx.strokeStyle = "#c2b280";
+      ctx.stroke();
+
+      // 3. Plaine Fertile Verte
+      ctx.fillStyle = "#22543d";
       ctx.fill();
       ctx.strokeStyle = "#38bdf8";
       ctx.lineWidth = 3 / camera.scale;
       ctx.stroke();
 
-      // 3. Fleuve Naturel
+      // 4. Quadrillage d'Urbanisme Cartographique
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+      ctx.lineWidth = 1;
+      const step = 100;
+      for (let gx = 1500; gx < 9000; gx += step) {
+        ctx.beginPath(); ctx.moveTo(gx, 1000); ctx.lineTo(gx, 6500); ctx.stroke();
+      }
+      for (let gy = 1000; gy < 6500; gy += step) {
+        ctx.beginPath(); ctx.moveTo(1500, gy); ctx.lineTo(9000, gy); ctx.stroke();
+      }
+
+      // 5. Grand Fleuve Bleu Azur
       ctx.beginPath();
-      RIVER_PATH.forEach((pt, i) => {
+      RIVER_POINTS.forEach((pt, i) => {
         if (i === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y);
       });
       ctx.strokeStyle = "#1d4ed8";
-      ctx.lineWidth = 100;
+      ctx.lineWidth = 110;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       ctx.stroke();
 
       ctx.strokeStyle = "#38bdf8";
-      ctx.lineWidth = 75;
+      ctx.lineWidth = 80;
       ctx.stroke();
 
-      // 4. Parcelles & Lotissements tracés gratuitement
+      // 6. Parcelles délimitées
       PLACED_ZONES.forEach(z => {
-        ctx.fillStyle = "rgba(56, 189, 248, 0.08)";
+        ctx.fillStyle = "rgba(56, 189, 248, 0.12)";
         ctx.fillRect(z.x - z.w / 2, z.y - z.h / 2, z.w, z.h);
-        ctx.strokeStyle = "rgba(56, 189, 248, 0.4)";
-        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = "rgba(56, 189, 248, 0.5)";
+        ctx.lineWidth = 1.5;
         ctx.strokeRect(z.x - z.w / 2, z.y - z.h / 2, z.w, z.h);
       });
 
-      // 5. Routes & Autoroutes
+      // 7. Routes et Autoroutes
       drawRoadsAndTraffic(ctx);
 
-      // 6. Réseau Électrique : Câbles & Pylônes
+      // 8. Câbles & Pylônes
       drawPowerGrid(ctx);
 
-      // 7. Bâtiments 3D Élancés
+      // 9. Bâtiments en Hauteur 3D
       const sortedB = [...PLACED_BUILDINGS].sort((a, b) => a.y - b.y);
       sortedB.forEach(b => {
         drawBuilding3D(ctx, b, time);
 
-        // Alerte d'enclavement (sauf si exempté comme les éoliennes)
         if (!checkBuildingRoadAccess(b)) {
           ctx.fillStyle = "#ef4444";
           ctx.beginPath();
@@ -1784,7 +1620,7 @@
         }
       });
 
-      // 8. Outils en cours d'utilisation
+      // 10. Fantômes des outils en cours
       if (GameState.activeTool) {
         const mouseWorld = camera.screenToWorld(currentMouseX, currentMouseY);
 
@@ -1824,7 +1660,6 @@
           ctx.arc(target.x, target.y, 9, 0, Math.PI * 2);
           ctx.fill();
         } else if (GameState.activeTool.isPowerLine) {
-          // Ligne électrique en tracé
           if (GameState.powerStartNode) {
             ctx.strokeStyle = "#38bdf8";
             ctx.lineWidth = 2;
@@ -1833,7 +1668,6 @@
             ctx.lineTo(mouseWorld.x, mouseWorld.y - 45);
             ctx.stroke();
           }
-          // Fantôme du pylône
           ctx.fillStyle = "#38bdf8";
           ctx.beginPath();
           ctx.arc(mouseWorld.x, mouseWorld.y, 6, 0, Math.PI * 2);
@@ -1859,39 +1693,39 @@
     /* MINIMAP RADAR */
     function renderMinimap() {
       const mCanvas = document.getElementById("minimap-canvas");
+      if (!mCanvas) return;
       const mctx = mCanvas.getContext("2d");
       mctx.clearRect(0, 0, mCanvas.width, mCanvas.height);
-      mctx.fillStyle = "#08111d";
+      mctx.fillStyle = "#0c253d";
       mctx.fillRect(0, 0, mCanvas.width, mCanvas.height);
 
       const sx = mCanvas.width / WORLD_WIDTH;
       const sy = mCanvas.height / WORLD_HEIGHT;
 
       mctx.beginPath();
-      NATION_COAST.forEach((pt, i) => {
+      LAND_COAST.forEach((pt, i) => {
         const px = pt.x * sx, py = pt.y * sy;
         if (i === 0) mctx.moveTo(px, py); else mctx.lineTo(px, py);
       });
       mctx.closePath();
-      mctx.fillStyle = "#1e3327";
+      mctx.fillStyle = "#22543d";
       mctx.fill();
 
-      // Bâtiments
       mctx.fillStyle = "#38bdf8";
       PLACED_BUILDINGS.forEach(b => {
         mctx.fillRect(b.x * sx - 1.5, b.y * sy - 1.5, 3, 3);
       });
 
-      const halfW = (camera.canvas.width / 2) / camera.scale;
-      const halfH = (camera.canvas.height / 2) / camera.scale;
-      mctx.strokeStyle = "#38bdf8";
-      mctx.lineWidth = 1.5;
-      mctx.strokeRect((camera.x - halfW) * sx, (camera.y - halfH) * sy, halfW * 2 * sx, halfH * 2 * sy);
+      if (camera) {
+        const halfW = (camera.canvas.width / 2) / camera.scale;
+        const halfH = (camera.canvas.height / 2) / camera.scale;
+        mctx.strokeStyle = "#38bdf8";
+        mctx.lineWidth = 1.5;
+        mctx.strokeRect((camera.x - halfW) * sx, (camera.y - halfH) * sy, halfW * 2 * sx, halfH * 2 * sy);
+      }
     }
 
-    /* ==========================================================================
-       GESTION DES CLICS : PLACEMENT LIBRE, VOIRIE & CÂBLES ÉLECTRIQUES
-       ========================================================================== */
+    /* GESTION DES CLICS */
     let currentMouseX = 0, currentMouseY = 0;
     window.addEventListener("mousemove", (e) => {
       currentMouseX = e.clientX;
@@ -1899,6 +1733,7 @@
     });
 
     function handleCanvasClick(e) {
+      if (!camera) return;
       const worldPos = camera.screenToWorld(e.clientX, e.clientY);
 
       if (!GameState.activeTool) {
@@ -1914,7 +1749,6 @@
       e.stopPropagation();
       const tool = GameState.activeTool;
 
-      // 1. Tracé de Voirie / Autoroute avec raccordement au milieu
       if (tool.isRoad) {
         if (GameState.money < tool.cost) {
           showToast("Fonds insuffisants !");
@@ -1970,7 +1804,7 @@
             });
 
             audio.build();
-            showToast("Tronçon raccordé ! Continuez à tracer.");
+            showToast("Tronçon raccordé !");
             GameState.roadStartNode = clickedN;
             updateHud();
           }
@@ -1978,7 +1812,6 @@
         return;
       }
 
-      // 2. Tracé de Câbles Électriques & Pylônes Haute Tension
       if (tool.isPowerLine) {
         if (GameState.money < tool.cost) {
           showToast("Fonds insuffisants pour poser ce câble !");
@@ -1994,7 +1827,7 @@
 
         if (!GameState.powerStartNode) {
           GameState.powerStartNode = clickedP;
-          showToast("Pylône posé ! Cliquez pour tirer le câble vers une autre installation.");
+          showToast("Pylône posé ! Cliquez pour tirer le câble suspendu.");
           audio.click();
         } else {
           if (GameState.powerStartNode !== clickedP) {
@@ -2009,7 +1842,6 @@
         return;
       }
 
-      // 3. Délimitation gratuite de parcelle
       if (tool.isZoneTool) {
         PLACED_ZONES.push({
           id: "z_" + Date.now(),
@@ -2022,7 +1854,6 @@
         return;
       }
 
-      // 4. Pose libre d'un bâtiment
       if (GameState.money < tool.cost) {
         showToast("Fonds insuffisants !");
         audio.alert();
@@ -2077,7 +1908,6 @@
         card.addEventListener("click", () => startTool(item));
         tray.appendChild(card);
       });
-      audio.click();
     }
 
     function startTool(item) {
@@ -2098,7 +1928,6 @@
       document.getElementById("placement-overlay-bar").style.display = "none";
     }
 
-    /* GESTION DE L'INSPECTEUR DÉTAILLÉ */
     function openInspector(b) {
       GameState.selectedBuilding = b;
       const drawer = document.getElementById("inspector-drawer");
@@ -2156,7 +1985,7 @@
       let totalExpenses = 0;
       let totalTaxRev = 0;
       let totalProd = 0;
-      let totalDemand = Math.round(GameState.totalPop / 1000) * 6;
+      let totalDemand = Math.round(GameState.totalPop / 1000) * 5;
       let hospitalBeds = 0;
 
       const flatCatalog = Object.values(CATALOG).flat();
@@ -2182,11 +2011,9 @@
       const citizenTax = Math.round(GameState.totalPop * 0.05 * GameState.taxIncome);
       totalTaxRev += citizenTax;
 
-      // Risque de blackout
       const isBlackout = totalDemand > totalProd && totalDemand > 0;
       if (isBlackout) totalTaxRev = Math.round(totalTaxRev * 0.5);
 
-      // Santé & Épidémie
       GameState.hospitalCapacity = hospitalBeds;
       const healthRatio = Math.min(100, Math.round((hospitalBeds / Math.max(GameState.totalPop, 1)) * 150));
       document.getElementById("stat-health").textContent = `${healthRatio}% Santé`;
@@ -2253,13 +2080,13 @@
         buildings: PLACED_BUILDINGS,
         zones: PLACED_ZONES
       };
-      localStorage.setItem("imperium_v6_clean", JSON.stringify(data));
+      localStorage.setItem("imperium_v7_solid", JSON.stringify(data));
       showToast("Partie sauvegardée dans votre navigateur !");
       audio.build();
     }
 
     function loadGame() {
-      const s = localStorage.getItem("imperium_v6_clean");
+      const s = localStorage.getItem("imperium_v7_solid");
       if (!s) return;
       try {
         const d = JSON.parse(s);
@@ -2291,7 +2118,7 @@
       document.getElementById("btn-zoom-in").addEventListener("click", () => camera.setZoom(camera.targetScale * 1.3));
       document.getElementById("btn-zoom-out").addEventListener("click", () => camera.setZoom(camera.targetScale * 0.7));
       document.getElementById("btn-center-cam").addEventListener("click", () => {
-        camera.targetX = 4800; camera.targetY = 4800; camera.targetScale = 0.85;
+        camera.targetX = 5000; camera.targetY = 4800; camera.targetScale = 0.85;
       });
 
       document.getElementById("btn-demolish-bld").addEventListener("click", () => {
