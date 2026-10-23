@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Imperium: Cartographie Nationale & Urbanisme Réaliste</title>
+  <title>Imperium: Nation Builder & Simulation Urbaine 3D</title>
   <style>
     :root {
-      --bg-dark: #080e18;
-      --panel-bg: rgba(11, 19, 32, 0.96);
+      --bg-dark: #070d18;
+      --panel-bg: rgba(11, 19, 34, 0.96);
       --panel-border: rgba(255, 255, 255, 0.14);
       --accent-blue: #0284c7;
       --accent-cyan: #38bdf8;
@@ -16,8 +16,8 @@
       --accent-red: #ef4444;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --card-bg: rgba(18, 28, 46, 0.94);
-      --card-hover: rgba(28, 44, 72, 0.98);
+      --card-bg: rgba(18, 28, 48, 0.94);
+      --card-hover: rgba(28, 44, 76, 0.98);
       --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
 
@@ -50,7 +50,7 @@
     #game-canvas:active { cursor: grabbing; }
     #game-canvas.tool-mode { cursor: crosshair !important; }
 
-    /* HUD SUPÉRIEUR ÉPURÉ */
+    /* HUD SUPÉRIEUR */
     .top-bar {
       position: absolute;
       top: 12px;
@@ -71,7 +71,7 @@
       border: 1px solid var(--panel-border);
       backdrop-filter: blur(18px);
       border-radius: 28px;
-      padding: 7px 18px;
+      padding: 8px 18px;
       display: flex;
       align-items: center;
       gap: 14px;
@@ -148,6 +148,7 @@
     .positive { color: var(--accent-green); }
     .negative { color: var(--accent-red); }
 
+    /* RCI */
     .rci-container {
       display: flex;
       align-items: center;
@@ -196,7 +197,7 @@
       border-color: var(--accent-cyan);
     }
 
-    /* BANNIÈRE DE PLACEMENT */
+    /* BANNIÈRE PLACEMENT */
     #placement-overlay-bar {
       position: absolute;
       top: 72px;
@@ -234,6 +235,35 @@
       color: white;
     }
 
+    /* NAVIGATION RAPIDE */
+    .city-nav-panel {
+      position: absolute;
+      left: 20px;
+      top: 248px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 40;
+    }
+    .city-nav-btn {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 6px 12px;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+    .city-nav-btn:hover {
+      background: var(--card-hover);
+      color: white;
+      border-color: var(--accent-cyan);
+    }
+
     /* MINIMAP RADAR */
     #minimap-wrapper {
       position: absolute;
@@ -264,35 +294,6 @@
       color: var(--accent-cyan);
       text-transform: uppercase;
       pointer-events: none;
-    }
-
-    /* NAVIGATION RAPIDE */
-    .city-nav-panel {
-      position: absolute;
-      left: 20px;
-      top: 248px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      z-index: 40;
-    }
-    .city-nav-btn {
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
-      border-radius: 10px;
-      padding: 6px 12px;
-      color: var(--text-muted);
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: left;
-      transition: all 0.2s;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-    }
-    .city-nav-btn:hover {
-      background: var(--card-hover);
-      color: white;
-      border-color: var(--accent-cyan);
     }
 
     /* CONTRÔLES ZOOM */
@@ -328,7 +329,7 @@
       border-color: var(--accent-cyan);
     }
 
-    /* BOTTOM HUD & DOCK */
+    /* BOTTOM DOCK & CATALOGUE */
     .bottom-hud-wrapper {
       position: absolute;
       bottom: 12px;
@@ -514,8 +515,8 @@
           <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
         </div>
         <div>
-          <span id="stat-money">$1,520.0K</span>
-          <span class="stat-sub positive" id="stat-income">+$3.8K/s</span>
+          <span id="stat-money">$1,600.0K</span>
+          <span class="stat-sub positive" id="stat-income">+$4.2K/s</span>
         </div>
       </div>
 
@@ -525,7 +526,7 @@
           <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
         </div>
         <div>
-          <span id="stat-pop">19.5K</span>
+          <span id="stat-pop">21.8K</span>
           <span class="stat-sub positive" id="stat-jobs">98% emploi</span>
         </div>
       </div>
@@ -536,15 +537,15 @@
           <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
         </div>
         <div>
-          <span id="stat-energy">180 / 480 MW</span>
-          <span class="stat-sub positive" id="stat-energy-balance">+300 MW</span>
+          <span id="stat-energy">210 / 520 MW</span>
+          <span class="stat-sub positive" id="stat-energy-balance">+310 MW</span>
         </div>
       </div>
 
       <!-- Demande RCI -->
       <div class="rci-container">
         <span class="rci-lbl">RCI</span>
-        <div class="rci-bars" title="Demande Urbaine : Résidentiel (Vert), Commercial (Bleu), Industriel (Jaune)">
+        <div class="rci-bars" title="Demande : Vert (Résidentiel), Bleu (Commercial), Jaune (Industriel)">
           <div class="rci-bar r" id="rci-r" style="height: 18px;"></div>
           <div class="rci-bar c" id="rci-c" style="height: 14px;"></div>
           <div class="rci-bar i" id="rci-i" style="height: 10px;"></div>
@@ -567,23 +568,23 @@
   <div id="placement-overlay-bar">
     <div class="placing-info" id="placing-title">Mode Placement</div>
     <span style="color: var(--text-muted); font-size: 12px;" id="placing-instruction">
-      Cliquez sur une parcelle ou n'importe où le long d'une route pour vous brancher.
+      Cliquez sur une parcelle déverrouillée ou sur une voie pour vous y raccorder.
     </span>
     <button class="btn-cancel-placement" id="btn-cancel-placement">Annuler [Échap]</button>
   </div>
 
-  <!-- NAVIGATION RAPIDE ENTRE LES 3 GRANDS BASSINS -->
+  <!-- NAVIGATION RAPIDE -->
   <div class="city-nav-panel">
-    <div style="font-size: 10px; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 2px;">Régions</div>
+    <div style="font-size: 10px; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 2px;">Métropoles</div>
     <button class="city-nav-btn" data-x="4800" data-y="5200">Port-Solaire (Capitale)</button>
     <button class="city-nav-btn" data-x="11600" data-y="5400">Val-des-Forges (Industrie)</button>
-    <button class="city-nav-btn" data-x="7800" data-y="2400">Plateau des Cimes (Relief)</button>
+    <button class="city-nav-btn" data-x="7800" data-y="2100">Massif des Crêtes Noires</button>
   </div>
 
   <!-- MINIMAP SATELLITE -->
   <div id="minimap-wrapper">
     <canvas id="minimap-canvas" width="220" height="150"></canvas>
-    <div class="minimap-lbl">Relief Stratégique</div>
+    <div class="minimap-lbl">Topographie Nationale</div>
   </div>
 
   <!-- CONTRÔLES ZOOM -->
@@ -600,23 +601,23 @@
     <nav class="category-tabs">
       <button class="cat-btn active" data-cat="infrastructure">
         <svg viewBox="0 0 24 24"><path d="M18 4H6v2l6.5 6L6 18v2h12v-2l-6.5-6L18 6V4z"/></svg>
-        <span>Autoroutes & Voirie</span>
+        <span>Autoroutes & Voies Larges</span>
       </button>
       <button class="cat-btn" data-cat="residential">
         <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        <span>Résidentiel</span>
+        <span>Habitations 3D</span>
       </button>
       <button class="cat-btn" data-cat="business">
         <svg viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg>
-        <span>Bureaux & Affaires</span>
+        <span>Affaires & Tours</span>
       </button>
       <button class="cat-btn" data-cat="industry">
         <svg viewBox="0 0 24 24"><path d="M22 22H2V10l7-3v4l7-3v4l6-3v10z"/></svg>
-        <span>Usines & Logistique</span>
+        <span>Industrie & Fret</span>
       </button>
       <button class="cat-btn" data-cat="energy">
         <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
-        <span>Énergie</span>
+        <span>Énergie Propre</span>
       </button>
     </nav>
     <div class="building-tray-scroll" id="building-tray"></div>
@@ -626,7 +627,7 @@
   <div id="toast-notice">Notice</div>
 
   <!-- ==========================================================================
-       MOTEUR JAVASCRIPT DU JEU (Topographie, Courbes de niveau & Parcelles 3D)
+       MOTEUR JAVASCRIPT DU JEU (Reliefs Anguleux, Parcelles Achetables & 3D)
        ========================================================================== -->
   <script>
     /* SYNTHÉTISEUR AUDIO */
@@ -655,6 +656,8 @@
       }
       click() { this.play(540, "sine", 0.04); }
       build() { this.play(260, "triangle", 0.12); }
+      unlock() { this.play(440, "sine", 0.18); setTimeout(() => this.play(880, "triangle", 0.22), 120); }
+      alert() { this.play(220, "sawtooth", 0.25); }
     }
     const audio = new SoundEngine();
 
@@ -663,10 +666,10 @@
     const WORLD_HEIGHT = 12000;
 
     const GameState = {
-      money: 1520000,
-      totalPop: 19500,
-      totalEnergyProd: 480,
-      totalEnergyDemand: 180,
+      money: 1600000,
+      totalPop: 21800,
+      totalEnergyProd: 520,
+      totalEnergyDemand: 210,
       speed: 1,
       taxIncome: 0.18,
       gameDays: 1,
@@ -676,7 +679,7 @@
       roadStartNode: null
     };
 
-    /* CONTINENT SOUVERAIN UNIQUE & CONTINU (Fin des blocs flottants disjoints) */
+    /* TERRITOIRE NATIONAL UNIQUE CONTINU */
     const NATION_TERRITORY = [
       { x: 1800, y: 3200 }, { x: 5500, y: 1200 }, { x: 10500, y: 1100 },
       { x: 15500, y: 2200 }, { x: 16800, y: 6400 }, { x: 15800, y: 10400 },
@@ -684,123 +687,154 @@
     ];
 
     /* ==========================================================================
-       VRAI MOTEUR DE RELIEF CARTOGRAPHIQUE (Courbes de niveau, Crêtes & Traits)
+       VRAI RELIEF ALPIN ANGULEUX & FACETTES ROCHEUSES 3D (FINI LES FORMES RONDES)
        ========================================================================== */
-    const TOPOGRAPHIC_MASSIFS = [
+    const JAGGED_MOUNTAIN_MASSIFS = [
       {
-        id: "massif_nord",
-        centerX: 7600, centerY: 2100,
-        // Courbes de niveau concentriques régulières avec dégradé d'altitude
-        contours: [
-          { rX: 1800, rY: 720, elev: "200m", fill: "#1f3327", stroke: "rgba(255,255,255,0.14)" },
-          { rX: 1400, rY: 560, elev: "500m", fill: "#273d2f", stroke: "rgba(255,255,255,0.18)" },
-          { rX: 1000, rY: 420, elev: "1000m", fill: "#304838", stroke: "rgba(255,255,255,0.24)" },
-          { rX: 680,  rY: 290, elev: "1600m", fill: "#3f4a3e", stroke: "rgba(255,255,255,0.32)" },
-          { rX: 380,  rY: 170, elev: "2200m", fill: "#545b51", stroke: "rgba(255,255,255,0.40)" }
-        ],
-        // Arêtes de crêtes rocheuses avec traits de pente (hachures topographiques)
-        ridges: [
+        id: "massif_central_alpin",
+        // Massif composé de sommets anguleux acérés reliés par des crêtes polygonales
+        peaks: [
           {
-            points: [{ x: 6200, y: 2250 }, { x: 7000, y: 2050 }, { x: 7700, y: 1950 }, { x: 8600, y: 2100 }],
-            hatchAngle: -Math.PI / 2.8,
-            hatchLength: 26
+            peakX: 6200, peakY: 1700,
+            leftBase: { x: 5300, y: 2600 },
+            rightBase: { x: 6900, y: 2550 },
+            midBase: { x: 6150, y: 2750 },
+            snow: true
           },
           {
-            points: [{ x: 7000, y: 2050 }, { x: 7300, y: 2350 }, { x: 7900, y: 2450 }],
-            hatchAngle: Math.PI / 3,
-            hatchLength: 20
+            peakX: 7300, peakY: 1450, // Cime principale
+            leftBase: { x: 6400, y: 2500 },
+            rightBase: { x: 8200, y: 2450 },
+            midBase: { x: 7250, y: 2700 },
+            snow: true
+          },
+          {
+            peakX: 8400, peakY: 1600,
+            leftBase: { x: 7600, y: 2500 },
+            rightBase: { x: 9200, y: 2550 },
+            midBase: { x: 8350, y: 2750 },
+            snow: true
           }
+        ],
+        // Courbes de niveau anguleuses / terrasses géologiques en facettes polygonales
+        contours: [
+          [
+            { x: 5000, y: 2750 }, { x: 6200, y: 2900 }, { x: 7400, y: 2850 },
+            { x: 8600, y: 2900 }, { x: 9600, y: 2700 }, { x: 9300, y: 2200 },
+            { x: 8200, y: 1850 }, { x: 7100, y: 1750 }, { x: 5900, y: 1850 },
+            { x: 4900, y: 2300 }
+          ],
+          [
+            { x: 5400, y: 2600 }, { x: 6300, y: 2720 }, { x: 7300, y: 2680 },
+            { x: 8400, y: 2720 }, { x: 9100, y: 2550 }, { x: 8700, y: 2050 },
+            { x: 7800, y: 1750 }, { x: 6900, y: 1680 }, { x: 6000, y: 1800 },
+            { x: 5300, y: 2200 }
+          ]
         ]
       },
       {
-        id: "massif_levant",
-        centerX: 12800, centerY: 3400,
-        contours: [
-          { rX: 1400, rY: 600, elev: "200m", fill: "#1f3327", stroke: "rgba(255,255,255,0.14)" },
-          { rX: 1000, rY: 440, elev: "600m", fill: "#293e31", stroke: "rgba(255,255,255,0.20)" },
-          { rX: 650,  rY: 280, elev: "1200m", fill: "#364539", stroke: "rgba(255,255,255,0.28)" },
-          { rX: 320,  rY: 140, elev: "1800m", fill: "#4b5247", stroke: "rgba(255,255,255,0.38)" }
-        ],
-        ridges: [
+        id: "massif_oriental",
+        peaks: [
           {
-            points: [{ x: 12000, y: 3500 }, { x: 12800, y: 3350 }, { x: 13600, y: 3450 }],
-            hatchAngle: -Math.PI / 2.5,
-            hatchLength: 22
+            peakX: 12200, peakY: 2800,
+            leftBase: { x: 11400, y: 3600 },
+            rightBase: { x: 13100, y: 3550 },
+            midBase: { x: 12150, y: 3750 },
+            snow: true
+          },
+          {
+            peakX: 13400, peakY: 2950,
+            leftBase: { x: 12600, y: 3650 },
+            rightBase: { x: 14200, y: 3600 },
+            midBase: { x: 13350, y: 3800 },
+            snow: false
           }
+        ],
+        contours: [
+          [
+            { x: 11100, y: 3750 }, { x: 12300, y: 3900 }, { x: 13500, y: 3850 },
+            { x: 14500, y: 3650 }, { x: 14100, y: 3100 }, { x: 13100, y: 2800 },
+            { x: 11900, y: 2750 }, { x: 11000, y: 3200 }
+          ]
         ]
       }
     ];
 
-    /* FLEUVE NATUREL (Contourne scrupuleusement les massifs sans jamais les traverser) */
+    /* FLEUVE NATUREL (Contourne la brèche entre les massifs sans collision) */
     const RIVER_PATH = [
-      { x: 9900, y: 1400 },   // Source dans la brèche entre les deux massifs
-      { x: 9750, y: 2600 },
-      { x: 9500, y: 3800 },   // Vallée centrale
-      { x: 9200, y: 5200 },
-      { x: 8600, y: 6800 },
-      { x: 7800, y: 8400 },
-      { x: 6900, y: 10500 }   // Embouchure dans l'océan austral
+      { x: 9800, y: 1400 },
+      { x: 9650, y: 2600 },
+      { x: 9400, y: 3900 },
+      { x: 9100, y: 5200 },
+      { x: 8500, y: 6800 },
+      { x: 7700, y: 8400 },
+      { x: 6800, y: 10600 }
     ];
 
     /* ==========================================================================
-       VRAIS BLOCS URBAINS & PARCELLES RIGUREUSEMENT CADRÉES
+       BLOCS URBAINS & SYSTÈME DE PARCELLES DÉVERROUILLABLES (ACHAT FONCIER)
        ========================================================================== */
     const URBAN_BLOCKS = [
-      // 1. Quartier Résidentiel de Port-Solaire (Cases 90x90 calibrées)
+      // 1. Cœur Résidentiel Port-Solaire (9 parcelles dont 4 déverrouillables)
       {
         id: "blk_res_1",
-        x: 4350, y: 4900, w: 400, h: 290,
+        x: 4300, y: 4900, w: 450, h: 320,
         type: "residential",
         parcels: [
-          { id: "p1", relX: 15, relY: 15, w: 90, h: 90, building: { type: "house", name: "Maison Familiale", level: 1 } },
-          { id: "p2", relX: 115, relY: 15, w: 90, h: 90, building: { type: "villa", name: "Villa Contemporaine", level: 1 } },
-          { id: "p3", relX: 215, relY: 15, w: 90, h: 90, building: null },
-          { id: "p4", relX: 15, relY: 115, w: 90, h: 90, building: { type: "apartment", name: "Immeuble Haussmannien", level: 1 } },
-          { id: "p5", relX: 115, relY: 115, w: 90, h: 90, building: null },
-          { id: "p6", relX: 215, relY: 115, w: 90, h: 90, building: null }
+          { id: "p1", relX: 18, relY: 18, w: 90, h: 90, unlocked: true, unlockCost: 0, building: { type: "house", name: "Maison Familiale", level: 1 } },
+          { id: "p2", relX: 120, relY: 18, w: 90, h: 90, unlocked: true, unlockCost: 0, building: { type: "villa", name: "Villa Contemporaine", level: 1 } },
+          { id: "p3", relX: 222, relY: 18, w: 90, h: 90, unlocked: true, unlockCost: 0, building: null },
+          { id: "p4", relX: 324, relY: 18, w: 90, h: 90, unlocked: false, unlockCost: 15000, building: null },
+
+          { id: "p5", relX: 18, relY: 120, w: 90, h: 90, unlocked: true, unlockCost: 0, building: { type: "apartment", name: "Immeuble Haussmannien", level: 1 } },
+          { id: "p6", relX: 120, relY: 120, w: 90, h: 90, unlocked: true, unlockCost: 0, building: null },
+          { id: "p7", relX: 222, relY: 120, w: 90, h: 90, unlocked: false, unlockCost: 20000, building: null },
+          { id: "p8", relX: 324, relY: 120, w: 90, h: 90, unlocked: false, unlockCost: 25000, building: null }
         ]
       },
-      // 2. District Financier & Administratif
+      // 2. District d'Affaires & Centre Civique
       {
         id: "blk_com_1",
-        x: 4880, y: 4900, w: 420, h: 290,
+        x: 4880, y: 4900, w: 460, h: 320,
         type: "business",
         parcels: [
-          { id: "p7", relX: 15, relY: 15, w: 105, h: 105, building: { type: "city_hall", name: "Hôtel de Ville d'Aléria", level: 1 } },
-          { id: "p8", relX: 135, relY: 15, w: 105, h: 105, building: { type: "office_tower", name: "Tour Aléria Finance", level: 1 } },
-          { id: "p9", relX: 255, relY: 15, w: 105, h: 105, building: null },
-          { id: "p10", relX: 15, relY: 135, w: 105, h: 105, building: null },
-          { id: "p11", relX: 135, relY: 135, w: 105, h: 105, building: null }
+          { id: "p9", relX: 18, relY: 18, w: 100, h: 100, unlocked: true, unlockCost: 0, building: { type: "city_hall", name: "Hôtel de Ville d'Aléria", level: 1 } },
+          { id: "p10", relX: 130, relY: 18, w: 100, h: 100, unlocked: true, unlockCost: 0, building: { type: "office_tower", name: "Tour Aléria Finance", level: 1 } },
+          { id: "p11", relX: 242, relY: 18, w: 100, h: 100, unlocked: false, unlockCost: 35000, building: null },
+          { id: "p12", relX: 18, relY: 130, w: 100, h: 100, unlocked: true, unlockCost: 0, building: null },
+          { id: "p13", relX: 130, relY: 130, w: 100, h: 100, unlocked: false, unlockCost: 30000, building: null },
+          { id: "p14", relX: 242, relY: 130, w: 100, h: 100, unlocked: false, unlockCost: 40000, building: null }
         ]
       },
       // 3. Pôle Industriel Val-des-Forges
       {
         id: "blk_ind_1",
-        x: 11300, y: 5200, w: 450, h: 320,
+        x: 11300, y: 5200, w: 460, h: 330,
         type: "industry",
         parcels: [
-          { id: "p12", relX: 15, relY: 15, w: 120, h: 110, building: { type: "factory", name: "Aciérie Nationale", level: 1 } },
-          { id: "p13", relX: 150, relY: 15, w: 120, h: 110, building: { type: "logistics", name: "Centre Fret Fédéral", level: 1 } },
-          { id: "p14", relX: 285, relY: 15, w: 120, h: 110, building: null }
+          { id: "p15", relX: 18, relY: 18, w: 125, h: 110, unlocked: true, unlockCost: 0, building: { type: "factory", name: "Aciérie Nationale", level: 1 } },
+          { id: "p16", relX: 155, relY: 18, w: 125, h: 110, unlocked: true, unlockCost: 0, building: { type: "logistics", name: "Centre Fret Fédéral", level: 1 } },
+          { id: "p17", relX: 292, relY: 18, w: 125, h: 110, unlocked: false, unlockCost: 28000, building: null },
+          { id: "p18", relX: 18, relY: 140, w: 125, h: 110, unlocked: false, unlockCost: 32000, building: null }
         ]
       }
     ];
 
-    /* RÉSEAU ROUTIER & AUTOROUTES 2X2 */
+    /* RÉSEAU DE GRANDES AUTOROUTES ÉLARGIES & RUES URBAINES */
     const ROAD_NODES = [
       // Autoroute A1
-      { id: "h1", x: 3000, y: 4600 },
-      { id: "h2", x: 4800, y: 4600 }, // Échangeur Capitale
+      { id: "h1", x: 2800, y: 4600 },
+      { id: "h2", x: 4800, y: 4600 },
       { id: "h3", x: 8000, y: 4600 },
-      { id: "h4", x: 11500, y: 4900 }, // Échangeur Val-des-Forges
+      { id: "h4", x: 11500, y: 4900 },
 
-      // Rues urbaines de Port-Solaire encadrant les parcelles
+      // Rues urbaines larges encadrant Port-Solaire
       { id: "u1", x: 4800, y: 4850 },
-      { id: "u2", x: 4300, y: 4850 },
-      { id: "u3", x: 5350, y: 4850 },
-      { id: "u4", x: 4300, y: 5240 },
-      { id: "u5", x: 4800, y: 5240 },
-      { id: "u6", x: 5350, y: 5240 }
+      { id: "u2", x: 4250, y: 4850 },
+      { id: "u3", x: 5400, y: 4850 },
+      { id: "u4", x: 4250, y: 5260 },
+      { id: "u5", x: 4800, y: 5260 },
+      { id: "u6", x: 5400, y: 5260 }
     ];
 
     const ROAD_SEGMENTS = [
@@ -819,28 +853,28 @@
     ];
 
     const VEHICLES = [
-      { segment: ROAD_SEGMENTS[0], progress: 0.25, speed: 0.007, dir: 1, type: "truck", color: "#38bdf8" },
-      { segment: ROAD_SEGMENTS[1], progress: 0.70, speed: 0.008, dir: 1, type: "car", color: "#ef4444" },
-      { segment: ROAD_SEGMENTS[2], progress: 0.45, speed: 0.007, dir: -1, type: "truck", color: "#f59e0b" }
+      { segment: ROAD_SEGMENTS[0], progress: 0.3, speed: 0.007, dir: 1, type: "truck", color: "#38bdf8" },
+      { segment: ROAD_SEGMENTS[1], progress: 0.7, speed: 0.008, dir: 1, type: "car", color: "#ef4444" },
+      { segment: ROAD_SEGMENTS[2], progress: 0.4, speed: 0.007, dir: -1, type: "truck", color: "#f59e0b" }
     ];
 
-    /* CATALOGUE DES BÂTIMENTS */
+    /* CATALOGUE DU BÂTISSEUR */
     const CATALOG = {
       infrastructure: [
         {
           type: "road_highway",
-          name: "Autoroute 2x2 Voies",
+          name: "Grande Autoroute 2x2 Voies",
           cost: 4500,
-          desc: "Voie rapide avec terre-plein central et glissières. Liaison interurbaine à 130 km/h.",
+          desc: "Voie rapide élargie (52 px) avec double chaussée, glissière centrale et bandes d'arrêt d'urgence.",
           isRoad: true,
           roadType: "highway",
           iconSvg: '<path d="M18 4H6v2l6.5 6L6 18v2h12v-2l-6.5-6L18 6V4z"/>'
         },
         {
           type: "road_street",
-          name: "Rue & Avenue Urbaine",
+          name: "Avenue Urbaine avec Trottoirs",
           cost: 1500,
-          desc: "Voie avec trottoirs et bordures. Permet de délimiter les blocs de quartiers.",
+          desc: "Chaussée large (32 px) avec trottoirs pavés et bordures pour desservir vos blocs urbains.",
           isRoad: true,
           roadType: "street",
           iconSvg: '<path d="M4 11h16v2H4zm0-4h16v2H4zm0 8h16v2H4z"/>'
@@ -849,23 +883,23 @@
       residential: [
         {
           type: "house",
-          name: "Maison Pavillonnaire",
+          name: "Maison Pavillonnaire 3D",
           cost: 8500,
-          desc: "Loge 8 résidents • Toiture tuiles, allée pavée et jardin aménagé.",
+          desc: "Loge 8 résidents • Toiture tuiles double pente, allée de garage et jardin privatif.",
           iconSvg: '<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>'
         },
         {
           type: "villa",
-          name: "Villa Contemporaine",
+          name: "Villa Contemporaine 3D",
           cost: 18000,
-          desc: "Loge 16 résidents • Baies vitrées, terrasse en bois et piscine.",
+          desc: "Loge 16 résidents • Baies vitrées, terrasse en bois et piscine dans la parcelle.",
           iconSvg: '<path d="M19 9.3V4h-3v2.6L12 3 2 12h3v8h5v-6h4v6h5v-8h3l-3-2.7z"/>'
         },
         {
           type: "apartment",
-          name: "Immeuble Haussmannien",
+          name: "Immeuble Haussmannien 3D",
           cost: 48000,
-          desc: "Loge 85 résidents • Pierre de taille, balcons et toiture zinc.",
+          desc: "Loge 85 résidents • Façade pierre de taille, balcons et toiture zinc mansardée.",
           iconSvg: '<path d="M17 11V3H7v4H3v14h18V11h-4zm-6-6h4v2h-4V5zm-4 4h4v2H7V9zm0 4h4v2H7v-2zm0 4h4v2H7v-2zm10 2h-4v-2h4v2zm0-4h-4v-2h4v2zm0-4h-4v-2h4v2z"/>'
         }
       ],
@@ -874,39 +908,39 @@
           type: "city_hall",
           name: "Hôtel de Ville & Préfecture",
           cost: 110000,
-          desc: "Cœur civique de la Nation • Dôme classique, colonnade et drapeau.",
+          desc: "Cœur civique • Dôme en cuivre, colonnade classique et drapeau national.",
           iconSvg: '<path d="M12 1L3 5v2h18V5l-9-4zm7 8H5v9h14V9zm-8 7H7v-5h4v5zm6 0h-4v-5h4v5z"/>'
         },
         {
           type: "office_tower",
-          name: "Tour Financière de Verre",
+          name: "Tour Financière en Verre 3D",
           cost: 160000,
-          desc: "+$620/s brut • Façade rideau de verre réfléchissant et héliport.",
+          desc: "+$620/s brut • Façade rideau de verre réfléchissant, machinerie de toit et héliport.",
           iconSvg: '<path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>'
         }
       ],
       industry: [
         {
           type: "factory",
-          name: "Aciérie & Métallurgie",
+          name: "Aciérie & Métallurgie 3D",
           cost: 155000,
-          desc: "+$750/s brut • Complexe lourd avec cheminées et fumée animée.",
+          desc: "+$750/s brut • Cheminées d'évacuation bicolores avec fumée animée.",
           iconSvg: '<path d="M22 22H2V10l7-3v4l7-3v4l6-3v10z"/>'
         },
         {
           type: "logistics",
-          name: "Hub Logistique Fret",
+          name: "Plateforme Fret Intermodal 3D",
           cost: 82000,
-          desc: "+$380/s brut • Quais de transbordement directement reliés à l'A1.",
+          desc: "+$380/s brut • Quais de chargement pour camions reliés aux axes rapides.",
           iconSvg: '<path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z"/>'
         }
       ],
       energy: [
         {
           type: "wind_turbine",
-          name: "Grand Parc Éolien",
+          name: "Grande Éolienne Aérodynamique",
           cost: 48000,
-          desc: "+115 MW électricité verte • Mât blanc et rotor tripale dynamique.",
+          desc: "+115 MW • Mât élancé et pales tripales en rotation fluide.",
           iconSvg: '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/>'
         }
       ]
@@ -1021,7 +1055,7 @@
 
     let camera = null;
 
-    /* PROJECTION D'UN POINT SUR UN SEGMENT (SPLIT ET RACCORDEMENT LIBRE) */
+    /* RACCORDEMENT ET BIFURCATION EN PLEIN MILIEU D'UNE ROUTE */
     function getClosestPointOnSegment(p, a, b) {
       const l2 = (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
       if (l2 === 0) return { x: a.x, y: a.y, t: 0, dist: Math.hypot(p.x - a.x, p.y - a.y) };
@@ -1033,78 +1067,93 @@
     }
 
     /* ==========================================================================
-       RENDU DU RELIEF TOPOGRAPHIQUE EN LIGNES DE NIVEAU & HACHURES DE PENTE
+       RENDU DU RELIEF ACÉRÉ & FACETTES ALPINES (FINI LES FORMES RONDES)
        ========================================================================== */
-    function drawTopographicRelief(ctx) {
-      TOPOGRAPHIC_MASSIFS.forEach(m => {
-        // 1. Dessin des courbes de niveau concentriques avec ombrage d'altitude
-        m.contours.forEach((c, idx) => {
-          ctx.fillStyle = c.fill;
+    function drawJaggedMountains(ctx) {
+      JAGGED_MOUNTAIN_MASSIFS.forEach(m => {
+        // 1. Terrasses et contours polygonaux rocheux (socle géologique)
+        m.contours.forEach((poly, idx) => {
+          ctx.fillStyle = idx === 0 ? "#223528" : "#2f4034";
           ctx.beginPath();
-          ctx.ellipse(m.centerX, m.centerY, c.rX, c.rY, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.strokeStyle = c.stroke;
-          ctx.lineWidth = idx === m.contours.length - 1 ? 2 : 1.2;
-          ctx.stroke();
-
-          // Altitude cartographique notée sur les lignes principales
-          if (idx % 2 === 0 && camera.scale > 0.35) {
-            ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-            ctx.font = "bold 10px sans-serif";
-            ctx.fillText(c.elev, m.centerX - c.rX + 25, m.centerY);
-          }
-        });
-
-        // 2. Lignes de crêtes et hachures topographiques (traits de pente)
-        m.ridges.forEach(r => {
-          // Ligne de crête principale
-          ctx.strokeStyle = "rgba(255, 255, 255, 0.75)";
-          ctx.lineWidth = 2.2;
-          ctx.beginPath();
-          r.points.forEach((pt, i) => {
+          poly.forEach((pt, i) => {
             if (i === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y);
           });
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.22)";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        });
+
+        // 2. Pics alpins acérés avec facettes brisées (3D volumétrique rocheuse)
+        m.peaks.forEach(p => {
+          // Face Nord-Ouest éclairée (roche granitique claire)
+          ctx.fillStyle = "#5d6d7e";
+          ctx.beginPath();
+          ctx.moveTo(p.peakX, p.peakY);
+          ctx.lineTo(p.leftBase.x, p.leftBase.y);
+          ctx.lineTo(p.midBase.x, p.midBase.y);
+          ctx.closePath();
+          ctx.fill();
+
+          // Face Sud-Est ombragée (basalte sombre en ombre profonde)
+          ctx.fillStyle = "#2c3e50";
+          ctx.beginPath();
+          ctx.moveTo(p.peakX, p.peakY);
+          ctx.lineTo(p.midBase.x, p.midBase.y);
+          ctx.lineTo(p.rightBase.x, p.rightBase.y);
+          ctx.closePath();
+          ctx.fill();
+
+          // Arête centrale tranchante
+          ctx.strokeStyle = "#cbd5e1";
+          ctx.lineWidth = 2.2;
+          ctx.beginPath();
+          ctx.moveTo(p.peakX, p.peakY);
+          ctx.lineTo(p.midBase.x, p.midBase.y);
           ctx.stroke();
 
-          // Traits de relief / hachures régulières le long de la crête
-          ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
-          ctx.lineWidth = 1;
-          for (let i = 0; i < r.points.length - 1; i++) {
-            const pA = r.points[i];
-            const pB = r.points[i + 1];
-            const steps = 14;
-            for (let s = 0; s <= steps; s++) {
-              const t = s / steps;
-              const hx = pA.x + (pB.x - pA.x) * t;
-              const hy = pA.y + (pB.y - pA.y) * t;
-              ctx.beginPath();
-              ctx.moveTo(hx, hy);
-              ctx.lineTo(
-                hx + Math.cos(r.hatchAngle) * r.hatchLength,
-                hy + Math.sin(r.hatchAngle) * r.hatchLength
-              );
-              ctx.stroke();
-            }
+          // Neiges éternelles en zigzag acéré sur le sommet
+          if (p.snow) {
+            const sh = (p.midBase.y - p.peakY) * 0.45;
+            ctx.fillStyle = "#f8fafc";
+            ctx.beginPath();
+            ctx.moveTo(p.peakX, p.peakY);
+            ctx.lineTo(p.peakX - 90, p.peakY + sh * 0.9);
+            ctx.lineTo(p.peakX - 35, p.peakY + sh * 0.7);
+            ctx.lineTo(p.peakX, p.peakY + sh * 1.05);
+            ctx.lineTo(p.peakX + 45, p.peakY + sh * 0.8);
+            ctx.lineTo(p.peakX + 110, p.peakY + sh * 0.95);
+            ctx.closePath();
+            ctx.fill();
+
+            // Ombre sur la neige du versant est
+            ctx.fillStyle = "rgba(203, 213, 225, 0.6)";
+            ctx.beginPath();
+            ctx.moveTo(p.peakX, p.peakY);
+            ctx.lineTo(p.peakX, p.peakY + sh * 1.05);
+            ctx.lineTo(p.peakX + 110, p.peakY + sh * 0.95);
+            ctx.closePath();
+            ctx.fill();
           }
         });
       });
     }
 
     /* ==========================================================================
-       DESSIN DES AUTOROUTES ET DES RUES
+       DESSIN DES GRANDES AUTOROUTES ÉLARGIES (52 PX) ET RUES (32 PX)
        ========================================================================== */
     function drawRoadsAndTraffic(ctx) {
       if (ROAD_SEGMENTS.length === 0) return;
 
-      // 1. Fondations
+      // 1. Fondations bitumineuses larges
       ROAD_SEGMENTS.forEach(seg => {
         const nA = ROAD_NODES.find(n => n.id === seg.from);
         const nB = ROAD_NODES.find(n => n.id === seg.to);
         if (!nA || !nB) return;
 
         const isHwy = seg.type === "highway";
-        ctx.lineWidth = isHwy ? 34 : 18;
+        ctx.lineWidth = isHwy ? 54 : 32;
         ctx.strokeStyle = isHwy ? "#141c26" : "#202a36";
         ctx.lineCap = "round";
         ctx.beginPath();
@@ -1113,14 +1162,14 @@
         ctx.stroke();
       });
 
-      // 2. Chaussée
+      // 2. Chaussée de roulement
       ROAD_SEGMENTS.forEach(seg => {
         const nA = ROAD_NODES.find(n => n.id === seg.from);
         const nB = ROAD_NODES.find(n => n.id === seg.to);
         if (!nA || !nB) return;
 
         const isHwy = seg.type === "highway";
-        ctx.lineWidth = isHwy ? 28 : 14;
+        ctx.lineWidth = isHwy ? 46 : 22;
         ctx.strokeStyle = isHwy ? "#293240" : "#343f4e";
         ctx.beginPath();
         ctx.moveTo(nA.x, nA.y);
@@ -1128,23 +1177,30 @@
         ctx.stroke();
       });
 
-      // 3. Marquages
+      // 3. Marquages au sol spécifiques
       ROAD_SEGMENTS.forEach(seg => {
         const nA = ROAD_NODES.find(n => n.id === seg.from);
         const nB = ROAD_NODES.find(n => n.id === seg.to);
         if (!nA || !nB) return;
 
         if (seg.type === "highway") {
-          ctx.lineWidth = 3;
+          // Glissière centrale métallique surélevée
+          ctx.lineWidth = 4;
           ctx.strokeStyle = "#cbd5e1";
           ctx.beginPath();
           ctx.moveTo(nA.x, nA.y);
           ctx.lineTo(nB.x, nB.y);
           ctx.stroke();
-        } else {
-          ctx.lineWidth = 1.5;
+
+          // Lignes continues des bandes d'arrêt d'urgence
+          ctx.lineWidth = 1.6;
           ctx.strokeStyle = "#f8fafc";
-          ctx.setLineDash([8, 8]);
+          ctx.stroke();
+        } else {
+          // Ligne discontinue médiane urbaine
+          ctx.lineWidth = 1.8;
+          ctx.strokeStyle = "#f8fafc";
+          ctx.setLineDash([10, 10]);
           ctx.beginPath();
           ctx.moveTo(nA.x, nA.y);
           ctx.lineTo(nB.x, nB.y);
@@ -1157,11 +1213,11 @@
       ROAD_NODES.forEach(n => {
         ctx.fillStyle = "#293240";
         ctx.beginPath();
-        ctx.arc(n.x, n.y, 11, 0, Math.PI * 2);
+        ctx.arc(n.x, n.y, 16, 0, Math.PI * 2);
         ctx.fill();
       });
 
-      // 5. Véhicules
+      // 5. Véhicules en circulation fluide
       VEHICLES.forEach(v => {
         const nA = ROAD_NODES.find(n => n.id === v.segment.from);
         const nB = ROAD_NODES.find(n => n.id === v.segment.to);
@@ -1175,188 +1231,240 @@
         ctx.translate(vx, vy);
         ctx.rotate(angle);
 
+        // Faisceau de phares
         ctx.fillStyle = "rgba(254, 240, 138, 0.4)";
         ctx.beginPath();
-        ctx.moveTo(8, -3);
-        ctx.lineTo(34, -12);
-        ctx.lineTo(34, 12);
-        ctx.lineTo(8, 3);
+        ctx.moveTo(10, -4);
+        ctx.lineTo(38, -14);
+        ctx.lineTo(38, 14);
+        ctx.lineTo(10, 4);
         ctx.closePath();
         ctx.fill();
 
         if (v.type === "truck") {
           ctx.fillStyle = "#0284c7";
-          ctx.fillRect(-16, -6, 32, 12);
+          ctx.fillRect(-18, -7, 36, 14);
           ctx.fillStyle = "#ffffff";
-          ctx.fillRect(-14, -5, 20, 10);
+          ctx.fillRect(-16, -6, 22, 12);
         } else {
           ctx.fillStyle = v.color;
-          ctx.fillRect(-8, -5, 16, 10);
+          ctx.fillRect(-10, -6, 20, 12);
           ctx.fillStyle = "#0f172a";
-          ctx.fillRect(0, -4, 4, 8);
+          ctx.fillRect(0, -5, 5, 10);
         }
         ctx.restore();
       });
     }
 
     /* ==========================================================================
-       DESSIN DES PARCELLES & BÂTIMENTS RIGOUREUSEMENT CADRÉS AU CENTRE
+       DESSIN DES PARCELLES DÉVERROUILLABLES & BÂTIMENTS 3D
        ========================================================================== */
     function drawUrbanBlocksAndParcels(ctx, time) {
       URBAN_BLOCKS.forEach(b => {
-        // Enceinte du bloc
-        ctx.fillStyle = "#162232";
+        // Enceinte générale du bloc
+        ctx.fillStyle = "#15202e";
         ctx.fillRect(b.x, b.y, b.w, b.h);
-        ctx.strokeStyle = "#38495d";
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#334458";
+        ctx.lineWidth = 2.5;
         ctx.strokeRect(b.x, b.y, b.w, b.h);
 
-        // Dessin de chaque case délimitée
+        // Dessin de chaque parcelle
         b.parcels.forEach(p => {
           const px = b.x + p.relX;
           const py = b.y + p.relY;
 
-          // Dalle de la parcelle
-          ctx.fillStyle = p.building ? "#202d3e" : "rgba(255, 255, 255, 0.04)";
-          ctx.fillRect(px, py, p.w, p.h);
-          ctx.strokeStyle = p.building ? "#38bdf8" : "rgba(255, 255, 255, 0.16)";
-          ctx.lineWidth = 1.2;
-          ctx.strokeRect(px, py, p.w, p.h);
+          if (!p.unlocked) {
+            // Parcelle verrouillée à l'achat
+            ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
+            ctx.fillRect(px, py, p.w, p.h);
 
-          // Si un bâtiment est implanté, il est calculé POUR RESTER PILE AU CENTRE
-          if (p.building) {
-            drawBuildingCenteredInParcel(ctx, px, py, p.w, p.h, p.building.type, time);
+            // Cadre en pointillés dorés
+            ctx.strokeStyle = "rgba(245, 158, 11, 0.65)";
+            ctx.lineWidth = 1.8;
+            ctx.setLineDash([6, 6]);
+            ctx.strokeRect(px, py, p.w, p.h);
+            ctx.setLineDash([]);
+
+            // Badge d'achat foncier
+            ctx.fillStyle = "rgba(10, 16, 28, 0.9)";
+            ctx.beginPath();
+            ctx.roundRect(px + 8, py + p.h / 2 - 12, p.w - 16, 24, 6);
+            ctx.fill();
+            ctx.strokeStyle = "var(--accent-gold)";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            ctx.fillStyle = "#f59e0b";
+            ctx.font = "bold 10px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(`ACHETER : $${(p.unlockCost / 1000).toFixed(0)}K`, px + p.w / 2, py + p.h / 2 + 4);
+          } else {
+            // Parcelle viabilisée et prête à bâtir
+            ctx.fillStyle = p.building ? "#1f2c3d" : "rgba(56, 189, 248, 0.08)";
+            ctx.fillRect(px, py, p.w, p.h);
+            ctx.strokeStyle = p.building ? "#38bdf8" : "rgba(56, 189, 248, 0.4)";
+            ctx.lineWidth = 1.2;
+            ctx.strokeRect(px, py, p.w, p.h);
+
+            // Bâtiment 3D encastré avec précision géométrique
+            if (p.building) {
+              drawBuilding3DInParcel(ctx, px, py, p.w, p.h, p.building.type, time);
+            }
           }
         });
       });
     }
 
-    /* Rendu avec géométrie calibrée sur la parcelle (px, py, pw, ph) */
-    function drawBuildingCenteredInParcel(ctx, px, py, pw, ph, type, time) {
+    /* RENDU VOLUMÉTRIQUE 3D DES ÉDIFICES */
+    function drawBuilding3DInParcel(ctx, px, py, pw, ph, type, time) {
       const cx = px + pw / 2;
       const cy = py + ph / 2;
 
-      // 1. Allée pavée menant au trottoir inférieur
-      ctx.fillStyle = "#334155";
-      ctx.fillRect(cx - 6, cy + 12, 12, ph / 2 - 12);
+      // 1. Allée pavée menant à la rue
+      ctx.fillStyle = "#3b4859";
+      ctx.fillRect(cx - 7, cy + 14, 14, ph / 2 - 14);
 
-      // 2. Ombre portée douce restant dans la parcelle
-      ctx.fillStyle = "rgba(7, 13, 23, 0.4)";
+      // 2. Ombre portée 3D inclinée au sol
+      ctx.fillStyle = "rgba(6, 12, 22, 0.45)";
       ctx.beginPath();
-      ctx.moveTo(cx - pw * 0.35, cy + ph * 0.22);
-      ctx.lineTo(cx + pw * 0.35, cy + ph * 0.22);
-      ctx.lineTo(cx + pw * 0.45, cy + ph * 0.36);
-      ctx.lineTo(cx - pw * 0.25, cy + ph * 0.36);
+      ctx.moveTo(cx - pw * 0.35, cy + ph * 0.25);
+      ctx.lineTo(cx + pw * 0.35, cy + ph * 0.25);
+      ctx.lineTo(cx + pw * 0.48, cy + ph * 0.42);
+      ctx.lineTo(cx - pw * 0.22, cy + ph * 0.42);
       ctx.closePath();
       ctx.fill();
 
-      // 3. Bâtiments calés avec précision selon la hauteur
+      // 3. Volumétrie architecturale
       if (type === "house") {
-        const bw = pw * 0.54;
-        const bh = ph * 0.40;
+        const bw = pw * 0.56;
+        const bh = ph * 0.42;
+
+        // Corps de bâtiment
         ctx.fillStyle = "#e2e8f0";
         ctx.fillRect(cx - bw / 2, cy - bh / 2, bw, bh);
 
-        // Toit à double pente tuilé
+        // Façade ombragée à droite
+        ctx.fillStyle = "#94a3b8";
+        ctx.fillRect(cx + bw / 2 - 6, cy - bh / 2, 6, bh);
+
+        // Toit à double pan tuilé
         ctx.fillStyle = "#b91c1c";
         ctx.beginPath();
         ctx.moveTo(cx - bw / 2 - 4, cy - bh / 2);
-        ctx.lineTo(cx, cy - bh / 2 - 16);
+        ctx.lineTo(cx, cy - bh / 2 - 18);
         ctx.lineTo(cx + bw / 2 + 4, cy - bh / 2);
         ctx.closePath();
         ctx.fill();
 
-        // Fenêtres illuminées & porte
+        // Fenêtres illuminées
         ctx.fillStyle = "#fef08a";
-        ctx.fillRect(cx - bw * 0.32, cy - 2, 7, 7);
-        ctx.fillRect(cx + bw * 0.15, cy - 2, 7, 7);
+        ctx.fillRect(cx - bw * 0.35, cy - 3, 8, 8);
+        ctx.fillRect(cx + bw * 0.12, cy - 3, 8, 8);
         ctx.fillStyle = "#78350f";
-        ctx.fillRect(cx - 3, cy + 2, 6, 12);
+        ctx.fillRect(cx - 3, cy + 3, 7, 13);
       } else if (type === "villa") {
-        const bw = pw * 0.62;
-        const bh = ph * 0.44;
+        const bw = pw * 0.65;
+        const bh = ph * 0.45;
+
         ctx.fillStyle = "#f8fafc";
         ctx.fillRect(cx - bw / 2, cy - bh / 2, bw, bh);
 
-        // Baie vitrée
+        // Baie vitrée réfléchissante
         ctx.fillStyle = "#38bdf8";
-        ctx.fillRect(cx - bw * 0.38, cy - bh * 0.3, bw * 0.76, 12);
+        ctx.fillRect(cx - bw * 0.4, cy - bh * 0.28, bw * 0.8, 14);
 
-        // Piscine dans le jardin de la parcelle
+        // Piscine dans le jardin
         ctx.fillStyle = "#0284c7";
-        ctx.fillRect(cx - bw * 0.42, cy + 6, 16, 10);
+        ctx.fillRect(cx - bw * 0.42, cy + 8, 20, 12);
+        ctx.strokeStyle = "#e2e8f0";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(cx - bw * 0.42, cy + 8, 20, 12);
       } else if (type === "apartment") {
-        // Immeuble haussmannien parfaitement centré dans la parcelle
-        const bw = pw * 0.70;
-        const bh = ph * 0.55;
+        const bw = pw * 0.72;
+        const bh = ph * 0.58;
+
+        // Façade en pierre de taille haussmannienne
         ctx.fillStyle = "#cbd5e1";
         ctx.fillRect(cx - bw / 2, cy - bh / 2, bw, bh);
 
+        // Ombre latérale droite
+        ctx.fillStyle = "#64748b";
+        ctx.fillRect(cx + bw / 2 - 8, cy - bh / 2, 8, bh);
+
         // Toit mansardé zinc
         ctx.fillStyle = "#475569";
-        ctx.fillRect(cx - bw / 2 + 2, cy - bh / 2 - 12, bw - 4, 12);
+        ctx.fillRect(cx - bw / 2 + 2, cy - bh / 2 - 14, bw - 4, 14);
 
-        // Trame de fenêtres ordonnées
+        // Rangées de fenêtres avec balcons
         ctx.fillStyle = "#0f172a";
         for (let r = 0; r < 3; r++) {
           for (let c = 0; c < 3; c++) {
-            ctx.fillRect(cx - bw * 0.36 + c * (bw * 0.28), cy - bh * 0.35 + r * 14, 6, 8);
+            ctx.fillRect(cx - bw * 0.36 + c * (bw * 0.28), cy - bh * 0.36 + r * 16, 7, 9);
           }
         }
       } else if (type === "office_tower") {
-        const bw = pw * 0.55;
-        const bh = ph * 0.72;
+        const bw = pw * 0.58;
+        const bh = ph * 0.75;
+
+        // Gratte-ciel en verre
         const grad = ctx.createLinearGradient(cx - bw / 2, cy - bh / 2, cx + bw / 2, cy + bh / 2);
         grad.addColorStop(0, "#38bdf8");
         grad.addColorStop(0.5, "#0284c7");
         grad.addColorStop(1, "#0f172a");
         ctx.fillStyle = grad;
-        ctx.fillRect(cx - bw / 2, cy - bh / 2 - 14, bw, bh + 14);
+        ctx.fillRect(cx - bw / 2, cy - bh / 2 - 16, bw, bh + 16);
 
-        ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+        // Machinerie et Héliport de toit
+        ctx.fillStyle = "#334155";
+        ctx.fillRect(cx - bw * 0.3, cy - bh / 2 - 24, bw * 0.6, 8);
+
+        // Trame de fenêtres vitrées
+        ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
         for (let r = 0; r < 5; r++) {
           for (let c = 0; c < 3; c++) {
-            ctx.fillRect(cx - bw * 0.35 + c * (bw * 0.28), cy - bh * 0.45 + r * 15, 6, 8);
+            ctx.fillRect(cx - bw * 0.34 + c * (bw * 0.28), cy - bh * 0.44 + r * 16, 7, 9);
           }
         }
       } else if (type === "city_hall") {
-        const bw = pw * 0.72;
-        const bh = ph * 0.52;
+        const bw = pw * 0.74;
+        const bh = ph * 0.54;
+
         ctx.fillStyle = "#f1f5f9";
         ctx.fillRect(cx - bw / 2, cy - bh / 2, bw, bh);
 
-        // Dôme central
+        // Dôme central en cuivre
         ctx.fillStyle = "#0d9488";
         ctx.beginPath();
-        ctx.arc(cx, cy - bh / 2, 16, Math.PI, 0);
+        ctx.arc(cx, cy - bh / 2, 18, Math.PI, 0);
         ctx.fill();
 
         // Mât et drapeau
         ctx.strokeStyle = "#ffffff";
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.moveTo(cx, cy - bh / 2 - 16);
-        ctx.lineTo(cx, cy - bh / 2 - 32);
+        ctx.moveTo(cx, cy - bh / 2 - 18);
+        ctx.lineTo(cx, cy - bh / 2 - 34);
         ctx.stroke();
         ctx.fillStyle = "#00b4d8";
-        ctx.fillRect(cx, cy - bh / 2 - 32, 11, 7);
+        ctx.fillRect(cx, cy - bh / 2 - 34, 12, 7);
       } else if (type === "factory") {
-        const bw = pw * 0.74;
-        const bh = ph * 0.50;
+        const bw = pw * 0.76;
+        const bh = ph * 0.52;
+
         ctx.fillStyle = "#334155";
         ctx.fillRect(cx - bw / 2, cy - bh / 2, bw, bh);
 
-        // Cheminées d'évacuation
+        // Cheminées d'échappement
         ctx.fillStyle = "#b91c1c";
-        ctx.fillRect(cx - bw * 0.32, cy - bh / 2 - 24, 8, 24);
-        ctx.fillRect(cx + bw * 0.18, cy - bh / 2 - 18, 7, 18);
+        ctx.fillRect(cx - bw * 0.32, cy - bh / 2 - 26, 9, 26);
+        ctx.fillRect(cx + bw * 0.18, cy - bh / 2 - 20, 8, 20);
 
         // Puffs de fumée animée
         ctx.fillStyle = "rgba(226, 232, 240, 0.45)";
         for (let p = 0; p < 3; p++) {
           const off = ((time * 0.05 + p * 18) % 45);
           ctx.beginPath();
-          ctx.arc(cx - bw * 0.32 + 4 + Math.sin(off * 0.1) * 5, cy - bh / 2 - 26 - off, 3 + off * 0.18, 0, Math.PI * 2);
+          ctx.arc(cx - bw * 0.32 + 4 + Math.sin(off * 0.1) * 5, cy - bh / 2 - 28 - off, 3 + off * 0.18, 0, Math.PI * 2);
           ctx.fill();
         }
       }
@@ -1370,7 +1478,7 @@
       const ctx = camera.ctx;
       camera.update();
 
-      // Véhicules
+      // Mise à jour véhicules
       VEHICLES.forEach(v => {
         v.progress += v.speed * v.dir * GameState.speed;
         if (v.progress >= 1 || v.progress <= 0) v.dir *= -1;
@@ -1387,22 +1495,22 @@
       ctx.fillStyle = "#08111d";
       ctx.fillRect(-4000, -4000, WORLD_WIDTH + 8000, WORLD_HEIGHT + 8000);
 
-      // 2. Territoire National Unique & Continu
+      // 2. Territoire National Continu
       ctx.beginPath();
       NATION_TERRITORY.forEach((pt, i) => {
         if (i === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y);
       });
       ctx.closePath();
-      ctx.fillStyle = "#19281e"; // Plaine fertile naturelle
+      ctx.fillStyle = "#19281e";
       ctx.fill();
       ctx.strokeStyle = "#38bdf8";
       ctx.lineWidth = 3 / camera.scale;
       ctx.stroke();
 
-      // 3. Reliefs Topographiques (Courbes de niveau & traits de crête)
-      drawTopographicRelief(ctx);
+      // 3. Montagnes acérées et crêtes rocheuses 3D
+      drawJaggedMountains(ctx);
 
-      // 4. Grand Fleuve (Contourne les massifs dans les vallées)
+      // 4. Fleuve navigable dans la vallée
       ctx.beginPath();
       RIVER_PATH.forEach((pt, i) => {
         if (i === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y);
@@ -1417,19 +1525,19 @@
       ctx.lineWidth = 80;
       ctx.stroke();
 
-      // 5. Parcelles & Bâtiments parfaitement centrés
+      // 5. Blocs urbains, parcelles achetables et bâtiments 3D
       drawUrbanBlocksAndParcels(ctx, time);
 
-      // 6. Routes & Autoroutes
+      // 6. Autoroutes et rues élargies
       drawRoadsAndTraffic(ctx);
 
-      // 7. Aperçu des outils actifs
+      // 7. Aperçu outil actif
       if (GameState.activeTool) {
         const mouseWorld = camera.screenToWorld(currentMouseX, currentMouseY);
 
         if (GameState.activeTool.isRoad) {
           let snapPt = null;
-          const closeN = ROAD_NODES.find(n => Math.hypot(n.x - mouseWorld.x, n.y - mouseWorld.y) < 30);
+          const closeN = ROAD_NODES.find(n => Math.hypot(n.x - mouseWorld.x, n.y - mouseWorld.y) < 32);
 
           if (closeN) {
             snapPt = { x: closeN.x, y: closeN.y };
@@ -1439,7 +1547,7 @@
               const nB = ROAD_NODES.find(n => n.id === seg.to);
               if (nA && nB) {
                 const proj = getClosestPointOnSegment(mouseWorld, nA, nB);
-                if (proj.dist < 26) {
+                if (proj.dist < 28) {
                   snapPt = { x: proj.x, y: proj.y };
                   break;
                 }
@@ -1450,7 +1558,7 @@
           const target = snapPt || mouseWorld;
 
           if (GameState.roadStartNode) {
-            ctx.lineWidth = GameState.activeTool.roadType === "highway" ? 28 : 14;
+            ctx.lineWidth = GameState.activeTool.roadType === "highway" ? 46 : 22;
             ctx.strokeStyle = "rgba(56, 189, 248, 0.7)";
             ctx.beginPath();
             ctx.moveTo(GameState.roadStartNode.x, GameState.roadStartNode.y);
@@ -1460,7 +1568,7 @@
 
           ctx.fillStyle = snapPt ? "#10b981" : "rgba(56, 189, 248, 0.8)";
           ctx.beginPath();
-          ctx.arc(target.x, target.y, 8, 0, Math.PI * 2);
+          ctx.arc(target.x, target.y, 9, 0, Math.PI * 2);
           ctx.fill();
         }
       }
@@ -1491,12 +1599,17 @@
       mctx.fillStyle = "#1e3327";
       mctx.fill();
 
-      // Massifs sur minimap
-      TOPOGRAPHIC_MASSIFS.forEach(m => {
-        mctx.fillStyle = "#3d4b40";
-        mctx.beginPath();
-        mctx.ellipse(m.centerX * sx, m.centerY * sy, m.contours[0].rX * sx, m.contours[0].rY * sy, 0, 0, Math.PI * 2);
-        mctx.fill();
+      // Reliefs sur la minimap
+      JAGGED_MOUNTAIN_MASSIFS.forEach(m => {
+        m.peaks.forEach(p => {
+          mctx.fillStyle = "#4a5568";
+          mctx.beginPath();
+          mctx.moveTo(p.peakX * sx, p.peakY * sy);
+          mctx.lineTo(p.leftBase.x * sx, p.leftBase.y * sy);
+          mctx.lineTo(p.rightBase.x * sx, p.rightBase.y * sy);
+          mctx.closePath();
+          mctx.fill();
+        });
       });
 
       const halfW = (camera.canvas.width / 2) / camera.scale;
@@ -1506,7 +1619,7 @@
       mctx.strokeRect((camera.x - halfW) * sx, (camera.y - halfH) * sy, halfW * 2 * sx, halfH * 2 * sy);
     }
 
-    /* GESTION DES CLICS & INTERACTIONS */
+    /* GESTION DU CLIC : ACHAT DE PARCELLES OU PLACEMENT */
     let currentMouseX = 0, currentMouseY = 0;
     window.addEventListener("mousemove", (e) => {
       currentMouseX = e.clientX;
@@ -1514,19 +1627,48 @@
     });
 
     function handleCanvasClick(e) {
-      if (!GameState.activeTool) return;
-      e.stopPropagation();
-
       const worldPos = camera.screenToWorld(e.clientX, e.clientY);
+
+      // 1. Clic sur une parcelle sans outil actif : ACHAT DE PARCELLE
+      if (!GameState.activeTool) {
+        for (let b of URBAN_BLOCKS) {
+          for (let p of b.parcels) {
+            const px = b.x + p.relX;
+            const py = b.y + p.relY;
+
+            if (worldPos.x >= px && worldPos.x <= px + p.w && worldPos.y >= py && worldPos.y <= py + p.h) {
+              if (!p.unlocked) {
+                if (GameState.money < p.unlockCost) {
+                  showToast(`Fonds insuffisants ! ($${p.unlockCost.toLocaleString()} requis pour ce terrain)`);
+                  audio.alert();
+                  return;
+                }
+                // Achat du terrain
+                GameState.money -= p.unlockCost;
+                p.unlocked = true;
+                audio.unlock();
+                showToast(`Terrain acquis et viabilisé avec succès ! ($${p.unlockCost.toLocaleString()})`);
+                updateHud();
+                return;
+              }
+            }
+          }
+        }
+        return;
+      }
+
+      e.stopPropagation();
       const tool = GameState.activeTool;
 
+      // 2. Outil Voirie
       if (tool.isRoad) {
         if (GameState.money < tool.cost) {
           showToast("Fonds insuffisants !");
+          audio.alert();
           return;
         }
 
-        let clickedN = ROAD_NODES.find(n => Math.hypot(n.x - worldPos.x, n.y - worldPos.y) < 28);
+        let clickedN = ROAD_NODES.find(n => Math.hypot(n.x - worldPos.x, n.y - worldPos.y) < 30);
 
         if (!clickedN) {
           for (let i = 0; i < ROAD_SEGMENTS.length; i++) {
@@ -1535,7 +1677,7 @@
             const nB = ROAD_NODES.find(n => n.id === seg.to);
             if (nA && nB) {
               const proj = getClosestPointOnSegment(worldPos, nA, nB);
-              if (proj.dist < 26) {
+              if (proj.dist < 28) {
                 clickedN = { id: "n_" + Date.now(), x: Math.round(proj.x), y: Math.round(proj.y) };
                 ROAD_NODES.push(clickedN);
 
@@ -1574,7 +1716,7 @@
             });
 
             audio.build();
-            showToast("Tronçon raccordé !");
+            showToast("Tronçon autoroutier raccordé !");
             GameState.roadStartNode = clickedN;
             updateHud();
           }
@@ -1582,19 +1724,26 @@
         return;
       }
 
-      // Placement d'un bâtiment encastré pile dans une case
+      // 3. Placement d'un bâtiment dans une parcelle déverrouillée
       for (let b of URBAN_BLOCKS) {
         for (let p of b.parcels) {
           const px = b.x + p.relX;
           const py = b.y + p.relY;
 
           if (worldPos.x >= px && worldPos.x <= px + p.w && worldPos.y >= py && worldPos.y <= py + p.h) {
+            if (!p.unlocked) {
+              showToast("Cette parcelle est verrouillée ! Cliquez dessus d'abord pour l'acheter.");
+              audio.alert();
+              return;
+            }
             if (p.building) {
               showToast("Cette parcelle est déjà occupée !");
+              audio.alert();
               return;
             }
             if (GameState.money < tool.cost) {
               showToast("Fonds insuffisants !");
+              audio.alert();
               return;
             }
 
@@ -1609,7 +1758,7 @@
         }
       }
 
-      showToast("Veuillez cliquer à l'intérieur d'une parcelle délimitée !");
+      showToast("Veuillez cliquer dans une parcelle déverrouillée !");
     }
 
     function selectCategory(catKey) {
@@ -1661,7 +1810,7 @@
       if (GameState.speed === 0) return;
 
       let rev = 0;
-      let exp = 90;
+      let exp = 100;
       let energyProd = 0;
       let energyDemand = Math.round(GameState.totalPop / 1000) * 8;
 
@@ -1685,7 +1834,7 @@
       GameState.totalEnergyDemand = energyDemand;
 
       if (energyProd >= energyDemand) {
-        GameState.totalPop += Math.round(22 * GameState.speed);
+        GameState.totalPop += Math.round(25 * GameState.speed);
       }
 
       GameState.gameDays += GameState.speed;
@@ -1723,13 +1872,13 @@
         nodes: ROAD_NODES,
         blocks: URBAN_BLOCKS
       };
-      localStorage.setItem("imperium_topographic_v3", JSON.stringify(data));
+      localStorage.setItem("imperium_v4_3d", JSON.stringify(data));
       showToast("Partie sauvegardée dans le navigateur !");
       audio.build();
     }
 
     function loadGame() {
-      const s = localStorage.getItem("imperium_topographic_v3");
+      const s = localStorage.getItem("imperium_v4_3d");
       if (!s) return;
       try {
         const d = JSON.parse(s);
@@ -1745,7 +1894,7 @@
       } catch (e) {}
     }
 
-    /* INITIALISATION */
+    /* INITIALISATION GLOBALE */
     function init() {
       const canvas = document.getElementById("game-canvas");
       camera = new CameraEngine(canvas);
