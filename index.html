@@ -41,7 +41,7 @@
       touch-action: none;
     }
 
-    /* CANVAS PRINCIPAL PLEIN ÉCRAN */
+    /* CANVAS DU MONDE */
     #game-canvas {
       position: absolute;
       top: 0;
@@ -57,7 +57,7 @@
     #game-canvas.placing-mode { cursor: crosshair !important; }
     #game-canvas.road-mode { cursor: crosshair !important; }
 
-    /* BARRE SUPÉRIEURE HUD (DESKTOP & MOBILE) */
+    /* BARRE SUPÉRIEURE HUD (DESKTOP & IPHONE) */
     .top-bar {
       position: absolute;
       top: max(10px, env(safe-area-inset-top));
@@ -184,7 +184,7 @@
       height: 14px;
     }
 
-    /* BANIÈRES D'ALERTE */
+    /* BANNIÈRES D'ALERTES */
     #blackout-banner {
       position: absolute;
       top: max(75px, calc(env(safe-area-inset-top) + 60px));
@@ -225,7 +225,7 @@
       50% { transform: translateX(-50%) scale(1.03); }
     }
 
-    /* BANDEAU DE PLACEMENT ACTIF */
+    /* BANDEAU DE PLACEMENT */
     #placement-overlay-bar {
       position: absolute;
       top: max(72px, calc(env(safe-area-inset-top) + 55px));
@@ -270,7 +270,7 @@
       color: white;
     }
 
-    /* CONTRÔLES FLOTTANTS DE CARTE (ZOOM & POSITION) */
+    /* CONTRÔLES FLOTTANTS DE CARTE */
     .map-controls {
       position: absolute;
       right: 14px;
@@ -308,7 +308,7 @@
       height: 18px;
     }
 
-    /* MINIMAP RADAR */
+    /* RADAR MINIMAP */
     #minimap-wrapper {
       position: absolute;
       left: 14px;
@@ -623,4 +623,2083 @@
       gap: 8px;
       margin-top: 2px;
     }
-    .btn
+    .btn-upgrade {
+      flex: 1;
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      border: none;
+      color: white;
+      padding: 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-upgrade:hover { filter: brightness(1.15); }
+    .btn-demolish {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--accent-red);
+      color: #fca5a5;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-demolish:hover { background: var(--accent-red); color: white; }
+
+    /* FENÊTRES MODALES (BUDGET, AIDE) */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .modal-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 22px;
+      width: min(94%, 540px);
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 22px;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .modal-card h2 {
+      font-size: 18px;
+      font-weight: 800;
+    }
+    .modal-card p {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .form-group label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-input {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: white;
+      font-size: 13px;
+      outline: none;
+    }
+    .form-input:focus { border-color: var(--accent-cyan); }
+
+    .btn-primary-action {
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      border: none;
+      color: white;
+      padding: 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 6px;
+    }
+    .btn-primary-action:hover { filter: brightness(1.15); }
+
+    /* NOTIFICATIONS TOAST */
+    #toast-container {
+      position: absolute;
+      bottom: max(160px, calc(env(safe-area-inset-bottom) + 145px));
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 80;
+    }
+    .toast-msg {
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 7px 16px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 700;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      animation: toastFade 0.3s ease;
+      white-space: nowrap;
+    }
+    .toast-success { border-color: var(--accent-green); color: #6ee7b7; }
+    .toast-error { border-color: var(--accent-red); color: #fca5a5; }
+    .toast-warn { border-color: var(--accent-gold); color: #fde68a; }
+    .toast-info { border-color: var(--accent-cyan); color: #bae6fd; }
+
+    @keyframes toastFade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================================================
+       ADAPTATION SMARTPHONE & IPHONE 11 (PORTRAIT & PAYSAGE)
+       ========================================================================== */
+    @media (max-width: 768px) {
+      .top-bar {
+        width: 100%;
+        padding: 0 8px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+      }
+      .top-bar-group {
+        border-radius: 16px;
+        padding: 5px 10px;
+        gap: 8px;
+        justify-content: space-between;
+      }
+      .top-bar-group.hud-primary {
+        display: flex;
+      }
+      .top-bar-group.hud-secondary {
+        display: flex;
+        font-size: 11px;
+      }
+      .nation-title {
+        font-size: 12px;
+        max-width: 110px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .resource-badge {
+        font-size: 11px;
+      }
+      .resource-badge svg {
+        width: 14px;
+        height: 14px;
+      }
+      .time-btn {
+        padding: 2px 6px;
+        font-size: 10px;
+      }
+
+      /* Minimap compacte sur mobile */
+      #minimap-wrapper {
+        width: 110px;
+        height: 80px;
+        left: 8px;
+        top: max(88px, calc(env(safe-area-inset-top) + 75px));
+      }
+
+      .map-controls {
+        right: 8px;
+        top: max(88px, calc(env(safe-area-inset-top) + 75px));
+      }
+      .map-btn {
+        width: 34px;
+        height: 34px;
+      }
+
+      /* Tiroir bas de bâtiments */
+      .bottom-hud-wrapper {
+        width: 100%;
+        padding: 0 6px;
+      }
+      .category-tabs {
+        padding: 3px 5px;
+      }
+      .cat-btn {
+        padding: 5px 10px;
+        font-size: 11px;
+      }
+      .bld-card-btn {
+        width: 140px;
+        padding: 7px 8px;
+      }
+      .bld-icon-frame {
+        width: 28px;
+        height: 28px;
+      }
+      .bld-icon-frame svg {
+        width: 15px;
+        height: 15px;
+      }
+      .bld-card-title {
+        font-size: 11px;
+      }
+      .bld-card-desc {
+        display: none;
+      }
+
+      /* Inspecteur en Bottom-Sheet natif mobile */
+      #inspector-drawer {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        border-radius: 20px 20px 0 0;
+        max-height: 55vh;
+        overflow-y: auto;
+        padding: 14px 16px max(16px, env(safe-area-inset-bottom));
+        z-index: 95;
+        border-bottom: none;
+        animation: slideInUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      @keyframes slideInUp {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CANVAS DU JEU -->
+  <canvas id="game-canvas"></canvas>
+
+  <!-- BARRE SUPÉRIEURE HUD RÉPONSIVE -->
+  <header class="top-bar">
+    <!-- Ligne 1 : Souveraineté, Temps & Actions -->
+    <div class="top-bar-group hud-primary">
+      <div class="nation-badge">
+        <div class="nation-flag-circ" id="nation-flag-icon">A</div>
+        <div class="nation-title" id="nation-title-txt">Aethelgard</div>
+      </div>
+      <div class="date-badge">
+        <span id="date-display">An 1 · Mois 1</span>
+        <button class="time-btn" data-speed="0">⏸</button>
+        <button class="time-btn active" data-speed="1">1×</button>
+        <button class="time-btn" data-speed="2">2×</button>
+        <button class="time-btn" data-speed="5">5×</button>
+      </div>
+      <button class="btn-hud-action" id="btn-open-budget" title="Fiscalité et Budget">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span>Budget</span>
+      </button>
+      <button class="btn-hud-action" id="btn-open-help" title="Instructions du Jeu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </button>
+    </div>
+
+    <!-- Ligne 2 : Trésor Public, Citoyens, Énergie & Santé Publique -->
+    <div class="top-bar-group hud-secondary">
+      <div class="resource-badge" title="Trésor Public National">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v12M15 9.5H10a2.5 2.5 0 0 1 0-5h4a2.5 2.5 0 0 1 0 5H9"/></svg>
+        <span id="stat-money" class="positive">$350,000</span>
+      </div>
+
+      <div class="resource-badge" title="Population Citoyenne">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span id="stat-pop">5,000</span>
+      </div>
+
+      <div class="resource-badge" title="Réseau Électrique National">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span id="stat-energy">0 / 0 MW</span>
+      </div>
+
+      <div class="resource-badge" title="Santé Publique & Hôpitaux">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span id="stat-health">100%</span>
+      </div>
+
+      <div class="resource-badge" title="Taux d'Éducation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        <span id="stat-edu">85%</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- BANNIÈRE CRISE ÉNERGÉTIQUE (BLACKOUT) -->
+  <div id="blackout-banner">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/><line x1="2" y1="2" x2="22" y2="22" stroke="currentColor" stroke-width="2"/></svg>
+    <span>BLACKOUT GÉNÉRAL : Pénurie d'énergie ! Bâtissez des centrales ou éoliennes.</span>
+  </div>
+
+  <!-- BANNIÈRE CRISE SANITAIRE (ÉPIDÉMIE) -->
+  <div id="epidemic-banner">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span>ALERTE SANITAIRE : Manque de lits d'hôpitaux, risque d'épidémie !</span>
+  </div>
+
+  <!-- BANDEAU D'AIDE ET PLACEMENT D'OUTIL -->
+  <div id="placement-overlay-bar">
+    <div class="placing-info">
+      <span id="placing-title">Pose en cours...</span>
+    </div>
+    <span id="placing-instruction" style="color: var(--text-muted);">Touchez ou cliquez sur le terrain pour placer.</span>
+    <button class="btn-cancel-placement" id="btn-cancel-tool">✕ Annuler</button>
+  </div>
+
+  <!-- CONTRÔLES FLOTTANTS DE CARTE -->
+  <div class="map-controls">
+    <button class="map-btn" id="btn-zoom-in" title="Zoomer">+</button>
+    <button class="map-btn" id="btn-zoom-out" title="Dézoomer">−</button>
+    <button class="map-btn" id="btn-center-cam" title="Recentrer la Capitale">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+    </button>
+    <button class="map-btn" id="btn-toggle-grid" title="Basculer Quadrillage">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    </button>
+  </div>
+
+  <!-- RADAR MINIMAP -->
+  <div id="minimap-wrapper">
+    <canvas id="minimap-canvas"></canvas>
+    <div class="minimap-lbl">RADAR NATIONAL</div>
+  </div>
+
+  <!-- DOCK DU BAS : ONGLETS & SÉLECTEUR DE BÂTIMENTS -->
+  <footer class="bottom-hud-wrapper">
+    <!-- Onglets des grandes catégories -->
+    <nav class="category-tabs" id="category-tabs">
+      <button class="cat-btn active" data-cat="housing">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Habitations</span>
+      </button>
+      <button class="cat-btn" data-cat="commerce">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        <span>Commerces</span>
+      </button>
+      <button class="cat-btn" data-cat="industry">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        <span>Industrie</span>
+      </button>
+      <button class="cat-btn" data-cat="public">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        <span>Services</span>
+      </button>
+      <button class="cat-btn" data-cat="energy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span>Énergie</span>
+      </button>
+      <button class="cat-btn" data-cat="roads">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="3"/><line x1="20" y1="21" x2="20" y2="3"/><line x1="12" y1="7" x2="12" y2="8"/><line x1="12" y1="12" x2="12" y2="13"/><line x1="12" y1="17" x2="12" y2="18"/></svg>
+        <span>Réseaux</span>
+      </button>
+    </nav>
+
+    <!-- Tiroir horizontal scrollable des bâtiments -->
+    <div class="building-tray-scroll" id="building-tray"></div>
+  </footer>
+
+  <!-- TIROIR D'INSPECTION DÉTAILLÉ DE BÂTIMENT -->
+  <div id="inspector-drawer">
+    <div class="insp-header">
+      <div>
+        <div class="insp-title" id="insp-bld-name">Immeuble Haussmannien</div>
+        <div class="insp-sub" id="insp-bld-type">Secteur Résidentiel · Niveau 1</div>
+      </div>
+      <button class="insp-close" id="insp-btn-close">✕</button>
+    </div>
+
+    <!-- Statut d'accès routier -->
+    <div id="insp-road-badge" class="status-badge status-ok">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      <span id="insp-road-txt">Relié au réseau routier (100% Efficience)</span>
+    </div>
+
+    <!-- Statut raccordement électrique -->
+    <div id="insp-power-badge" class="status-badge status-ok">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <span id="insp-power-txt">Alimenté en électricité</span>
+    </div>
+
+    <!-- Grille des coûts réels et recettes -->
+    <div class="insp-section-title">Comptabilité Mensuelle Détaillée</div>
+    <div class="cost-grid">
+      <div class="cost-row">
+        <span style="color: var(--text-muted);">Nettoyage & Voirie</span>
+        <span id="insp-cost-clean">$15</span>
+      </div>
+      <div class="cost-row">
+        <span style="color: var(--text-muted);">Maintenance Structure</span>
+        <span id="insp-cost-upkeep">$45</span>
+      </div>
+      <div class="cost-row">
+        <span style="color: var(--text-muted);">Personnel & Sécurité</span>
+        <span id="insp-cost-staff">$20</span>
+      </div>
+      <div class="cost-row">
+        <span style="color: var(--text-muted);">Consommation Énergie</span>
+        <span id="insp-cost-energy">$14</span>
+      </div>
+      <div class="cost-row total-row">
+        <span>Recettes Fiscales Générées</span>
+        <span id="insp-rev-tax" class="positive">+$180 / mois</span>
+      </div>
+      <div class="cost-row">
+        <span>Bilan Net Mensuel</span>
+        <span id="insp-net-flow" class="positive">+$86 / mois</span>
+      </div>
+    </div>
+
+    <!-- Actions du bâtiment -->
+    <div class="insp-actions">
+      <button class="btn-upgrade" id="insp-btn-upgrade">Améliorer ($15,000)</button>
+      <button class="btn-demolish" id="insp-btn-demolish">Démolir</button>
+    </div>
+  </div>
+
+  <!-- MODAL : GESTION BUDGÉTAIRE ET FISCALE -->
+  <div class="modal-overlay" id="budget-modal">
+    <div class="modal-card">
+      <h2>Politique Fiscale & Trésor Public</h2>
+      <p>Ajustez les taux d'imposition souverains pour stimuler l'immigration ou financer les infrastructures nationales.</p>
+
+      <div class="form-group">
+        <label>Impôt sur le Revenu des Ménages : <span id="lbl-tax-income">18%</span></label>
+        <input type="range" min="5" max="45" value="18" class="form-input" id="rng-tax-income">
+      </div>
+
+      <div class="form-group">
+        <label>Taxe sur les Sociétés & Commerces : <span id="lbl-tax-corp">22%</span></label>
+        <input type="range" min="5" max="50" value="22" class="form-input" id="rng-tax-corp">
+      </div>
+
+      <div class="form-group">
+        <label>Taxe Foncière Territoriale : <span id="lbl-tax-prop">5%</span></label>
+        <input type="range" min="1" max="20" value="5" class="form-input" id="rng-tax-prop">
+      </div>
+
+      <div class="cost-grid" style="margin-top: 6px;">
+        <div class="cost-row">
+          <span>Recettes Fiscales Totales Estimées</span>
+          <span id="modal-tax-total" class="positive">+$8,400 / m</span>
+        </div>
+        <div class="cost-row">
+          <span>Coûts d'Entretien des Bâtiments Nationaux</span>
+          <span id="modal-maintenance-total" class="negative">-$3,150 / m</span>
+        </div>
+        <div class="cost-row total-row">
+          <span>Solde Budgétaire Mensuel Net</span>
+          <span id="modal-net-total" class="positive">+$5,250 / m</span>
+        </div>
+      </div>
+
+      <button class="btn-primary-action" id="btn-close-budget">Appliquer & Fermer</button>
+    </div>
+  </div>
+
+  <!-- MODAL : AIDE & GUIDE DE JEU -->
+  <div class="modal-overlay" id="help-modal">
+    <div class="modal-card">
+      <h2>Guide Souverain · Imperium Nation Builder</h2>
+      <p>Bienvenue dans votre simulateur de nation ultra-réaliste, conçu aussi bien pour le PC que pour iPhone et smartphones !</p>
+      
+      <div class="cost-grid">
+        <div class="cost-row">
+          <b>Déplacement / Navigation</b>
+          <span>1 doigt (ou glisser souris)</span>
+        </div>
+        <div class="cost-row">
+          <b>Zoomer / Dézoomer</b>
+          <span>Pincer 2 doigts (ou molette souris)</span>
+        </div>
+        <div class="cost-row">
+          <b>Bâtir un édifice</b>
+          <span>Sélectionner dans le dock, toucher la carte</span>
+        </div>
+        <div class="cost-row">
+          <b>Tracé routier & Autoroutes</b>
+          <span>Touchez point de départ puis points suivants</span>
+        </div>
+        <div class="cost-row">
+          <b>Réseau Électrique</b>
+          <span>Posez des pylônes pour relier centrales et villes</span>
+        </div>
+      </div>
+
+      <p style="font-size: 11px;">⚠️ <b>Règles Vitales :</b> Reliez chaque bâtiment à une route pour qu'il soit opérationnel. Assurez une production électrique suffisante pour éviter le blackout.</p>
+
+      <button class="btn-primary-action" id="btn-close-help">Compris !</button>
+    </div>
+  </div>
+
+  <!-- CONTENEUR DES NOTIFICATIONS TOAST -->
+  <div id="toast-container"></div>
+
+  <!-- ==========================================================================
+       MOTEUR JAVASCRIPT GLOBAL DU JEU
+       ========================================================================== */
+  <script>
+    /* ==========================================================================
+       ICÔNES SVG VECTORIELLES POUR LE CATALOGUE (AUCUN EMOJI)
+       ========================================================================== */
+    const SVG_ICONS = {
+      house: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+      villa: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="M7 10V6l5-3 5 3v4"/><circle cx="15" cy="15" r="2"/></svg>`,
+      apartment: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="10" y2="6"/><line x1="14" y1="6" x2="16" y2="6"/><line x1="8" y1="11" x2="10" y2="11"/><line x1="14" y1="11" x2="16" y2="11"/><line x1="8" y1="16" x2="10" y2="16"/><line x1="14" y1="16" x2="16" y2="16"/></svg>`,
+      tower: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V7l6-5 6 5v15"/><line x1="10" y1="8" x2="14" y2="8"/><line x1="10" y1="12" x2="14" y2="12"/><line x1="10" y1="16" x2="14" y2="16"/></svg>`,
+      bank: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="21" x2="21" y2="21"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="5 6 12 3 19 6"/><line x1="6" y1="10" x2="6" y2="21"/><line x1="10" y1="10" x2="10" y2="21"/><line x1="14" y1="10" x2="14" y2="21"/><line x1="18" y1="10" x2="18" y2="21"/></svg>`,
+      mall: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`,
+      office: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="7" y1="8" x2="9" y2="8"/><line x1="15" y1="8" x2="17" y2="8"/><line x1="7" y1="13" x2="9" y2="13"/><line x1="15" y1="13" x2="17" y2="13"/></svg>`,
+      factory: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4H2z"/></svg>`,
+      warehouse: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 10h10M7 14h10M2 10l10-6 10 6"/></svg>`,
+      cityhall: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z"/><line x1="12" y1="9" x2="12" y2="17"/><line x1="8" y1="13" x2="16" y2="13"/></svg>`,
+      hospital: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/><rect x="8" y="7" width="8" height="8" rx="1"/></svg>`,
+      school: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
+      university: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
+      wind: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12l5-8M12 12l-8-5M12 12l2 9"/><circle cx="12" cy="12" r="2"/></svg>`,
+      powerplant: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+      pylon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="2" x2="6" y2="22"/><line x1="12" y1="2" x2="18" y2="22"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="8" y1="15" x2="16" y2="15"/></svg>`,
+      road: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="3"/><line x1="20" y1="21" x2="20" y2="3"/><line x1="12" y1="5" x2="12" y2="7"/><line x1="12" y1="11" x2="12" y2="13"/><line x1="12" y1="17" x2="12" y2="19"/></svg>`,
+      highway: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="21" x2="5" y2="3"/><line x1="21" y1="21" x2="19" y2="3"/><line x1="12" y1="3" x2="12" y2="21"/></svg>`,
+      parcel: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="4 4"/></svg>`
+    };
+
+    /* ==========================================================================
+       CATALOGUE DES BÂTIMENTS & INFRASTRUCTURES RÉALISTES
+       ========================================================================== */
+    const BUILDING_CATALOG = {
+      housing: [
+        {
+          type: "house",
+          name: "Maison Individuelle",
+          cost: 4500,
+          desc: "Capacité 8 résidents · Jardin privatif et toiture tuiles",
+          capacity: 8,
+          energy: -2,
+          footprint: { w: 60, h: 50 },
+          maintenance: { cleaning: 2, upkeep: 4, staff: 0, energy: 2 },
+          icon: SVG_ICONS.house
+        },
+        {
+          type: "villa",
+          name: "Villa Contemporaine",
+          cost: 11000,
+          desc: "Capacité 16 résidents · Baies vitrées et piscine d'eau bleue",
+          capacity: 16,
+          energy: -4,
+          footprint: { w: 72, h: 58 },
+          maintenance: { cleaning: 3, upkeep: 6, staff: 1, energy: 4 },
+          icon: SVG_ICONS.villa
+        },
+        {
+          type: "apartment",
+          name: "Immeuble Haussmannien",
+          cost: 35000,
+          desc: "Capacité 90 résidents · 5 étages en pierre de taille et zinc",
+          capacity: 90,
+          energy: -14,
+          footprint: { w: 80, h: 70 },
+          maintenance: { cleaning: 8, upkeep: 18, staff: 6, energy: 12 },
+          icon: SVG_ICONS.apartment
+        },
+        {
+          type: "tower",
+          name: "Tour Résidentielle Vitrée",
+          cost: 85000,
+          desc: "Capacité 280 résidents · Gratte-ciel avec balcons panoramiques",
+          capacity: 280,
+          energy: -35,
+          footprint: { w: 86, h: 80 },
+          maintenance: { cleaning: 16, upkeep: 40, staff: 20, energy: 30 },
+          icon: SVG_ICONS.tower
+        }
+      ],
+      commerce: [
+        {
+          type: "mall",
+          name: "Centre Commercial Régional",
+          cost: 48000,
+          desc: "Emplois 120 · Boutiques, restauration et parkings clients",
+          capacity: 120,
+          energy: -22,
+          taxBonus: 480,
+          footprint: { w: 90, h: 75 },
+          maintenance: { cleaning: 12, upkeep: 25, staff: 15, energy: 20 },
+          icon: SVG_ICONS.mall
+        },
+        {
+          type: "bank",
+          name: "Banque d'Affaires & Bourse",
+          cost: 95000,
+          desc: "Emplois 220 · Hub financier générant de forts dividendes fiscaux",
+          capacity: 220,
+          energy: -38,
+          taxBonus: 950,
+          footprint: { w: 85, h: 75 },
+          maintenance: { cleaning: 20, upkeep: 50, staff: 35, energy: 35 },
+          icon: SVG_ICONS.bank
+        },
+        {
+          type: "office",
+          name: "Complexe de Bureaux Tech",
+          cost: 65000,
+          desc: "Emplois 160 · Siège de start-ups et entreprises numériques",
+          capacity: 160,
+          energy: -28,
+          taxBonus: 620,
+          footprint: { w: 82, h: 72 },
+          maintenance: { cleaning: 14, upkeep: 30, staff: 20, energy: 25 },
+          icon: SVG_ICONS.office
+        }
+      ],
+      industry: [
+        {
+          type: "factory",
+          name: "Usine Métallurgique & Assemblage",
+          cost: 52000,
+          desc: "Emplois 140 · Production industrielle lourde et fumée d'usine",
+          capacity: 140,
+          energy: -45,
+          taxBonus: 580,
+          footprint: { w: 94, h: 80 },
+          maintenance: { cleaning: 10, upkeep: 35, staff: 25, energy: 40 },
+          icon: SVG_ICONS.factory
+        },
+        {
+          type: "warehouse",
+          name: "Plateforme Logistique Fret",
+          cost: 38000,
+          desc: "Emplois 80 · Dépôt de distribution et quais de déchargement",
+          capacity: 80,
+          energy: -18,
+          taxBonus: 360,
+          footprint: { w: 96, h: 78 },
+          maintenance: { cleaning: 8, upkeep: 20, staff: 12, energy: 16 },
+          icon: SVG_ICONS.warehouse
+        }
+      ],
+      public: [
+        {
+          type: "cityhall",
+          name: "Hôtel de Ville & Capitale",
+          cost: 60000,
+          desc: "Siège du gouvernement avec dôme néo-classique et drapeau",
+          capacity: 50,
+          energy: -12,
+          footprint: { w: 90, h: 80 },
+          maintenance: { cleaning: 15, upkeep: 25, staff: 30, energy: 15 },
+          icon: SVG_ICONS.cityhall
+        },
+        {
+          type: "hospital",
+          name: "Centre Hospitalier Régional",
+          cost: 72000,
+          desc: "Capacité 200 lits · Héliport d'urgence, prévient les épidémies",
+          capacity: 200,
+          energy: -26,
+          healthBonus: 35,
+          footprint: { w: 92, h: 78 },
+          maintenance: { cleaning: 25, upkeep: 40, staff: 65, energy: 30 },
+          icon: SVG_ICONS.hospital
+        },
+        {
+          type: "school",
+          name: "Groupe Scolaire Élémentaire",
+          cost: 28000,
+          desc: "Capacité 150 élèves · Briques rouges, cour et tour de l'horloge",
+          capacity: 150,
+          energy: -10,
+          eduBonus: 20,
+          footprint: { w: 78, h: 64 },
+          maintenance: { cleaning: 10, upkeep: 18, staff: 22, energy: 10 },
+          icon: SVG_ICONS.school
+        },
+        {
+          type: "university",
+          name: "Campus Universitaire National",
+          cost: 88000,
+          desc: "Capacité 600 étudiants · Haut lieu de savoir et recherche",
+          capacity: 600,
+          energy: -32,
+          eduBonus: 45,
+          footprint: { w: 96, h: 84 },
+          maintenance: { cleaning: 20, upkeep: 45, staff: 50, energy: 28 },
+          icon: SVG_ICONS.university
+        }
+      ],
+      energy: [
+        {
+          type: "wind",
+          name: "Éolienne Haute Puissance",
+          cost: 16000,
+          desc: "Génère +25 MW d'électricité verte sans aucune pollution",
+          capacity: 0,
+          energy: 25,
+          isPylonFriendly: true,
+          footprint: { w: 50, h: 50 },
+          maintenance: { cleaning: 2, upkeep: 8, staff: 2, energy: 0 },
+          icon: SVG_ICONS.wind
+        },
+        {
+          type: "powerplant",
+          name: "Centrale Électrique Haute Énergie",
+          cost: 110000,
+          desc: "Génère +250 MW · Alimente les grandes métropoles industrielles",
+          capacity: 0,
+          energy: 250,
+          isPylonFriendly: true,
+          footprint: { w: 100, h: 90 },
+          maintenance: { cleaning: 25, upkeep: 70, staff: 55, energy: 0 },
+          icon: SVG_ICONS.powerplant
+        },
+        {
+          type: "pylon",
+          name: "Pylône Électrique & Ligne Câblée",
+          cost: 1200,
+          desc: "Relie vos centrales et éoliennes aux quartiers urbains",
+          isPylonTool: true,
+          footprint: { w: 32, h: 32 },
+          maintenance: { cleaning: 0, upkeep: 2, staff: 0, energy: 0 },
+          icon: SVG_ICONS.pylon
+        }
+      ],
+      roads: [
+        {
+          type: "street",
+          name: "Avenue Urbaine & Trottoirs",
+          cost: 400,
+          desc: "Voie citadine à double sens avec passages piétons (32px)",
+          isRoadTool: true,
+          roadType: "street",
+          width: 32,
+          icon: SVG_ICONS.road
+        },
+        {
+          type: "highway",
+          name: "Autoroute Nationale Rapide",
+          cost: 1200,
+          desc: "Artère lourde à 4 voies rapides avec terre-plein central (52px)",
+          isRoadTool: true,
+          roadType: "highway",
+          width: 52,
+          icon: SVG_ICONS.highway
+        },
+        {
+          type: "parcel",
+          name: "Parcelle de Quartier Gratuite",
+          cost: 0,
+          desc: "Tracez un quadrillage pour organiser vos futurs quartiers",
+          isParcelTool: true,
+          icon: SVG_ICONS.parcel
+        }
+      ]
+    };
+
+    /* ==========================================================================
+       ÉTAT DE LA PARTIE (GAME STATE)
+       ========================================================================== */
+    const GameState = {
+      nationName: "Fédération d'Aethelgard",
+      capitalName: "Port-Solaire",
+      color: "#0284c7",
+
+      money: 350000,
+      totalPop: 5000,
+      energyProd: 50,
+      energyDemand: 28,
+      healthIndex: 100,
+      eduIndex: 85,
+      hospitalBeds: 200,
+
+      day: 1,
+      month: 1,
+      year: 1,
+      speed: 1,
+      lastTick: 0,
+      isBlackout: false,
+      isEpidemic: false,
+
+      // Fiscalité souveraine
+      taxIncome: 18,
+      taxCorp: 22,
+      taxProperty: 5,
+
+      // Outils
+      activeCategory: "housing",
+      activeTool: null,
+      roadStartNode: null,
+      pylonStartNode: null,
+      selectedBuilding: null,
+      showGrid: true
+    };
+
+    /* ==========================================================================
+       GÉOGRAPHIE, RÉSEAU ROUTIER, LIGNES ÉLECTRIQUES ET BÂTIMENTS
+       ========================================================================== */
+    const WORLD_SIZE = 8000;
+
+    // Fleuve naturel sinueux (Pas de montagne laide)
+    const RIVER_POINTS = [
+      { x: 400, y: 0 },
+      { x: 1200, y: 1100 },
+      { x: 2300, y: 1900 },
+      { x: 3400, y: 2500 },
+      { x: 4200, y: 3100 },
+      { x: 5300, y: 4400 },
+      { x: 6200, y: 5800 },
+      { x: 7400, y: 8000 }
+    ];
+
+    // Nœuds et segments de voirie
+    let ROAD_NODES = [
+      { id: "rn_1", x: 2500, y: 2400 },
+      { id: "rn_2", x: 2900, y: 2400 },
+      { id: "rn_3", x: 3300, y: 2400 },
+      { id: "rn_4", x: 2900, y: 2750 },
+      { id: "rn_5", x: 2900, y: 2050 }
+    ];
+
+    let ROAD_SEGMENTS = [
+      { id: "rs_1", from: "rn_1", to: "rn_2", type: "highway" },
+      { id: "rs_2", from: "rn_2", to: "rn_3", type: "highway" },
+      { id: "rs_3", from: "rn_5", to: "rn_2", type: "street" },
+      { id: "rs_4", from: "rn_2", to: "rn_4", type: "street" }
+    ];
+
+    // Nœuds et câbles électriques haute-tension
+    let PYLON_NODES = [
+      { id: "pn_1", x: 2200, y: 2100 },
+      { id: "pn_2", x: 2550, y: 2250 },
+      { id: "pn_3", x: 2900, y: 2250 }
+    ];
+
+    let POWER_CABLES = [
+      { id: "pc_1", from: "pn_1", to: "pn_2" },
+      { id: "pc_2", from: "pn_2", to: "pn_3" }
+    ];
+
+    // Bâtiments implantés au départ
+    let PLACED_BUILDINGS = [
+      { id: "b_1", type: "cityhall", name: "Hôtel de Ville & Capitale", x: 2900, y: 2520, level: 1 },
+      { id: "b_2", type: "apartment", name: "Immeuble Haussmannien", x: 2720, y: 2480, level: 1 },
+      { id: "b_3", type: "apartment", name: "Immeuble Haussmannien", x: 3080, y: 2480, level: 1 },
+      { id: "b_4", type: "mall", name: "Centre Commercial Régional", x: 2720, y: 2320, level: 1 },
+      { id: "b_5", type: "hospital", name: "Centre Hospitalier Régional", x: 3080, y: 2320, level: 1 },
+      { id: "b_6", type: "wind", name: "Éolienne Haute Puissance", x: 2200, y: 2100, level: 1 },
+      { id: "b_7", type: "wind", name: "Éolienne Haute Puissance", x: 2050, y: 1950, level: 1 }
+    ];
+
+    // Parcelles d'urbanisme libres
+    let PLACED_PARCELS = [
+      { x: 2600, y: 2600, w: 200, h: 140 },
+      { x: 3000, y: 2600, w: 200, h: 140 }
+    ];
+
+    // Véhicules en circulation sur les routes
+    let VEHICLES = [
+      { segId: "rs_1", progress: 0.2, speed: 0.0035, dir: 1, color: "#ef4444", type: "sedan" },
+      { segId: "rs_2", progress: 0.6, speed: 0.0028, dir: 1, color: "#38bdf8", type: "bus" },
+      { segId: "rs_3", progress: 0.4, speed: 0.004, dir: -1, color: "#ffffff", type: "sedan" },
+      { segId: "rs_4", progress: 0.7, speed: 0.003, dir: 1, color: "#f59e0b", type: "truck" }
+    ];
+
+    /* ==========================================================================
+       MOTEUR DE CAMÉRA & GESTION MULTI-TOUCH MOBILE (IPHONE & SMARTPHONE)
+       ========================================================================== */
+    class CameraEngine {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext("2d");
+        this.x = 2900;
+        this.y = 2450;
+        this.targetX = 2900;
+        this.targetY = 2450;
+        this.scale = 1.0;
+        this.targetScale = 1.0;
+
+        // Suivi souris & touch
+        this.isMouseDown = false;
+        this.startX = 0;
+        this.startY = 0;
+        this.touchDistanceStart = 0;
+        this.touchMidStart = { x: 0, y: 0 };
+        this.touchStartTime = 0;
+        this.hasMovedSignificantly = false;
+
+        this.init();
+      }
+
+      init() {
+        this.resize();
+        window.addEventListener("resize", () => this.resize());
+        this.bindMouseEvents();
+        this.bindTouchEvents();
+      }
+
+      resize() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.canvas.width = window.innerWidth * dpr;
+        this.canvas.height = window.innerHeight * dpr;
+        this.ctx.resetTransform();
+        this.ctx.scale(dpr, dpr);
+        this.displayWidth = window.innerWidth;
+        this.displayHeight = window.innerHeight;
+      }
+
+      screenToWorld(sx, sy) {
+        return {
+          x: (sx - this.displayWidth / 2) / this.scale + this.x,
+          y: (sy - this.displayHeight / 2) / this.scale + this.y
+        };
+      }
+
+      worldToScreen(wx, wy) {
+        return {
+          x: (wx - this.x) * this.scale + this.displayWidth / 2,
+          y: (wy - this.y) * this.scale + this.displayHeight / 2
+        };
+      }
+
+      setZoom(newZoom, centerX = this.displayWidth / 2, centerY = this.displayHeight / 2) {
+        const clamped = Math.max(0.25, Math.min(2.8, newZoom));
+        const worldBefore = this.screenToWorld(centerX, centerY);
+        this.targetScale = clamped;
+        this.scale = clamped;
+        const worldAfter = this.screenToWorld(centerX, centerY);
+        this.targetX += (worldBefore.x - worldAfter.x);
+        this.targetY += (worldBefore.y - worldAfter.y);
+      }
+
+      bindMouseEvents() {
+        this.canvas.addEventListener("mousedown", (e) => {
+          if (e.button === 0) {
+            this.isMouseDown = true;
+            this.startX = e.clientX;
+            this.startY = e.clientY;
+            this.hasMovedSignificantly = false;
+          } else if (e.button === 2) {
+            cancelPlacementMode();
+          }
+        });
+
+        window.addEventListener("mousemove", (e) => {
+          if (this.isMouseDown) {
+            const dx = (e.clientX - this.startX) / this.scale;
+            const dy = (e.clientY - this.startY) / this.scale;
+            if (Math.hypot(dx, dy) > 3) this.hasMovedSignificantly = true;
+            this.targetX -= dx;
+            this.targetY -= dy;
+            this.startX = e.clientX;
+            this.startY = e.clientY;
+          }
+        });
+
+        window.addEventListener("mouseup", (e) => {
+          if (this.isMouseDown) {
+            this.isMouseDown = false;
+            if (!this.hasMovedSignificantly && e.target === this.canvas) {
+              handleCanvasTap(e.clientX, e.clientY);
+            }
+          }
+        });
+
+        this.canvas.addEventListener("wheel", (e) => {
+          e.preventDefault();
+          const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
+          this.setZoom(this.targetScale * zoomFactor, e.clientX, e.clientY);
+        }, { passive: false });
+
+        this.canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+      }
+
+      bindTouchEvents() {
+        this.canvas.addEventListener("touchstart", (e) => {
+          this.touchStartTime = Date.now();
+          this.hasMovedSignificantly = false;
+
+          if (e.touches.length === 1) {
+            this.startX = e.touches[0].clientX;
+            this.startY = e.touches[0].clientY;
+          } else if (e.touches.length === 2) {
+            const t1 = e.touches[0], t2 = e.touches[1];
+            this.touchDistanceStart = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+            this.touchMidStart = {
+              x: (t1.clientX + t2.clientX) / 2,
+              y: (t1.clientY + t2.clientY) / 2
+            };
+          }
+        }, { passive: false });
+
+        this.canvas.addEventListener("touchmove", (e) => {
+          e.preventDefault();
+
+          if (e.touches.length === 1) {
+            const curX = e.touches[0].clientX;
+            const curY = e.touches[0].clientY;
+            const dx = (curX - this.startX) / this.scale;
+            const dy = (curY - this.startY) / this.scale;
+
+            if (Math.hypot(dx, dy) > 4) this.hasMovedSignificantly = true;
+
+            this.targetX -= dx;
+            this.targetY -= dy;
+            this.startX = curX;
+            this.startY = curY;
+          } else if (e.touches.length === 2) {
+            this.hasMovedSignificantly = true;
+            const t1 = e.touches[0], t2 = e.touches[1];
+            const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+            if (this.touchDistanceStart > 0) {
+              const ratio = dist / this.touchDistanceStart;
+              this.setZoom(this.targetScale * ratio, this.touchMidStart.x, this.touchMidStart.y);
+              this.touchDistanceStart = dist;
+            }
+          }
+        }, { passive: false });
+
+        this.canvas.addEventListener("touchend", (e) => {
+          if (!this.hasMovedSignificantly && (Date.now() - this.touchStartTime < 350)) {
+            if (e.changedTouches.length > 0) {
+              const touch = e.changedTouches[0];
+              handleCanvasTap(touch.clientX, touch.clientY);
+            }
+          }
+        });
+      }
+
+      update() {
+        this.x += (this.targetX - this.x) * 0.2;
+        this.y += (this.targetY - this.y) * 0.2;
+      }
+    }
+
+    const canvasElem = document.getElementById("game-canvas");
+    const camera = new CameraEngine(canvasElem);
+
+    /* ==========================================================================
+       GESTION DES CLICS & TAPS : OUTILS, PLACEMENT ET INSPECTEUR
+       ========================================================================== */
+    function handleCanvasTap(screenX, screenY) {
+      const worldPos = camera.screenToWorld(screenX, screenY);
+      const tool = GameState.activeTool;
+
+      // 1. POSE D'UNE ROUTE OU AUTOROUTE
+      if (tool && tool.isRoadTool) {
+        if (GameState.money < tool.cost) {
+          showToast("Fonds publics insuffisants pour tracer cette route !", "error");
+          return;
+        }
+
+        let node = ROAD_NODES.find(n => Math.hypot(n.x - worldPos.x, n.y - worldPos.y) < 35);
+        if (!node) {
+          const hitSegment = findSegmentNear(worldPos.x, worldPos.y, 25);
+          if (hitSegment) {
+            node = { id: "rn_" + Date.now(), x: Math.round(worldPos.x), y: Math.round(worldPos.y) };
+            ROAD_NODES.push(node);
+            const origFrom = hitSegment.from, origTo = hitSegment.to, origType = hitSegment.type;
+            ROAD_SEGMENTS = ROAD_SEGMENTS.filter(s => s.id !== hitSegment.id);
+            ROAD_SEGMENTS.push({ id: "rs_" + Date.now() + "_a", from: origFrom, to: node.id, type: origType });
+            ROAD_SEGMENTS.push({ id: "rs_" + Date.now() + "_b", from: node.id, to: origTo, type: origType });
+          } else {
+            node = { id: "rn_" + Date.now(), x: Math.round(worldPos.x), y: Math.round(worldPos.y) };
+            ROAD_NODES.push(node);
+          }
+        }
+
+        if (!GameState.roadStartNode) {
+          GameState.roadStartNode = node;
+          showToast("Départ fixé ! Touchez un autre point pour tracer.", "info");
+        } else {
+          if (GameState.roadStartNode !== node) {
+            GameState.money -= tool.cost;
+            const newSeg = {
+              id: "rs_" + Date.now(),
+              from: GameState.roadStartNode.id,
+              to: node.id,
+              type: tool.roadType
+            };
+            ROAD_SEGMENTS.push(newSeg);
+
+            VEHICLES.push({
+              segId: newSeg.id,
+              progress: 0.1,
+              speed: 0.0035,
+              dir: 1,
+              color: "#38bdf8",
+              type: Math.random() > 0.5 ? "sedan" : "bus"
+            });
+
+            showToast("Tronçon routier raccordé !", "success");
+            GameState.roadStartNode = node;
+            updateHud();
+          }
+        }
+        return;
+      }
+
+      // 2. POSE D'UN PYLÔNE & CÂBLE ÉLECTRIQUE
+      if (tool && tool.isPylonTool) {
+        if (GameState.money < tool.cost) {
+          showToast("Fonds insuffisants pour poser ce pylône !", "error");
+          return;
+        }
+
+        let pylon = PYLON_NODES.find(p => Math.hypot(p.x - worldPos.x, p.y - worldPos.y) < 32);
+        if (!pylon) {
+          pylon = { id: "pn_" + Date.now(), x: Math.round(worldPos.x), y: Math.round(worldPos.y) };
+          PYLON_NODES.push(pylon);
+        }
+
+        if (!GameState.pylonStartNode) {
+          GameState.pylonStartNode = pylon;
+          showToast("Pylône sélectionné ! Touchez un second pylône pour tendre le câble.", "info");
+        } else {
+          if (GameState.pylonStartNode !== pylon) {
+            GameState.money -= tool.cost;
+            POWER_CABLES.push({
+              id: "pc_" + Date.now(),
+              from: GameState.pylonStartNode.id,
+              to: pylon.id
+            });
+            showToast("Câble haute tension tendu avec succès !", "success");
+            GameState.pylonStartNode = pylon;
+            updateHud();
+          }
+        }
+        return;
+      }
+
+      // 3. POSE D'UNE PARCELLE URBAINE LIBRE
+      if (tool && tool.isParcelTool) {
+        const snapX = Math.round(worldPos.x / 40) * 40;
+        const snapY = Math.round(worldPos.y / 40) * 40;
+        PLACED_PARCELS.push({ x: snapX - 80, y: snapY - 60, w: 160, h: 120 });
+        showToast("Zone de parcelle délimitée !", "success");
+        return;
+      }
+
+      // 4. POSE D'UN BÂTIMENT DU CATALOGUE
+      if (tool) {
+        if (GameState.money < tool.cost) {
+          showToast("Trésor Public insuffisant !", "error");
+          return;
+        }
+
+        GameState.money -= tool.cost;
+        const newBld = {
+          id: "b_" + Date.now(),
+          type: tool.type,
+          name: tool.name,
+          x: Math.round(worldPos.x),
+          y: Math.round(worldPos.y),
+          level: 1
+        };
+        PLACED_BUILDINGS.push(newBld);
+
+        if (tool.type === "wind" || tool.type === "powerplant") {
+          PYLON_NODES.push({ id: "pn_" + Date.now(), x: newBld.x, y: newBld.y });
+        }
+
+        showToast(`${tool.name} construit avec succès !`, "success");
+        cancelPlacementMode();
+        updateHud();
+        return;
+      }
+
+      // 5. INSPECTION D'UN BÂTIMENT
+      const clickedB = PLACED_BUILDINGS.find(b => Math.hypot(b.x - worldPos.x, b.y - worldPos.y) < 45);
+      if (clickedB) {
+        openBuildingInspector(clickedB);
+      } else {
+        closeBuildingInspector();
+      }
+    }
+
+    function findSegmentNear(x, y, maxDist) {
+      for (const seg of ROAD_SEGMENTS) {
+        const nA = ROAD_NODES.find(n => n.id === seg.from);
+        const nB = ROAD_NODES.find(n => n.id === seg.to);
+        if (!nA || !nB) continue;
+
+        const dist = distToSegment({ x, y }, nA, nB);
+        if (dist < maxDist) return seg;
+      }
+      return null;
+    }
+
+    function distToSegment(p, v, w) {
+      const l2 = (w.x - v.x) ** 2 + (w.y - v.y) ** 2;
+      if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
+      let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+      t = Math.max(0, Math.min(1, t));
+      return Math.hypot(p.x - (v.x + t * (w.x - v.x)), p.y - (v.y + t * (w.y - v.y)));
+    }
+
+    /* ==========================================================================
+       TIROIR D'INSPECTION (DRAWER / MOBILE SHEET)
+       ========================================================================== */
+    function openBuildingInspector(bld) {
+      GameState.selectedBuilding = bld;
+      const drawer = document.getElementById("inspector-drawer");
+      drawer.style.display = "flex";
+
+      document.getElementById("insp-bld-name").textContent = bld.name;
+      document.getElementById("insp-bld-type").textContent = `Édifice National · Niveau ${bld.level}`;
+
+      const hasRoad = ROAD_SEGMENTS.some(seg => {
+        const nA = ROAD_NODES.find(n => n.id === seg.from);
+        const nB = ROAD_NODES.find(n => n.id === seg.to);
+        return nA && nB && distToSegment({ x: bld.x, y: bld.y }, nA, nB) < 95;
+      });
+
+      const roadBadge = document.getElementById("insp-road-badge");
+      const roadTxt = document.getElementById("insp-road-txt");
+      if (hasRoad || bld.type === "wind") {
+        roadBadge.className = "status-badge status-ok";
+        roadTxt.textContent = "Relié au réseau routier (100% Efficience)";
+      } else {
+        roadBadge.className = "status-badge status-warn";
+        roadTxt.textContent = "Bâtiment enclavé ! Tracez une route à proximité.";
+      }
+
+      const powerBadge = document.getElementById("insp-power-badge");
+      const powerTxt = document.getElementById("insp-power-txt");
+      if (GameState.isBlackout) {
+        powerBadge.className = "status-badge status-warn";
+        powerTxt.textContent = "Coupe de courant (Blackout National)";
+      } else {
+        powerBadge.className = "status-badge status-ok";
+        powerTxt.textContent = "Réseau électrique stable et alimenté";
+      }
+
+      const catItem = findCatalogItem(bld.type);
+      const cleanCost = catItem?.maintenance?.cleaning || 8;
+      const upkeepCost = catItem?.maintenance?.upkeep || 15;
+      const staffCost = catItem?.maintenance?.staff || 10;
+      const energyCost = catItem?.maintenance?.energy || 12;
+      const totalCost = (cleanCost + upkeepCost + staffCost + energyCost) * bld.level;
+      const revenue = Math.round((catItem?.capacity || 20) * (GameState.taxIncome / 100) * 14 * bld.level);
+
+      document.getElementById("insp-cost-clean").textContent = `$${cleanCost * bld.level}`;
+      document.getElementById("insp-cost-upkeep").textContent = `$${upkeepCost * bld.level}`;
+      document.getElementById("insp-cost-staff").textContent = `$${staffCost * bld.level}`;
+      document.getElementById("insp-cost-energy").textContent = `$${energyCost * bld.level}`;
+      document.getElementById("insp-rev-tax").textContent = `+$${revenue} / mois`;
+
+      const net = revenue - totalCost;
+      const netElem = document.getElementById("insp-net-flow");
+      netElem.textContent = `${net >= 0 ? "+" : ""}$${net} / mois`;
+      netElem.className = net >= 0 ? "positive" : "negative";
+
+      const upgradeCost = Math.round((catItem?.cost || 10000) * 0.7 * bld.level);
+      document.getElementById("insp-btn-upgrade").textContent = `Améliorer ($${upgradeCost.toLocaleString()})`;
+    }
+
+    function closeBuildingInspector() {
+      GameState.selectedBuilding = null;
+      document.getElementById("inspector-drawer").style.display = "none";
+    }
+
+    document.getElementById("insp-btn-close").addEventListener("click", closeBuildingInspector);
+
+    document.getElementById("insp-btn-upgrade").addEventListener("click", () => {
+      const bld = GameState.selectedBuilding;
+      if (!bld) return;
+      const catItem = findCatalogItem(bld.type);
+      const upgradeCost = Math.round((catItem?.cost || 10000) * 0.7 * bld.level);
+      if (GameState.money < upgradeCost) {
+        showToast("Fonds insuffisants pour améliorer ce bâtiment !", "error");
+        return;
+      }
+      GameState.money -= upgradeCost;
+      bld.level++;
+      showToast(`${bld.name} promu au Niveau ${bld.level} !`, "success");
+      openBuildingInspector(bld);
+      updateHud();
+    });
+
+    document.getElementById("insp-btn-demolish").addEventListener("click", () => {
+      const bld = GameState.selectedBuilding;
+      if (!bld) return;
+      PLACED_BUILDINGS = PLACED_BUILDINGS.filter(b => b.id !== bld.id);
+      showToast(`${bld.name} démoli.`, "info");
+      closeBuildingInspector();
+      updateHud();
+    });
+
+    function findCatalogItem(type) {
+      for (const cat in BUILDING_CATALOG) {
+        const found = BUILDING_CATALOG[cat].find(i => i.type === type);
+        if (found) return found;
+      }
+      return null;
+    }
+
+    /* ==========================================================================
+       GESTION DES OUTILS ET INTERFACE DOCK
+       ========================================================================== */
+    function renderBuildingTray(categoryKey) {
+      GameState.activeCategory = categoryKey;
+      const tray = document.getElementById("building-tray");
+      tray.innerHTML = "";
+
+      const items = BUILDING_CATALOG[categoryKey] || [];
+      items.forEach(item => {
+        const card = document.createElement("button");
+        card.className = "bld-card-btn";
+        if (GameState.activeTool === item) card.classList.add("active");
+
+        card.innerHTML = `
+          <div class="bld-card-top">
+            <div class="bld-icon-frame">${item.icon}</div>
+            <div style="overflow: hidden;">
+              <div class="bld-card-title">${item.name}</div>
+              <div class="bld-card-cost">${item.cost > 0 ? '$' + item.cost.toLocaleString() : 'Gratuit'}</div>
+            </div>
+          </div>
+          <div class="bld-card-desc">${item.desc}</div>
+          <div class="bld-card-stats">
+            <span>${item.energy ? (item.energy > 0 ? '+' + item.energy + ' MW' : item.energy + ' MW') : ''}</span>
+            <span>${item.capacity ? item.capacity + ' cap.' : ''}</span>
+          </div>
+        `;
+
+        card.addEventListener("click", () => selectTool(item));
+        tray.appendChild(card);
+      });
+    }
+
+    function selectTool(tool) {
+      if (GameState.activeTool === tool) {
+        cancelPlacementMode();
+        return;
+      }
+
+      GameState.activeTool = tool;
+      GameState.roadStartNode = null;
+      GameState.pylonStartNode = null;
+
+      const overlay = document.getElementById("placement-overlay-bar");
+      overlay.style.display = "flex";
+      document.getElementById("placing-title").textContent = tool.name;
+
+      if (tool.isRoadTool) {
+        document.getElementById("placing-instruction").textContent = "Touchez pour poser le départ, puis prolongez le tracé.";
+      } else if (tool.isPylonTool) {
+        document.getElementById("placing-instruction").textContent = "Touchez pour poser un pylône, puis reliez le câble.";
+      } else {
+        document.getElementById("placing-instruction").textContent = "Touchez la carte pour implanter cet édifice.";
+      }
+
+      renderBuildingTray(GameState.activeCategory);
+    }
+
+    function cancelPlacementMode() {
+      GameState.activeTool = null;
+      GameState.roadStartNode = null;
+      GameState.pylonStartNode = null;
+      document.getElementById("placement-overlay-bar").style.display = "none";
+      renderBuildingTray(GameState.activeCategory);
+    }
+
+    document.getElementById("btn-cancel-tool").addEventListener("click", cancelPlacementMode);
+
+    document.querySelectorAll(".cat-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderBuildingTray(btn.dataset.cat);
+      });
+    });
+
+    /* ==========================================================================
+       CONTRÔLES FLOTTANTS DE CARTE
+       ========================================================================== */
+    document.getElementById("btn-zoom-in").addEventListener("click", () => camera.setZoom(camera.targetScale * 1.3));
+    document.getElementById("btn-zoom-out").addEventListener("click", () => camera.setZoom(camera.targetScale * 0.75));
+    document.getElementById("btn-center-cam").addEventListener("click", () => {
+      camera.targetX = 2900;
+      camera.targetY = 2450;
+      camera.setZoom(1.0);
+    });
+    document.getElementById("btn-toggle-grid").addEventListener("click", () => {
+      GameState.showGrid = !GameState.showGrid;
+      showToast(GameState.showGrid ? "Quadrillage affiché" : "Quadrillage masqué", "info");
+    });
+
+    document.querySelectorAll(".time-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".time-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        GameState.speed = parseInt(btn.dataset.speed);
+      });
+    });
+
+    /* ==========================================================================
+       MODAL BUDGET & FISCALITÉ
+       ========================================================================== */
+    const budgetModal = document.getElementById("budget-modal");
+    document.getElementById("btn-open-budget").addEventListener("click", () => {
+      updateBudgetModalValues();
+      budgetModal.style.display = "flex";
+    });
+    document.getElementById("btn-close-budget").addEventListener("click", () => {
+      budgetModal.style.display = "none";
+    });
+
+    const helpModal = document.getElementById("help-modal");
+    document.getElementById("btn-open-help").addEventListener("click", () => helpModal.style.display = "flex");
+    document.getElementById("btn-close-help").addEventListener("click", () => helpModal.style.display = "none");
+
+    const rngIncome = document.getElementById("rng-tax-income");
+    const rngCorp = document.getElementById("rng-tax-corp");
+    const rngProp = document.getElementById("rng-tax-prop");
+
+    rngIncome.addEventListener("input", (e) => {
+      GameState.taxIncome = parseInt(e.target.value);
+      document.getElementById("lbl-tax-income").textContent = GameState.taxIncome + "%";
+      updateBudgetModalValues();
+    });
+    rngCorp.addEventListener("input", (e) => {
+      GameState.taxCorp = parseInt(e.target.value);
+      document.getElementById("lbl-tax-corp").textContent = GameState.taxCorp + "%";
+      updateBudgetModalValues();
+    });
+    rngProp.addEventListener("input", (e) => {
+      GameState.taxProperty = parseInt(e.target.value);
+      document.getElementById("lbl-tax-prop").textContent = GameState.taxProperty + "%";
+      updateBudgetModalValues();
+    });
+
+    function updateBudgetModalValues() {
+      const taxTotal = Math.round(GameState.totalPop * (GameState.taxIncome / 100) * 1.8 + 2500 * (GameState.taxCorp / 100));
+      const upkeepTotal = PLACED_BUILDINGS.length * 95;
+      const net = taxTotal - upkeepTotal;
+
+      document.getElementById("modal-tax-total").textContent = `+$${taxTotal.toLocaleString()} / m`;
+      document.getElementById("modal-maintenance-total").textContent = `-$${upkeepTotal.toLocaleString()} / m`;
+      const netElem = document.getElementById("modal-net-total");
+      netElem.textContent = `${net >= 0 ? "+" : ""}$${net.toLocaleString()} / m`;
+      netElem.className = net >= 0 ? "positive" : "negative";
+    }
+
+    /* ==========================================================================
+       BOUCLE DE SIMULATION NATIONALE
+       ========================================================================== */
+    function simulationTick() {
+      if (GameState.speed === 0) return;
+
+      GameState.day += GameState.speed;
+      if (GameState.day > 30) {
+        GameState.day = 1;
+        GameState.month++;
+        if (GameState.month > 12) {
+          GameState.month = 1;
+          GameState.year++;
+        }
+
+        let monthlyTax = 0;
+        let monthlyUpkeep = 0;
+        let totalCap = 0;
+        let totalProd = 0;
+        let totalDemand = 0;
+        let totalHospitalBeds = 0;
+
+        PLACED_BUILDINGS.forEach(b => {
+          const item = findCatalogItem(b.type);
+          if (item) {
+            if (item.capacity) totalCap += item.capacity * b.level;
+            if (item.energy > 0) totalProd += item.energy * b.level;
+            if (item.energy < 0) totalDemand += Math.abs(item.energy) * b.level;
+            if (item.healthBonus) totalHospitalBeds += item.capacity * b.level;
+
+            const clean = (item.maintenance?.cleaning || 5) * b.level;
+            const upkeep = (item.maintenance?.upkeep || 10) * b.level;
+            const staff = (item.maintenance?.staff || 8) * b.level;
+            monthlyUpkeep += (clean + upkeep + staff);
+          }
+        });
+
+        monthlyTax = Math.round(GameState.totalPop * (GameState.taxIncome / 100) * 1.8 + 2500 * (GameState.taxCorp / 100));
+        const netCashflow = monthlyTax - monthlyUpkeep;
+        GameState.money += netCashflow;
+
+        GameState.totalPop = Math.max(500, Math.min(GameState.totalPop + (totalCap > GameState.totalPop ? 35 : -15), totalCap + 2000));
+        GameState.energyProd = totalProd;
+        GameState.energyDemand = totalDemand + Math.round(GameState.totalPop * 0.005);
+        GameState.hospitalBeds = totalHospitalBeds;
+
+        if (GameState.energyDemand > GameState.energyProd) {
+          GameState.isBlackout = true;
+          document.getElementById("blackout-banner").style.display = "flex";
+        } else {
+          GameState.isBlackout = false;
+          document.getElementById("blackout-banner").style.display = "none";
+        }
+
+        if (GameState.totalPop > GameState.hospitalBeds * 1.4) {
+          GameState.isEpidemic = true;
+          GameState.healthIndex = Math.max(45, GameState.healthIndex - 4);
+          document.getElementById("epidemic-banner").style.display = "flex";
+        } else {
+          GameState.isEpidemic = false;
+          GameState.healthIndex = Math.min(100, GameState.healthIndex + 2);
+          document.getElementById("epidemic-banner").style.display = "none";
+        }
+
+        updateHud();
+      }
+
+      document.getElementById("date-display").textContent = `An ${GameState.year} · M ${GameState.month} · J ${GameState.day}`;
+    }
+
+    function updateHud() {
+      document.getElementById("stat-money").textContent = `$${GameState.money.toLocaleString()}`;
+      document.getElementById("stat-pop").textContent = GameState.totalPop.toLocaleString();
+      document.getElementById("stat-energy").textContent = `${GameState.energyDemand} / ${GameState.energyProd} MW`;
+      document.getElementById("stat-health").textContent = `${GameState.healthIndex}%`;
+      document.getElementById("stat-edu").textContent = `${GameState.eduIndex}%`;
+    }
+
+    function showToast(msg, type = "info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = `toast-msg toast-${type}`;
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    /* ==========================================================================
+       DESSIN CANVAS 2.5D HAUTE FIDÉLITÉ
+       ========================================================================== */
+    function render(time) {
+      camera.update();
+      const ctx = camera.ctx;
+      const w = camera.displayWidth;
+      const h = camera.displayHeight;
+
+      ctx.clearRect(0, 0, w, h);
+      ctx.save();
+
+      ctx.translate(w / 2, h / 2);
+      ctx.scale(camera.scale, camera.scale);
+      ctx.translate(-camera.x, -camera.y);
+
+      drawNaturalTerrain(ctx, time);
+      if (GameState.showGrid) drawCartographicGrid(ctx);
+      drawParcels(ctx);
+      drawRoadsAndHighways(ctx);
+      drawPowerGrid(ctx);
+      drawVehicles(ctx);
+      drawBuildings(ctx, time);
+      drawActiveToolPreview(ctx);
+
+      ctx.restore();
+      drawMinimap();
+
+      requestAnimationFrame(render);
+    }
+
+    function drawNaturalTerrain(ctx, time) {
+      ctx.fillStyle = "#091726";
+      ctx.fillRect(0, 0, WORLD_SIZE, WORLD_SIZE);
+
+      ctx.fillStyle = "#1b2e22";
+      ctx.beginPath();
+      ctx.moveTo(1000, 0);
+      ctx.lineTo(WORLD_SIZE, 0);
+      ctx.lineTo(WORLD_SIZE, WORLD_SIZE);
+      ctx.lineTo(2400, WORLD_SIZE);
+      ctx.bezierCurveTo(2000, 5000, 1400, 3200, 1000, 0);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = "#c29b62";
+      ctx.lineWidth = 42;
+      ctx.stroke();
+
+      const waveOffset = Math.sin(time * 0.002) * 8;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+      ctx.lineWidth = 14 + waveOffset;
+      ctx.stroke();
+
+      ctx.strokeStyle = "#0d5c75";
+      ctx.lineWidth = 90;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.beginPath();
+      ctx.moveTo(RIVER_POINTS[0].x, RIVER_POINTS[0].y);
+      for (let i = 1; i < RIVER_POINTS.length; i++) {
+        ctx.lineTo(RIVER_POINTS[i].x, RIVER_POINTS[i].y);
+      }
+      ctx.stroke();
+
+      ctx.strokeStyle = "#0ea5e9";
+      ctx.lineWidth = 60;
+      ctx.stroke();
+    }
+
+    function drawCartographicGrid(ctx) {
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+      ctx.lineWidth = 1;
+      const step = 80;
+      const startX = Math.floor((camera.x - (camera.displayWidth / 2) / camera.scale) / step) * step;
+      const endX = Math.ceil((camera.x + (camera.displayWidth / 2) / camera.scale) / step) * step;
+      const startY = Math.floor((camera.y - (camera.displayHeight / 2) / camera.scale) / step) * step;
+      const endY = Math.ceil((camera.y + (camera.displayHeight / 2) / camera.scale) / step) * step;
+
+      ctx.beginPath();
+      for (let x = startX; x <= endX; x += step) {
+        ctx.moveTo(x, startY);
+        ctx.lineTo(x, endY);
+      }
+      for (let y = startY; y <= endY; y += step) {
+        ctx.moveTo(startX, y);
+        ctx.lineTo(endX, y);
+      }
+      ctx.stroke();
+    }
+
+    function drawParcels(ctx) {
+      PLACED_PARCELS.forEach(p => {
+        ctx.fillStyle = "rgba(56, 189, 248, 0.08)";
+        ctx.strokeStyle = "rgba(56, 189, 248, 0.35)";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([8, 6]);
+        ctx.fillRect(p.x, p.y, p.w, p.h);
+        ctx.strokeRect(p.x, p.y, p.w, p.h);
+        ctx.setLineDash([]);
+      });
+    }
+
+    function drawRoadsAndHighways(ctx) {
+      ROAD_SEGMENTS.forEach(seg => {
+        const nA = ROAD_NODES.find(n => n.id === seg.from);
+        const nB = ROAD_NODES.find(n => n.id === seg.to);
+        if (!nA || !nB) return;
+
+        const isHwy = seg.type === "highway";
+        const roadW = isHwy ? 52 : 32;
+
+        ctx.strokeStyle = isHwy ? "#1e293b" : "#334155";
+        ctx.lineWidth = roadW;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.beginPath();
+        ctx.moveTo(nA.x, nA.y);
+        ctx.lineTo(nB.x, nB.y);
+        ctx.stroke();
+
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = isHwy ? 2.5 : 1.5;
+        ctx.setLineDash(isHwy ? [12, 10] : [8, 8]);
+        ctx.beginPath();
+        ctx.moveTo(nA.x, nA.y);
+        ctx.lineTo(nB.x, nB.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        if (isHwy) {
+          ctx.strokeStyle = "#475569";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(nA.x, nA.y);
+          ctx.lineTo(nB.x, nB.y);
+          ctx.stroke();
+        }
+      });
+
+      ROAD_NODES.forEach(n => {
+        ctx.fillStyle = "#334155";
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, 16, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function drawPowerGrid(ctx) {
+      POWER_CABLES.forEach(c => {
+        const pA = PYLON_NODES.find(p => p.id === c.from);
+        const pB = PYLON_NODES.find(p => p.id === c.to);
+        if (!pA || !pB) return;
+
+        const midX = (pA.x + pB.x) / 2;
+        const midY = (pA.y + pB.y) / 2 + 18;
+
+        ctx.strokeStyle = "#0284c7";
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(pA.x, pA.y - 38);
+        ctx.quadraticCurveTo(midX, midY - 20, pB.x, pB.y - 38);
+        ctx.stroke();
+      });
+
+      PYLON_NODES.forEach(p => {
+        ctx.strokeStyle = "#94a3b8";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(p.x - 8, p.y);
+        ctx.lineTo(p.x, p.y - 42);
+        ctx.lineTo(p.x + 8, p.y);
+        ctx.moveTo(p.x - 14, p.y - 32);
+        ctx.lineTo(p.x + 14, p.y - 32);
+        ctx.moveTo(p.x - 10, p.y - 20);
+        ctx.lineTo(p.x + 10, p.y - 20);
+        ctx.stroke();
+
+        ctx.fillStyle = "#f59e0b";
+        ctx.beginPath();
+        ctx.arc(p.x - 14, p.y - 32, 2.5, 0, Math.PI * 2);
+        ctx.arc(p.x + 14, p.y - 32, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function drawVehicles(ctx) {
+      VEHICLES.forEach(v => {
+        const seg = ROAD_SEGMENTS.find(s => s.id === v.segId);
+        if (!seg) return;
+        const nA = ROAD_NODES.find(n => n.id === seg.from);
+        const nB = ROAD_NODES.find(n => n.id === seg.to);
+        if (!nA || !nB) return;
+
+        v.progress += v.speed * v.dir * GameState.speed;
+        if (v.progress > 1) { v.progress = 1; v.dir = -1; }
+        if (v.progress < 0) { v.progress = 0; v.dir = 1; }
+
+        const vx = nA.x + (nB.x - nA.x) * v.progress;
+        const vy = nA.y + (nB.y - nA.y) * v.progress;
+        const angle = Math.atan2(nB.y - nA.y, nB.x - nA.x) + (v.dir < 0 ? Math.PI : 0);
+
+        ctx.save();
+        ctx.translate(vx, vy);
+        ctx.rotate(angle);
+
+        ctx.fillStyle = "rgba(254, 240, 138, 0.35)";
+        ctx.beginPath();
+        ctx.moveTo(6, -3);
+        ctx.lineTo(24, -8);
+        ctx.lineTo(24, 8);
+        ctx.lineTo(6, 3);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = v.color;
+        if (v.type === "bus") {
+          ctx.fillRect(-12, -5, 24, 10);
+        } else {
+          ctx.fillRect(-7, -4, 14, 8);
+        }
+
+        ctx.restore();
+      });
+    }
+
+    function drawBuildings(ctx, time) {
+      const sorted = [...PLACED_BUILDINGS].sort((a, b) => a.y - b.y);
+
+      sorted.forEach(b => {
+        const x = b.x, y = b.y;
+
+        ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+        ctx.beginPath();
+        ctx.ellipse(x + 10, y + 10, 36, 18, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        switch (b.type) {
+          case "house":
+            drawHouseBuilding(ctx, x, y);
+            break;
+          case "villa":
+            drawVillaBuilding(ctx, x, y);
+            break;
+          case "apartment":
+            drawApartmentBuilding(ctx, x, y, b.level);
+            break;
+          case "tower":
+            drawSkyscraperBuilding(ctx, x, y, time);
+            break;
+          case "cityhall":
+            drawCityHallBuilding(ctx, x, y, time);
+            break;
+          case "hospital":
+            drawHospitalBuilding(ctx, x, y);
+            break;
+          case "mall":
+            drawMallBuilding(ctx, x, y);
+            break;
+          case "factory":
+            drawFactoryBuilding(ctx, x, y, time);
+            break;
+          case "wind":
+            drawWindTurbine(ctx, x, y, time);
+            break;
+          case "powerplant":
+            drawPowerPlant(ctx, x, y, time);
+            break;
+          default:
+            drawGenericBuilding(ctx, x, y);
+        }
+
+        if (GameState.selectedBuilding && GameState.selectedBuilding.id === b.id) {
+          ctx.strokeStyle = "#38bdf8";
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(x, y, 46, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      });
+    }
+
+    function drawHouseBuilding(ctx, x, y) {
+      ctx.fillStyle = "#166534";
+      ctx.fillRect(x - 28, y - 22, 56, 44);
+      ctx.fillStyle = "#f8fafc";
+      ctx.fillRect(x - 20, y - 28, 40, 32);
+      ctx.fillStyle = "#b91c1c";
+      ctx.beginPath();
+      ctx.moveTo(x - 24, y - 28);
+      ctx.lineTo(x, y - 50);
+      ctx.lineTo(x + 24, y - 28);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawVillaBuilding(ctx, x, y) {
+      ctx.fillStyle = "#14532d";
+      ctx.fillRect(x - 36, y - 28, 72, 56);
+      ctx.fillStyle = "#0284c7";
+      ctx.fillRect(x + 10, y - 16, 20, 32);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(x - 30, y - 36, 36, 40);
+      ctx.fillStyle = "#38bdf8";
+      ctx.fillRect(x - 26, y - 20, 28, 12);
+    }
+
+    function drawApartmentBuilding(ctx, x, y, level) {
+      const h = 75 + level * 10;
+      ctx.fillStyle = "#d4c5b9";
+      ctx.fillRect(x - 34, y - h, 68, h);
+      ctx.fillStyle = "#475569";
+      ctx.fillRect(x - 32, y - h - 18, 64, 18);
+      ctx.fillStyle = "#0f172a";
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          ctx.fillRect(x - 26 + c * 14, y - h + 10 + r * 16, 8, 9);
+        }
+      }
+    }
+
+    function drawSkyscraperBuilding(ctx, x, y, time) {
+      const h = 145;
+      const grad = ctx.createLinearGradient(x, y - h, x, y);
+      grad.addColorStop(0, "#38bdf8");
+      grad.addColorStop(1, "#0f172a");
+      ctx.fillStyle = grad;
+      ctx.fillRect(x - 28, y - h, 56, h);
+
+      ctx.fillStyle = "rgba(254, 240, 138, 0.7)";
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 3; c++) {
+          ctx.fillRect(x - 20 + c * 15, y - h + 10 + r * 14, 8, 7);
+        }
+      }
+
+      const blink = Math.sin(time * 0.006) > 0;
+      ctx.fillStyle = blink ? "#ef4444" : "#7f1d1d";
+      ctx.beginPath();
+      ctx.arc(x, y - h - 12, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawCityHallBuilding(ctx, x, y, time) {
+      ctx.fillStyle = "#f1f5f9";
+      ctx.fillRect(x - 42, y - 55, 84, 55);
+      ctx.fillStyle = "#cbd5e1";
+      for (let c = 0; c < 6; c++) {
+        ctx.fillRect(x - 36 + c * 13, y - 48, 6, 48);
+      }
+      ctx.fillStyle = "#0d9488";
+      ctx.beginPath();
+      ctx.arc(x, y - 55, 20, Math.PI, 0);
+      ctx.fill();
+      const wave = Math.sin(time * 0.005) * 3;
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x, y - 75);
+      ctx.lineTo(x, y - 96);
+      ctx.stroke();
+      ctx.fillStyle = GameState.color;
+      ctx.beginPath();
+      ctx.moveTo(x, y - 96);
+      ctx.lineTo(x + 16, y - 93 + wave);
+      ctx.lineTo(x + 16, y - 83 + wave);
+      ctx.lineTo(x, y - 86);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawHospitalBuilding(ctx, x, y) {
+      ctx.fillStyle = "#f8fafc";
+      ctx.fillRect(x - 44, y - 50, 88, 50);
+      ctx.fillStyle = "#334155";
+      ctx.beginPath();
+      ctx.arc(x, y - 50, 16, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#ef4444";
+      ctx.font = "bold 14px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("H", x, y - 50);
+      ctx.fillStyle = "#ef4444";
+      ctx.fillRect(x - 14, y - 28, 28, 6);
+      ctx.fillRect(x - 3, y - 39, 6, 28);
+    }
+
+    function drawMallBuilding(ctx, x, y) {
+      ctx.fillStyle = "#475569";
+      ctx.fillRect(x - 45, y - 36, 90, 42);
+      ctx.fillStyle = "#38bdf8";
+      ctx.fillRect(x - 35, y - 30, 70, 16);
+    }
+
+    function drawFactoryBuilding(ctx, x, y, time) {
+      ctx.fillStyle = "#334155";
+      ctx.fillRect(x - 42, y - 40, 84, 44);
+      ctx.fillStyle = "#94a3b8";
+      ctx.fillRect(x - 28, y - 68, 12, 28);
+      ctx.fillRect(x + 16, y - 68, 12, 28);
+      const puff1 = (time * 0.04) % 35;
+      const puff2 = ((time + 800) * 0.04) % 35;
+      ctx.fillStyle = "rgba(226, 232, 240, 0.45)";
+      ctx.beginPath();
+      ctx.arc(x - 22, y - 68 - puff1, 6 + puff1 * 0.3, 0, Math.PI * 2);
+      ctx.arc(x + 22, y - 68 - puff2, 6 + puff2 * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawWindTurbine(ctx, x, y, time) {
+      ctx.strokeStyle = "#e2e8f0";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, y - 75);
+      ctx.stroke();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(x, y - 75, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      const angle = time * 0.003;
+      ctx.lineWidth = 2.5;
+      for (let i = 0; i < 3; i++) {
+        const a = angle + i * (Math.PI * 2 / 3);
+        ctx.beginPath();
+        ctx.moveTo(x, y - 75);
+        ctx.lineTo(x + Math.cos(a) * 34, y - 75 + Math.sin(a) * 34);
+        ctx.stroke();
+      }
+    }
+
+    function drawPowerPlant(ctx, x, y, time) {
+      ctx.fillStyle = "#1e293b";
+      ctx.fillRect(x - 48, y - 48, 96, 52);
+      ctx.fillStyle = "#64748b";
+      ctx.beginPath();
+      ctx.arc(x - 16, y - 48, 22, Math.PI, 0);
+      ctx.fill();
+    }
+
+    function drawGenericBuilding(ctx, x, y) {
+      ctx.fillStyle = "#64748b";
+      ctx.fillRect(x - 30, y - 35, 60, 40);
+    }
+
+    function drawActiveToolPreview(ctx) {
+      if (!GameState.activeTool) return;
+      if (GameState.roadStartNode) {
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = 3;
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        ctx.arc(GameState.roadStartNode.x, GameState.roadStartNode.y, 20, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+
+    /* ==========================================================================
+       RADAR MINIMAP NATIONAL
+       ========================================================================== */
+    const minimapCanvas = document.getElementById("minimap-canvas");
+    const mctx = minimapCanvas.getContext("2d");
+
+    function drawMinimap() {
+      minimapCanvas.width = 150;
+      minimapCanvas.height = 110;
+
+      mctx.fillStyle = "#091726";
+      mctx.fillRect(0, 0, 150, 110);
+
+      const sx = 150 / WORLD_SIZE;
+      const sy = 110 / WORLD_SIZE;
+
+      mctx.strokeStyle = "#0ea5e9";
+      mctx.lineWidth = 2;
+      mctx.beginPath();
+      mctx.moveTo(RIVER_POINTS[0].x * sx, RIVER_POINTS[0].y * sy);
+      for (let i = 1; i < RIVER_POINTS.length; i++) {
+        mctx.lineTo(RIVER_POINTS[i].x * sx, RIVER_POINTS[i].y * sy);
+      }
+      mctx.stroke();
+
+      mctx.strokeStyle = "#64748b";
+      mctx.lineWidth = 1.5;
+      ROAD_SEGMENTS.forEach(seg => {
+        const nA = ROAD_NODES.find(n => n.id === seg.from);
+        const nB = ROAD_NODES.find(n => n.id === seg.to);
+        if (nA && nB) {
+          mctx.beginPath();
+          mctx.moveTo(nA.x * sx, nA.y * sy);
+          mctx.lineTo(nB.x * sx, nB.y * sy);
+          mctx.stroke();
+        }
+      });
+
+      mctx.fillStyle = "#f59e0b";
+      PLACED_BUILDINGS.forEach(b => {
+        mctx.fillRect(b.x * sx - 1.5, b.y * sy - 1.5, 3, 3);
+      });
+
+      const halfW = (camera.displayWidth / 2) / camera.scale;
+      const halfH = (camera.displayHeight / 2) / camera.scale;
+      mctx.strokeStyle = "#ffffff";
+      mctx.lineWidth = 1.2;
+      mctx.strokeRect((camera.x - halfW) * sx, (camera.y - halfH) * sy, halfW * 2 * sx, halfH * 2 * sy);
+    }
+
+    /* ==========================================================================
+       DÉMARRAGE INITIAL
+       ========================================================================== */
+    function init() {
+      renderBuildingTray("housing");
+      updateHud();
+      setInterval(simulationTick, 1000);
+      requestAnimationFrame(render);
+      showToast("Imperium prêt : Optimisé PC & iPhone !", "success");
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
